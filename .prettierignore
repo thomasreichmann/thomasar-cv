@@ -6,3 +6,6 @@ build
 out
 coverage
 pnpm-lock.yaml
+
+# Drizzle-generated migration artifacts (rewritten by db:generate)
+packages/*/drizzle/
