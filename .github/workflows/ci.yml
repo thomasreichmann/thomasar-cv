@@ -33,3 +33,61 @@ jobs:
 
       - name: Typecheck, lint, test
         run: pnpm turbo run typecheck lint test
+
+  e2e:
+    name: e2e (playwright)
+    runs-on: ubuntu-latest
+    # Auth e2e needs a real Postgres to read/write the user + session tables.
+    # A throwaway service container (migrated fresh each run) keeps the suite
+    # self-contained: no Supabase creds in CI and no test users in the shared
+    # database. The secret only signs cookies for the ephemeral run.
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
+      BETTER_AUTH_SECRET: ci-e2e-secret-not-used-outside-this-run-0123456789
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Get Playwright version
+        id: playwright-version
+        run: echo "version=$(pnpm --filter web exec playwright --version | awk '{print $2}')" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
+
+      - name: Install Playwright Chromium
+        run: pnpm --filter web exec playwright install --with-deps chromium
+
+      - name: Apply database migrations
+        run: pnpm --filter @thomasar-cv/db db:migrate
+
+      - name: Run e2e tests
+        run: pnpm --filter web test:e2e

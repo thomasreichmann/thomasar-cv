@@ -24,6 +24,19 @@ describe("appRouter", () => {
     expect(result.status).toBe("ok");
     expect(result.time).toBeInstanceOf(Date);
   });
+
+  it("me returns null without a session", async () => {
+    const caller = createCallerFactory(appRouter)(ctx());
+    expect(await caller.me()).toBeNull();
+  });
+
+  it("me returns the user when a session is present", async () => {
+    const session = {
+      user: { id: "u_1", email: "a@b.test" },
+    } as Parameters<typeof buildContext>[0]["session"];
+    const caller = createCallerFactory(appRouter)(ctx(session));
+    expect(await caller.me()).toMatchObject({ id: "u_1" });
+  });
 });
 
 describe("context", () => {

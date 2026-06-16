@@ -5,6 +5,9 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["**/*.{test,spec}.{ts,tsx}"],
+    // Playwright specs also end in `.spec.ts`; they belong to `playwright test`,
+    // not vitest, and importing @playwright/test under vitest would throw.
+    exclude: ["**/node_modules/**", "**/dist/**", "e2e/**"],
     setupFiles: ["./vitest.setup.ts"],
   },
   resolve: {

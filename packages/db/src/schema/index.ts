@@ -1,11 +1,9 @@
-import { pgSchema, serial, text, timestamp } from "drizzle-orm/pg-core";
+import { serial, text, timestamp } from "drizzle-orm/pg-core";
 
-/**
- * Everything lives under a dedicated `resume` schema. The underlying Supabase
- * project is shared with `nexus` (free-project cap), so we never touch `public`
- * and never reference nexus tables - the schema stays self-contained and portable.
- */
-export const resumeSchema = pgSchema("resume");
+import { resumeSchema } from "./resume-schema";
+
+export { resumeSchema };
+export * from "./auth";
 
 /**
  * Trivial table that exists only to prove the migration pipeline end to end.

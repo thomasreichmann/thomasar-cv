@@ -9,6 +9,9 @@ export const appRouter = createTRPCRouter({
     status: "ok" as const,
     time: new Date(),
   })),
+
+  /** Current signed-in user, or null. Reads the session off the tRPC context. */
+  me: publicProcedure.query(({ ctx }) => ctx.session?.user ?? null),
 });
 
 /** Router type consumed by the typed client. Export type only, never values. */

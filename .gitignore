@@ -16,6 +16,8 @@ playwright-report/
 test-results/
 blob-report/
 .playwright/
+# Saved Playwright auth state (contains live session cookies)
+**/e2e/.auth/
 
 # Environment
 .env
