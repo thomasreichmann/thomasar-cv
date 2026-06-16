@@ -113,6 +113,8 @@ mutation { removeBlockedBy(input: { issueId: "BLOCKED_ID", blockingIssueId: "BLO
 
 ### Check Relationships
 
+Sub-issues use `parent` / `subIssues`. Blocking uses `blockedBy` / `blocking` (not `issueDependencies` or `blockedByIssues`, which don't exist on `Issue`).
+
 ```bash
 gh api graphql -f query='
 query {
@@ -121,6 +123,8 @@ query {
       title
       parent { number title }
       subIssues(first: 20) { nodes { number title state } }
+      blockedBy(first: 20) { nodes { number title state } }
+      blocking(first: 20) { nodes { number title state } }
     }
   }
 }'
