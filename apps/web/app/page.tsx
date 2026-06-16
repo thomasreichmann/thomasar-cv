@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { HealthCheck } from "./_components/health-check";
 
 export default function Home() {
@@ -8,6 +10,12 @@ export default function Home() {
         A résumé maintained as structured data. Foundation scaffolding is in
         place; the editor and renderer come next.
       </p>
+      <Link
+        href="/sign-in"
+        className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-800"
+      >
+        Sign in
+      </Link>
       <HealthCheck />
     </main>
   );
