@@ -27,6 +27,9 @@ blob-report/
 # Vercel
 .vercel/
 
+# Reference CV (private for now; remove this line to publish)
+/reference/*.pdf
+
 # Logs
 *.log
 npm-debug.log*

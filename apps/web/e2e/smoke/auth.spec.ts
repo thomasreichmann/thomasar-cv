@@ -13,7 +13,9 @@ test.describe("auth (signed out)", () => {
     await expect(page.getByRole("button", { name: /sign in/i })).toBeVisible();
   });
 
-  test("the dashboard redirects to sign-in when signed out", async ({ page }) => {
+  test("the dashboard redirects to sign-in when signed out", async ({
+    page,
+  }) => {
     await page.goto("/dashboard");
     await expect(page).toHaveURL(/\/sign-in/);
   });
