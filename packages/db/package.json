@@ -5,7 +5,8 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./schema": "./src/schema/index.ts"
+    "./schema": "./src/schema/index.ts",
+    "./testing": "./src/testing/pglite.ts"
   },
   "scripts": {
     "db:generate": "drizzle-kit generate",
@@ -21,6 +22,7 @@
     "zod": "4.4.3"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "0.5.3",
     "@thomasar-cv/eslint-config": "workspace:*",
     "@thomasar-cv/tsconfig": "workspace:*",
     "@types/node": "25.9.3",
