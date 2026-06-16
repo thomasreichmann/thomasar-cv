@@ -12,22 +12,38 @@ ai_summary: 'How to create, link, and manage GitHub issues for thomasar-cv via t
 
 Conventions for turning work into GitHub issues, linking them, and managing them with the `gh` CLI. Repo: `thomasreichmann/thomasar-cv`.
 
+## Issue style
+
+write issues like a dev jotting a note, not a formal spec.
+
+- **title**: lowercase, imperative, specific. no prefix or emoji.
+- **description**: one line, what's being done. nothing the other sections already say.
+- **acceptance criteria**: specific deliverables only. never "it builds / works / passes", that's assumed for every issue. each item is a concrete artifact or outcome, not an implementation step.
+- **out of scope**: only boundaries a reader would assume are in. drop the section when there are none.
+- **voice**: plain dev shorthand. no flourish, no padding, no redundancy across sections.
+- **no em / en dashes**, ever. use a comma, parens, or " - ". `scripts/gh-issue.sh` strips them as a backstop, but write clean anyway.
+- **labels**: one area + one type + one status + one priority.
+
+issue #1 is the canonical example; match it.
+
 ## Creating Issues
 
-1. **Get explicit approval** — draft content, present to the user first.
-2. **Check duplicates** — `gh issue list --search "keyword"`.
+1. **Get explicit approval** - draft content, present to the user first.
+2. **Check duplicates** - `gh issue list --search "keyword"`.
 3. **One issue per coherent unit of work.**
 
+Create and edit issues with `scripts/gh-issue.sh`, a thin wrapper over `gh issue` that strips em / en dashes from the title and body. Don't call `gh issue create|edit` directly.
+
 ```bash
-gh issue create --title "Brief title" --label "area,type,status,priority: x" --body "$(cat <<'EOF'
+scripts/gh-issue.sh create --title "brief title" --label "area,type,status,priority: x" --body "$(cat <<'EOF'
 ## Description
-What and why.
+what and why.
 
 ## Acceptance Criteria
-- [ ] Criterion
+- [ ] criterion
 
 ## Out of Scope
-- Not covered
+- not covered
 EOF
 )"
 ```

@@ -12,12 +12,12 @@ thomasar-cv is a personal tool for maintaining a résumé as **structured data**
 ## Decisions
 
 - **Auth:** email + password only (no OAuth / magic-link in v1).
-- **PDF generation:** to be decided during implementation — constraint: faithful to preview + real text layer.
+- **PDF generation:** to be decided during implementation - constraint: faithful to preview + real text layer.
 - **Output target:** single-page A4 by default.
 
 ## Required Reading
 
-- **Before creating GitHub issues:** `docs/ai/github-workflow.md` — issue format, labels, and relationships (sub-issues / blocking) via the `gh` CLI.
+- **Before creating GitHub issues:** `docs/ai/github-workflow.md` - issue format, labels, and relationships (sub-issues / blocking) via the `gh` CLI.
 
 ## Git & Workflow
 
@@ -25,3 +25,4 @@ thomasar-cv is a personal tool for maintaining a résumé as **structured data**
 - All non-trivial work should have a GitHub Issue before starting.
 - PRs reference issues: `Closes #42`, or `No-Issue: <reason>` for trivial changes.
 - Every issue carries exactly one status label (`needs-details` / `ready`) and a `priority:` label.
+- Create / edit issues via `scripts/gh-issue.sh` (wrapper over `gh issue` that strips em dashes), not raw `gh issue`.

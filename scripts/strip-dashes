@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# replace em / en / figure / horizontal-bar / minus dashes (with any surrounding
+# spaces) with a plain " - ". em dashes read as ai-generated slop, so this strips
+# them deterministically before content reaches an issue or a doc, regardless of
+# what a draft happened to contain. reads stdin, writes stdout.
+exec perl -CSD -pe 's/\h*[\x{2012}\x{2013}\x{2014}\x{2015}\x{2212}]\h*/ - /g'
