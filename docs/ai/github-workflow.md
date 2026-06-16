@@ -50,18 +50,18 @@ EOF
 
 ### Labels
 
-| Area           | Type          | Status        | Priority             |
-| -------------- | ------------- | ------------- | -------------------- |
+| Area           | Type          | Status          | Priority             |
+| -------------- | ------------- | --------------- | -------------------- |
 | `frontend`     | `feature`     | `needs-details` | `priority: critical` |
-| `backend`      | `bug`         | `ready`       | `priority: high`     |
-| `infra`        | `chore`       | `blocked`     | `priority: medium`   |
-| `docs`         | `refactor`    | `in-progress` | `priority: low`      |
-| `architecture` | `enhancement` | `needs-triage` |                      |
+| `backend`      | `bug`         | `ready`         | `priority: high`     |
+| `infra`        | `chore`       | `in-progress`   | `priority: medium`   |
+| `docs`         | `refactor`    | `needs-triage`  | `priority: low`      |
+| `architecture` | `enhancement` |                 |                      |
 
 - Every issue MUST have exactly one status label (`needs-details` or `ready`).
 - Give each issue a `priority:` label for backlog ordering.
 - Use `architecture` for foundational work other issues depend on.
-- `blocked` marks an issue waiting on a dependency (pair it with a blocking relationship below).
+- There is no `blocked` label. Blocking is a relationship (see below), GitHub surfaces it in the UI, and a label would only drift out of sync.
 
 ### Prerequisites Checklist
 
@@ -109,7 +109,7 @@ gh api graphql -f query='
 mutation { removeBlockedBy(input: { issueId: "BLOCKED_ID", blockingIssueId: "BLOCKING_ID" }) { issue { number } } }'
 ```
 
-`addBlockedBy` is called on the **blocked** issue, naming the issue that blocks it.
+`addBlockedBy` is called on the **blocked** issue, naming the issue that blocks it. Don't add a label for this; the relationship is the source of truth and shows in the UI.
 
 ### Check Relationships
 
