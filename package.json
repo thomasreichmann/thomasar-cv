@@ -1,0 +1,30 @@
+{
+  "name": "thomasar-cv",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "pnpm@10.26.2",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "format": "prettier --write \"**/*.{ts,tsx,js,mjs,json,css}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,mjs,json,css}\""
+  },
+  "devDependencies": {
+    "prettier": "3.8.4",
+    "turbo": "2.9.18",
+    "typescript": "6.0.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@tailwindcss/oxide",
+      "esbuild",
+      "sharp",
+      "unrs-resolver"
+    ]
+  }
+}
