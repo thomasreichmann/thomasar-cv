@@ -1,4 +1,5 @@
 import { createTRPCRouter, publicProcedure } from "../init";
+import { resumeRouter } from "./resume";
 
 export const appRouter = createTRPCRouter({
   /**
@@ -12,6 +13,9 @@ export const appRouter = createTRPCRouter({
 
   /** Current signed-in user, or null. Reads the session off the tRPC context. */
   me: publicProcedure.query(({ ctx }) => ctx.session?.user ?? null),
+
+  /** Résumé reads, scoped to the signed-in user. */
+  resume: resumeRouter,
 });
 
 /** Router type consumed by the typed client. Export type only, never values. */
