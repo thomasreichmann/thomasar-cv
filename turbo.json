@@ -1,6 +1,11 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "ui": "tui",
+  // Turbo 2.x runs tasks in strict env mode: vars not listed here are stripped
+  // from task processes, so the eager db singleton's DATABASE_URL (and future
+  // secrets) would be missing under `turbo run build`/`test` even when set.
+  // Pass everything through, mirroring nexus.
+  "globalPassThroughEnv": ["*"],
   "tasks": {
     "dev": {
       "cache": false,

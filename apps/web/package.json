@@ -12,9 +12,16 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@tanstack/react-query": "5.101.0",
+    "@trpc/client": "11.17.0",
+    "@trpc/server": "11.17.0",
+    "@trpc/tanstack-react-query": "11.17.0",
+    "@thomasar-cv/db": "workspace:*",
     "next": "16.2.9",
     "react": "19.2.7",
-    "react-dom": "19.2.7"
+    "react-dom": "19.2.7",
+    "superjson": "2.2.6",
+    "zod": "4.4.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "4.3.1",
