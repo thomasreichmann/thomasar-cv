@@ -23,6 +23,9 @@ importers:
       '@tanstack/react-query':
         specifier: 5.101.0
         version: 5.101.0(react@19.2.7)
+      '@thomasar-cv/db':
+        specifier: workspace:*
+        version: link:../../packages/db
       '@trpc/client':
         specifier: 11.17.0
         version: 11.17.0(@trpc/server@11.17.0(typescript@6.0.3))(typescript@6.0.3)
@@ -44,6 +47,9 @@ importers:
       superjson:
         specifier: 2.2.6
         version: 2.2.6
+      zod:
+        specifier: 4.4.3
+        version: 4.4.3
     devDependencies:
       '@tailwindcss/postcss':
         specifier: 4.3.1

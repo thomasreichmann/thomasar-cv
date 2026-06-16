@@ -1,5 +1,8 @@
 import { initTRPC, TRPCError } from "@trpc/server";
+import type { Connection } from "@thomasar-cv/db";
 import superjson from "superjson";
+
+import { getDb } from "@/server/db";
 
 /**
  * Placeholder session shape. BetterAuth (issue #5) replaces this with the real
@@ -9,16 +12,28 @@ import superjson from "superjson";
 type Session = { user: { id: string } };
 
 /**
- * Per-request context. Built once per incoming request (the fetch handler) or
- * per server-side caller. `session` is the single place auth will hook into:
- * once it lands, read the session here and every `protectedProcedure` is
- * enforced without touching the procedures themselves.
+ * Pure context builder: assembles ctx from its inputs. Kept separate from
+ * `createTRPCContext` so tests can build an equivalent ctx with a stub db and
+ * no session, without the request-scoped wiring. New ctx fields added here flow
+ * into both production and test callers.
  */
-export async function createTRPCContext(opts: { headers: Headers }) {
-  return {
-    session: null as Session | null,
-    headers: opts.headers,
-  };
+export function buildContext(deps: {
+  db: Connection;
+  session: Session | null;
+}) {
+  return { ...deps };
+}
+
+/**
+ * Per-request context for the fetch handler and RSC. `session` is the single
+ * place auth hooks in: once #5 lands, derive it here and every
+ * `protectedProcedure` is enforced without touching the procedures themselves.
+ */
+export async function createTRPCContext() {
+  // BetterAuth (#5) replaces this with:
+  //   const session = await auth.api.getSession({ headers: await headers() });
+  const session: Session | null = null;
+  return buildContext({ db: getDb(), session });
 }
 
 export type Context = Awaited<ReturnType<typeof createTRPCContext>>;
