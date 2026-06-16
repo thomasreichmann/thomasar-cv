@@ -12,6 +12,10 @@ jobs:
   check:
     name: typecheck + lint + test
     runs-on: ubuntu-latest
+    # The eager db singleton reads DATABASE_URL at import. Tests never connect,
+    # so a non-secret placeholder is enough; real creds live in Vercel.
+    env:
+      DATABASE_URL: postgresql://placeholder:placeholder@127.0.0.1:5432/placeholder
     steps:
       - uses: actions/checkout@v6
 

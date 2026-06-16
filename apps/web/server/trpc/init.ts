@@ -2,7 +2,7 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import type { Connection } from "@thomasar-cv/db";
 import superjson from "superjson";
 
-import { getDb } from "@/server/db";
+import { db } from "@/server/db";
 
 /**
  * Placeholder session shape. BetterAuth (issue #5) replaces this with the real
@@ -33,7 +33,7 @@ export async function createTRPCContext() {
   // BetterAuth (#5) replaces this with:
   //   const session = await auth.api.getSession({ headers: await headers() });
   const session: Session | null = null;
-  return buildContext({ db: getDb(), session });
+  return buildContext({ db, session });
 }
 
 export type Context = Awaited<ReturnType<typeof createTRPCContext>>;
