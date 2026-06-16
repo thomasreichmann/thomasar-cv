@@ -14,6 +14,7 @@ thomasar-cv is a personal tool for maintaining a résumé as **structured data**
 - **Auth:** email + password only (no OAuth / magic-link in v1).
 - **PDF generation:** to be decided during implementation - constraint: faithful to preview + real text layer.
 - **Output target:** single-page A4 by default.
+- **Persistence:** résumé content is one validated JSONB document on a thin `resume` table (keeps git-like versioning cheap). See `docs/decisions/0001-resume-persistence.md`.
 
 ## Required Reading
 

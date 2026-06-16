@@ -4,6 +4,9 @@ import { resumeSchema } from "./resume-schema";
 
 export { resumeSchema };
 export * from "./auth";
+export * from "./resume";
+export * from "./resume-content";
+export { exampleResume } from "../fixtures/example-resume";
 
 /**
  * Trivial table that exists only to prove the migration pipeline end to end.
