@@ -9,8 +9,8 @@ direction, not commitment. the sequence and scope below will shift as we learn (
 
 ## arc
 
-- **v0.1 foundation** - deployed app, email + password auth, résumé schema persisted with per-user isolation. (current; see milestone `v0.1`)
-- **v0.2 rendering + pdf** - render a seeded résumé to a faithful single-page a4 with a real, selectable text layer in single-column order. no editor yet. proves the core premise end to end and settles the pdf-engine decision.
+- **v0.1 foundation** (done) - deployed app, email + password auth, résumé schema persisted with per-user isolation. ownership is enforced in app code through a single owned-resumes boundary (no postgres rls; that stays deferred to v1.0), and the content document already carries the i18n seam and a `schemaVersion`, so nothing structural is left for later milestones to retrofit.
+- **v0.2 rendering + pdf** (current) - settle the pdf-engine decision first (faithful preview + real text layer), then render the seeded résumé to a faithful single-page a4 with a selectable text layer in single-column order. no editor yet; this proves the core premise before anything is built on top. see milestone `v0.2`.
 - **v0.3 editor + api** - résumé crud, content editing per section type, reorder + show/hide, live preview reusing the v0.2 engine.
 - **v0.4 polish + interop** - theme controls (density, spacing, scale, accent), json resume import/export.
 - **v0.5 versioning ux** - labeled snapshots, named variants, compare two versions, restore.
