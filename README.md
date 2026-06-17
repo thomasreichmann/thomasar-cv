@@ -1,25 +1,92 @@
 # thomasar-cv
 
-A small, personal tool for maintaining a résumé as **structured data** rather than a hand-formatted document - producing a clean, single-page output that reads well to recruiters and parses correctly in applicant tracking systems (ATS).
+A small, personal tool for maintaining a résumé as structured data instead of a hand-formatted document, and rendering it to a single-page A4 that parses correctly in applicant tracking systems (ATS). It keeps multiple tailored variants of one résumé under version control.
 
-It replaces a brittle word-processor workflow and keeps multiple tailored versions of one résumé under version control.
+> Status: v0.1 shipped - a deployed app with email + password auth and the résumé schema persisted with per-user isolation. No editor or rendered output yet; that comes next (v0.2: rendering + PDF). See the [roadmap](./docs/planning/roadmap.md) for direction and [idea-and-requirements.md](./idea-and-requirements.md) for scope and non-goals.
 
-> Status: early planning. See **[idea-and-requirements.md](./idea-and-requirements.md)** for the full scope, guiding principles, and non-goals.
+## Stack (as built)
 
-## Guiding principles
+- Next.js 16 (App Router, React 19) on Vercel
+- tRPC v11 for the API (server + client, superjson transformer)
+- Drizzle ORM on Supabase Postgres, over the postgres-js driver
+- BetterAuth for email + password auth, via its Drizzle adapter
+- Zod for validation (the résumé content document and server env)
+- Tailwind v4 for styling
+- pnpm workspaces + Turborepo, TypeScript throughout
+- Vitest for unit tests (real in-process Postgres via pglite) and Playwright for e2e
 
-- **Content is separate from presentation** - what the résumé says is data; how it looks is an independent concern.
-- **Structure is data, not a side-effect** - section and item order are explicit, manipulable properties.
-- **One rendering definition, two outputs** - the on-screen preview and the exported PDF derive from the same rendering logic.
-- **ATS-clean by construction** - exports have a real, parseable text layer in single-column reading order.
-- **Minimalism is the feature** - deliberately omits the bloat common to résumé builders.
+## Running locally
 
-## Planned stack
+Prerequisites: Node 24 (see `.nvmrc`) and pnpm 10 (`corepack enable` sets it up).
 
-Next.js 16 · tRPC v11 · Drizzle ORM on Supabase (Postgres) · BetterAuth · Tailwind · Vercel - in a pnpm + Turborepo monorepo, tested with Vitest + Playwright.
+1. Install dependencies:
+   ```bash
+   pnpm install
+   ```
+2. Set up env vars (a Supabase Postgres connection and an auth secret):
+   ```bash
+   cp apps/web/.env.example apps/web/.env.local
+   cp packages/db/.env.example packages/db/.env
+   ```
+   Both need the same `DATABASE_URL` (the Supabase transaction pooler URL, port 6543). `apps/web/.env.local` also needs `BETTER_AUTH_SECRET` (any 32+ char random string, e.g. `openssl rand -base64 32`).
+3. Apply migrations:
+   ```bash
+   pnpm --filter @thomasar-cv/db db:migrate
+   ```
+4. Start the dev server (Next.js on http://localhost:3000):
+   ```bash
+   pnpm dev
+   ```
 
-## Decisions so far
+## Testing
 
-- **Auth:** email + password (via BetterAuth).
-- **PDF generation:** to be decided during implementation - any approach satisfying "faithful to preview + real text layer" is acceptable.
-- **Output target:** single-page A4 by default.
+- Unit: `pnpm test`. The DB package runs SQL-correctness and ownership tests against real in-process Postgres (pglite) via `@thomasar-cv/db/testing`, so queries are exercised for real, not mocked.
+- E2e: `pnpm --filter web test:e2e` (Playwright auth + dashboard smoke).
+- CI runs typecheck, lint, and unit tests on every PR, plus a Playwright job against a throwaway Postgres container.
+
+## Scripts
+
+Run from the repo root; Turborepo fans them out across the workspaces.
+
+| Command          | What it does          |
+| ---------------- | --------------------- |
+| `pnpm dev`       | start all dev servers |
+| `pnpm build`     | build every package   |
+| `pnpm lint`      | run ESLint            |
+| `pnpm typecheck` | run `tsc --noEmit`    |
+| `pnpm test`      | run unit tests        |
+| `pnpm format`    | format with Prettier  |
+
+## Project layout
+
+```
+apps/
+  web/                 Next.js app: tRPC server + client, BetterAuth, auth pages, dashboard, e2e
+packages/
+  db/                  Drizzle schema (auth + resume), the résumé content Zod schema,
+                       connection factory, migrations, seed fixture, pglite test harness
+  eslint-config/       shared ESLint config
+  tsconfig/            shared TypeScript config
+docs/
+  planning/roadmap.md  milestone arc
+  decisions/           architecture decision records (ADRs)
+  ai/                  conventions for AI agents (e.g. the GitHub issue workflow)
+```
+
+The résumé is one validated JSONB document on a thin `resume` table, not a tree of normalized rows, so a history snapshot or tailored variant is just a copy of one document. See [docs/decisions/0001-resume-persistence.md](./docs/decisions/0001-resume-persistence.md). The content shape lives in `packages/db/src/schema/resume-content.ts` (Zod); every write goes through it since Postgres treats the column as opaque.
+
+Ownership is enforced in app code: a single `ownedResumes` boundary scopes every read and write by `user_id`, so no caller can reach another user's data. We connect through the Supabase pooler as a service role (no Postgres RLS yet; deferred to v1.0), which is why that helper is the only access path routers may use.
+
+## Design principles
+
+Treating a résumé as data, not layout, drives the design:
+
+- Content is separate from presentation: what it says is data, how it looks is rendering config.
+- Structure is data: section and item order are explicit array positions, so reordering is reversible.
+- One rendering definition, two outputs: the preview and the exported PDF derive from the same logic.
+- ATS-safe by construction: exports carry a real, parseable text layer in single-column reading order.
+- Deliberately small: it leaves out the feature pile-up common to résumé builders.
+
+## Conventions
+
+Commits follow Conventional Commits (`feat: add login form (#42)`). Non-trivial work gets a GitHub issue first; issues and milestones follow [docs/ai/github-workflow.md](./docs/ai/github-workflow.md), and project decisions are recorded as ADRs under `docs/decisions/`.
