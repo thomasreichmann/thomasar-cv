@@ -1,0 +1,12 @@
+{
+  "extends": "@thomasar-cv/tsconfig/base.json",
+  "compilerOptions": {
+    // The render definition is a react-pdf component tree, so this package
+    // compiles JSX. `@types/react` references DOM lib types globally even
+    // though react-pdf renders to PDF (not the DOM), so DOM stays in `lib`.
+    "jsx": "react-jsx",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"]
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "vitest.config.ts"],
+  "exclude": ["node_modules", "dist"]
+}
