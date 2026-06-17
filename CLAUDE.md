@@ -16,6 +16,10 @@ thomasar-cv is a personal tool for maintaining a résumé as **structured data**
 - **Output target:** single-page A4 by default.
 - **Persistence:** résumé content is one validated JSONB document on a thin `resume` table (keeps git-like versioning cheap). See `docs/decisions/0001-resume-persistence.md`.
 
+## Commands
+
+**REQUIRED before committing:** `pnpm check` (runs typecheck + lint + test via Turborepo, condensed to a scannable summary; `pnpm check:verbose` for full output). It mirrors CI, so a green check means a green PR.
+
 ## Required Reading
 
 - **Before creating GitHub issues:** `docs/ai/github-workflow.md` - issue format, labels, and relationships (sub-issues / blocking) via the `gh` CLI.
