@@ -33,7 +33,7 @@ Prerequisites: Node 24 (see `.nvmrc`) and pnpm 10 (`corepack enable` sets it up)
    pnpm env:pull       # writes apps/web/.env.local (Next auto-loads it)
    ```
 
-   No Vercel access? Copy the example and fill it in by hand instead; `apps/web/.env.example` documents each value:
+   Without Vercel access, copy the example and fill it in by hand instead; `apps/web/.env.example` documents each value:
 
    ```bash
    cp apps/web/.env.example apps/web/.env.local
