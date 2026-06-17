@@ -18,7 +18,7 @@ thomasar-cv is a personal tool for maintaining a résumé as **structured data**
 
 ## Commands
 
-**REQUIRED before committing:** `pnpm check` (runs typecheck + lint + test via Turborepo, condensed to a scannable summary; `pnpm check:verbose` for full output). It mirrors CI, so a green check means a green PR.
+**REQUIRED before committing:** `pnpm check` (runs typecheck + lint + build + test via Turborepo, condensed to a scannable summary; `pnpm check:verbose` for full output). It mirrors CI, so a green check means a green PR.
 
 ## Required Reading
 

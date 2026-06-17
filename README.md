@@ -60,24 +60,24 @@ Prerequisites: Node 24 (see `.nvmrc`) and pnpm 10 (`corepack enable` sets it up)
 
 - Unit: `pnpm test`. The DB package runs SQL-correctness and ownership tests against real in-process Postgres (pglite) via `@thomasar-cv/db/testing`, so queries are exercised for real, not mocked.
 - E2e: `pnpm --filter web test:e2e` (Playwright auth + dashboard smoke).
-- CI runs typecheck, lint, and unit tests on every PR, plus a Playwright job against a throwaway Postgres container.
+- CI runs typecheck, lint, build, and unit tests on every PR, plus a Playwright job against a throwaway Postgres container.
 
 ## Scripts
 
 Run from the repo root; Turborepo fans them out across the workspaces.
 
-| Command          | What it does                                         |
-| ---------------- | ---------------------------------------------------- |
-| `pnpm check`     | typecheck + lint + test, condensed to a summary line |
-| `pnpm dev`       | start all dev servers                                |
-| `pnpm build`     | build every package                                  |
-| `pnpm lint`      | run ESLint                                           |
-| `pnpm typecheck` | run `tsc --noEmit`                                   |
-| `pnpm test`      | run unit tests                                       |
-| `pnpm format`    | format with Prettier                                 |
-| `pnpm env:pull`  | pull `apps/web/.env.local` from Vercel               |
+| Command          | What it does                                                 |
+| ---------------- | ------------------------------------------------------------ |
+| `pnpm check`     | typecheck + lint + build + test, condensed to a summary line |
+| `pnpm dev`       | start all dev servers                                        |
+| `pnpm build`     | build every package                                          |
+| `pnpm lint`      | run ESLint                                                   |
+| `pnpm typecheck` | run `tsc --noEmit`                                           |
+| `pnpm test`      | run unit tests                                               |
+| `pnpm format`    | format with Prettier                                         |
+| `pnpm env:pull`  | pull `apps/web/.env.local` from Vercel                       |
 
-`pnpm check` is the pre-commit gate. It runs the same `typecheck lint test` that CI runs, but collapses a passing run to one summary line and, on failure, strips turbo and runner noise down to the actionable errors, so a green check means a green PR and the output stays short enough to scan in a terminal or an LLM context window. Pass `--verbose` (or run `pnpm check:verbose`) for the raw turbo output.
+`pnpm check` is the pre-commit gate. It runs the same `typecheck lint build test` that CI runs, but collapses a passing run to one summary line and, on failure, strips turbo and runner noise down to the actionable errors, so a green check means a green PR and the output stays short enough to scan in a terminal or an LLM context window. Pass `--verbose` (or run `pnpm check:verbose`) for the raw turbo output. Including `build` means the check also exercises the `/preview` server render and the RSC graph, which the other tasks do not; it stays cheap because Turborepo caches an unchanged web app, and it runs against placeholder env so no `.env.local` is required.
 
 ## Project layout
 

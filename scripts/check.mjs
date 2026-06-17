@@ -1,17 +1,27 @@
 #!/usr/bin/env node
 /**
- * `turbo run typecheck lint test` dumps a wall of output on a clean cached run.
- * This wrapper condenses passing runs to a single summary line so `pnpm check`
- * stays scannable in terminals and LLM context windows. On failure, noise is
- * stripped to surface only actionable error output. Pass --verbose for the
+ * `turbo run typecheck lint build test` dumps a wall of output on a clean cached
+ * run. This wrapper condenses passing runs to a single summary line so `pnpm
+ * check` stays scannable in terminals and LLM context windows. On failure, noise
+ * is stripped to surface only actionable error output. Pass --verbose for the
  * full turbo output. The task list mirrors CI, so a green check means a green PR.
  */
 import { spawn } from "node:child_process";
 
+// `next build` evaluates the app graph, so the lazy env Proxy validates
+// DATABASE_URL (must parse as a URL) and Better Auth wants a secret. No page
+// queries the DB at build time, so non-secret placeholders keep `check`
+// hermetic without apps/web/.env.local, mirroring the CI placeholders. Real
+// values (a present .env.local or exported vars) win via ??=.
+process.env.DATABASE_URL ??=
+  "postgresql://placeholder:placeholder@127.0.0.1:5432/placeholder";
+process.env.BETTER_AUTH_SECRET ??=
+  "check-local-secret-not-used-outside-this-run-0123456789";
+
 const args = process.argv.slice(2);
 const verbose = args.includes("--verbose");
 const turboExtra = args.filter((a) => a !== "--verbose");
-const turboArgs = ["run", "typecheck", "lint", "test", ...turboExtra];
+const turboArgs = ["run", "typecheck", "lint", "build", "test", ...turboExtra];
 
 if (verbose) {
   const proc = spawn("turbo", turboArgs, { stdio: "inherit" });
@@ -147,6 +157,17 @@ function isNoise(trimmed) {
   if (/^✓\s/.test(trimmed)) return true;
   // Decorative separators (vitest ⎯ lines)
   if (trimmed.includes("⎯⎯⎯⎯")) return true;
+  // next build progress chrome (the real error lines are not matched here)
+  if (/^▲ Next\.js/.test(trimmed)) return true;
+  if (/^- Environments:/.test(trimmed)) return true;
+  if (/^Creating an optimized production build/.test(trimmed)) return true;
+  if (/^Compiled successfully/.test(trimmed)) return true;
+  if (/^(Running|Finished) TypeScript/.test(trimmed)) return true;
+  if (/^Collecting page data/.test(trimmed)) return true;
+  if (/^Generating static pages/.test(trimmed)) return true;
+  if (/^Finalizing page optimization/.test(trimmed)) return true;
+  // Better Auth dev notices (missing baseURL/secret) - warnings, not errors
+  if (/\[better-auth\]/.test(trimmed)) return true;
 
   return false;
 }

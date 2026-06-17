@@ -10,12 +10,15 @@ concurrency:
 
 jobs:
   check:
-    name: typecheck + lint + test
+    name: typecheck + lint + build + test
     runs-on: ubuntu-latest
-    # The eager db singleton reads DATABASE_URL at import. Tests never connect,
-    # so a non-secret placeholder is enough; real creds live in Vercel.
+    # The lazy env Proxy validates DATABASE_URL (must parse as a URL) and
+    # `next build` prerenders /preview through the app graph. Nothing connects to
+    # the DB or resolves a session at build time, so non-secret placeholders are
+    # enough (the secret just quiets Better Auth); real creds live in Vercel.
     env:
       DATABASE_URL: postgresql://placeholder:placeholder@127.0.0.1:5432/placeholder
+      BETTER_AUTH_SECRET: ci-check-secret-not-used-outside-this-run-0123456789
     steps:
       - uses: actions/checkout@v6
 
@@ -31,8 +34,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Typecheck, lint, test
-        run: pnpm turbo run typecheck lint test
+      - name: Typecheck, lint, build, test
+        run: pnpm turbo run typecheck lint build test
 
   e2e:
     name: e2e (playwright)
