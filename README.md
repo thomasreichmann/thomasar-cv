@@ -23,12 +23,30 @@ Prerequisites: Node 24 (see `.nvmrc`) and pnpm 10 (`corepack enable` sets it up)
    ```bash
    pnpm install
    ```
-2. Set up env vars (a Supabase Postgres connection and an auth secret):
+2. Set up env vars (a Supabase Postgres connection and an auth secret).
+
+   The web app's server env already lives on Vercel, so fetch it instead of writing it by hand. The db singleton reads `DATABASE_URL` at import and `next build` evaluates the app graph, so both dev and build need `apps/web/.env.local` present:
+
+   ```bash
+   vercel login        # once
+   vercel link         # once, link this checkout to the Vercel project
+   pnpm env:pull       # writes apps/web/.env.local (Next auto-loads it)
+   ```
+
+   No Vercel access? Copy the example and fill it in by hand instead; `apps/web/.env.example` documents each value:
+
    ```bash
    cp apps/web/.env.example apps/web/.env.local
+   ```
+
+   The db package reads its own env for migrations (Next only loads env from the app dir), so copy that one regardless:
+
+   ```bash
    cp packages/db/.env.example packages/db/.env
    ```
-   Both need the same `DATABASE_URL` (the Supabase transaction pooler URL, port 6543). `apps/web/.env.local` also needs `BETTER_AUTH_SECRET` (any 32+ char random string, e.g. `openssl rand -base64 32`).
+
+   Both files need the same `DATABASE_URL` (the Supabase transaction pooler URL, port 6543). `apps/web/.env.local` also needs `BETTER_AUTH_SECRET` (any 32+ char random string, e.g. `openssl rand -base64 32`).
+
 3. Apply migrations:
    ```bash
    pnpm --filter @thomasar-cv/db db:migrate
@@ -48,14 +66,15 @@ Prerequisites: Node 24 (see `.nvmrc`) and pnpm 10 (`corepack enable` sets it up)
 
 Run from the repo root; Turborepo fans them out across the workspaces.
 
-| Command          | What it does          |
-| ---------------- | --------------------- |
-| `pnpm dev`       | start all dev servers |
-| `pnpm build`     | build every package   |
-| `pnpm lint`      | run ESLint            |
-| `pnpm typecheck` | run `tsc --noEmit`    |
-| `pnpm test`      | run unit tests        |
-| `pnpm format`    | format with Prettier  |
+| Command          | What it does                           |
+| ---------------- | -------------------------------------- |
+| `pnpm dev`       | start all dev servers                  |
+| `pnpm build`     | build every package                    |
+| `pnpm lint`      | run ESLint                             |
+| `pnpm typecheck` | run `tsc --noEmit`                     |
+| `pnpm test`      | run unit tests                         |
+| `pnpm format`    | format with Prettier                   |
+| `pnpm env:pull`  | pull `apps/web/.env.local` from Vercel |
 
 ## Project layout
 

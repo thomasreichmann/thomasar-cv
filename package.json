@@ -13,7 +13,8 @@
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "format": "prettier --write \"**/*.{ts,tsx,js,mjs,json,css}\"",
-    "format:check": "prettier --check \"**/*.{ts,tsx,js,mjs,json,css}\""
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,mjs,json,css}\"",
+    "env:pull": "vercel env pull apps/web/.env.local"
   },
   "devDependencies": {
     "prettier": "3.8.4",
