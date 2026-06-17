@@ -1,0 +1,20 @@
+{
+  "name": "pdf-engine-spike",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Throwaway proof for issue #17: export the example résumé to PDF via two engines and verify the text layer extracts in single-column reading order. Safe to delete once the ADR is accepted.",
+  "scripts": {
+    "proof": "tsx src/run.ts"
+  },
+  "dependencies": {
+    "@react-pdf/renderer": "4.5.1",
+    "@thomasar-cv/db": "workspace:*",
+    "react": "19.2.7"
+  },
+  "devDependencies": {
+    "pdfjs-dist": "6.0.227",
+    "playwright": "1.61.0",
+    "tsx": "4.20.6"
+  }
+}
