@@ -40,6 +40,14 @@ export default function Home() {
         </span>
       </Link>
 
+      <Link
+        href="/preview"
+        className="animate-rise mt-4 text-sm text-muted underline-offset-4 transition-colors hover:text-foreground hover:underline"
+        style={{ animationDelay: "210ms" }}
+      >
+        View résumé preview
+      </Link>
+
       <div
         className="animate-rise mt-12"
         style={{ animationDelay: "240ms" }}
