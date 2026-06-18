@@ -18,15 +18,27 @@ export default async function DashboardPage() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-6 px-6 py-16">
+    <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-8 px-6 py-16">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
-        <p className="mt-1 text-sm text-neutral-500">
-          Signed in as {session.user.email}
+        <p className="font-mono text-[0.7rem] uppercase tracking-[0.32em] text-faint">
+          Dashboard
         </p>
+        <h1 className="mt-2 font-serif text-3xl font-semibold tracking-tight">
+          Your account
+        </h1>
       </div>
-      <div>
-        <SignOutButton />
+      <div className="flex flex-col gap-5 rounded-2xl border border-border bg-surface/60 p-6">
+        <div>
+          <p className="text-xs font-medium uppercase tracking-wide text-faint">
+            Signed in as
+          </p>
+          <p className="mt-1 font-mono text-sm text-foreground">
+            {session.user.email}
+          </p>
+        </div>
+        <div className="border-t border-border pt-5">
+          <SignOutButton />
+        </div>
       </div>
     </main>
   );

@@ -39,7 +39,7 @@ export function SignUpForm() {
       {error && (
         <p
           role="alert"
-          className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700"
+          className="rounded-lg border border-danger/20 bg-danger-surface px-3 py-2 text-sm text-danger"
         >
           {error}
         </p>
@@ -57,7 +57,7 @@ export function SignUpForm() {
           disabled={isLoading}
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-neutral-900"
+          className="w-full rounded-lg border border-border bg-surface-raised px-3 py-2 text-sm text-foreground outline-none transition-colors placeholder:text-faint focus:border-accent disabled:opacity-60"
         />
       </div>
       <div className="space-y-1.5">
@@ -73,7 +73,7 @@ export function SignUpForm() {
           disabled={isLoading}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-neutral-900"
+          className="w-full rounded-lg border border-border bg-surface-raised px-3 py-2 text-sm text-foreground outline-none transition-colors placeholder:text-faint focus:border-accent disabled:opacity-60"
         />
       </div>
       <div className="space-y-1.5">
@@ -90,13 +90,13 @@ export function SignUpForm() {
           disabled={isLoading}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-neutral-900"
+          className="w-full rounded-lg border border-border bg-surface-raised px-3 py-2 text-sm text-foreground outline-none transition-colors placeholder:text-faint focus:border-accent disabled:opacity-60"
         />
       </div>
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-800 disabled:opacity-60"
+        className="w-full rounded-lg bg-paper px-4 py-2.5 text-sm font-semibold text-paper-foreground transition-opacity hover:opacity-90 disabled:opacity-60"
       >
         {isLoading ? "Creating account..." : "Create account"}
       </button>
