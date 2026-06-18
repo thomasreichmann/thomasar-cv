@@ -9,8 +9,9 @@ import { expect, test } from "../../fixtures/authenticated";
 test("a signed-in user reaches the protected dashboard", async ({ page }) => {
   await page.goto("/dashboard");
 
-  await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
   await expect(
-    page.getByText(`Signed in as ${REGULAR_USER.email}`),
+    page.getByRole("heading", { name: "Your account" }),
   ).toBeVisible();
+  await expect(page.getByText("Signed in as")).toBeVisible();
+  await expect(page.getByText(REGULAR_USER.email)).toBeVisible();
 });
