@@ -12,6 +12,6 @@ describe("renderResumeToBuffer", () => {
   });
 
   // The deep ATS check (extract the text layer, assert single-column reading
-  // order) is issue #20; here we only prove the render definition produces a
-  // PDF at all.
+  // order) lives in `ats.test.ts`; here we only prove the render definition
+  // produces a PDF at all.
 });
