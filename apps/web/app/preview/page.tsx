@@ -18,14 +18,23 @@ export default async function PreviewPage() {
   const base64 = pdf.toString("base64");
 
   return (
-    <main className="min-h-screen bg-neutral-100 px-4 py-10">
-      <div className="mx-auto max-w-3xl">
-        <header className="mb-6">
-          <h1 className="text-xl font-semibold tracking-tight text-neutral-900">
+    <main className="relative min-h-screen overflow-hidden px-4 py-14">
+      <div
+        aria-hidden
+        className="glow left-1/2 top-28 size-[680px] -translate-x-1/2"
+      />
+
+      <div className="relative mx-auto max-w-3xl">
+        <header className="mb-8">
+          <p className="font-mono text-[0.7rem] uppercase tracking-[0.32em] text-faint">
+            Single-page A4
+          </p>
+          <h1 className="mt-2 font-serif text-2xl font-semibold tracking-tight">
             Résumé preview
           </h1>
-          <p className="mt-1 text-sm text-neutral-500">
-            Single-page A4, rendered from the seeded example résumé.
+          <p className="mt-1.5 text-sm text-muted">
+            Rendered from the seeded example résumé - the same bytes the export
+            ships.
           </p>
         </header>
         <div className="flex justify-center">
