@@ -88,7 +88,7 @@ export function PdfPreview({ base64 }: { base64: string }) {
   }, [base64]);
 
   return (
-    <div className="animate-rise bg-white shadow-2xl shadow-black/60 ring-1 ring-black/10">
+    <div className="bg-white shadow-2xl shadow-black/60 ring-1 ring-black/10">
       <canvas
         ref={canvasRef}
         className={status === "ready" ? "block" : "hidden"}

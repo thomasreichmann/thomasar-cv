@@ -1,6 +1,8 @@
 import { exampleResume } from "@thomasar-cv/db/schema";
 import { renderResumeToBuffer } from "@thomasar-cv/render";
 
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/cn";
 import { PdfPreview } from "./pdf-preview";
 
 /**
@@ -18,30 +20,25 @@ export default async function PreviewPage() {
   const base64 = pdf.toString("base64");
 
   return (
-    <main className="relative min-h-screen overflow-hidden px-4 py-14">
-      <div
-        aria-hidden
-        className="glow left-1/2 top-28 size-[680px] -translate-x-1/2"
-      />
-
-      <div className="relative mx-auto max-w-3xl">
+    <main className="min-h-screen px-4 py-14">
+      <div className="mx-auto max-w-3xl">
         <header className="mb-8 flex items-end justify-between gap-4">
           <div>
-            <p className="font-mono text-[0.7rem] uppercase tracking-[0.32em] text-faint">
+            <p className="font-mono text-[0.7rem] uppercase tracking-[0.32em] text-muted-foreground">
               Single-page A4
             </p>
-            <h1 className="mt-2 font-serif text-2xl font-semibold tracking-tight">
+            <h1 className="mt-2 text-2xl font-semibold tracking-tight">
               Résumé preview
             </h1>
-            <p className="mt-1.5 text-sm text-muted">
-              Rendered from the seeded example résumé - the same bytes the export
-              ships.
+            <p className="mt-1.5 text-sm text-muted-foreground">
+              Rendered from the seeded example résumé - the same bytes the
+              export ships.
             </p>
           </div>
           <a
             href="/preview/pdf"
             download
-            className="shrink-0 rounded-lg bg-paper px-4 py-2.5 text-sm font-semibold text-paper-foreground transition-opacity hover:opacity-90"
+            className={cn(buttonVariants(), "shrink-0")}
           >
             Download PDF
           </a>

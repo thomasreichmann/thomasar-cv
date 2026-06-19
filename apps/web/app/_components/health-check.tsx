@@ -14,13 +14,13 @@ export function HealthCheck() {
   const health = useQuery(trpc.health.queryOptions());
 
   const { dotClass, label } = health.isPending
-    ? { dotClass: "bg-faint animate-pulse", label: "checking" }
+    ? { dotClass: "bg-muted-foreground animate-pulse", label: "checking" }
     : health.isError
-      ? { dotClass: "bg-danger", label: "unreachable" }
-      : { dotClass: "bg-accent", label: health.data.status };
+      ? { dotClass: "bg-destructive", label: "unreachable" }
+      : { dotClass: "bg-primary", label: health.data.status };
 
   return (
-    <p className="inline-flex items-center gap-2 rounded-full border border-border bg-surface/50 px-3 py-1 font-mono text-[0.7rem] text-muted">
+    <p className="inline-flex items-center gap-2 rounded-full border bg-card/50 px-3 py-1 font-mono text-[0.7rem] text-muted-foreground">
       <span className={`size-1.5 rounded-full ${dotClass}`} aria-hidden />
       api {label}
     </p>

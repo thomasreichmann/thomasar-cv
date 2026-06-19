@@ -3,6 +3,9 @@
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { signIn } from "@/lib/auth/client";
 
 /**
@@ -38,16 +41,14 @@ export function SignInForm() {
       {error && (
         <p
           role="alert"
-          className="rounded-lg border border-danger/20 bg-danger-surface px-3 py-2 text-sm text-danger"
+          className="rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive"
         >
           {error}
         </p>
       )}
       <div className="space-y-1.5">
-        <label htmlFor="email" className="block text-sm font-medium">
-          Email
-        </label>
-        <input
+        <Label htmlFor="email">Email</Label>
+        <Input
           id="email"
           name="email"
           type="email"
@@ -56,14 +57,11 @@ export function SignInForm() {
           disabled={isLoading}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full rounded-lg border border-border bg-surface-raised px-3 py-2 text-sm text-foreground outline-none transition-colors placeholder:text-faint focus:border-accent disabled:opacity-60"
         />
       </div>
       <div className="space-y-1.5">
-        <label htmlFor="password" className="block text-sm font-medium">
-          Password
-        </label>
-        <input
+        <Label htmlFor="password">Password</Label>
+        <Input
           id="password"
           name="password"
           type="password"
@@ -72,16 +70,11 @@ export function SignInForm() {
           disabled={isLoading}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full rounded-lg border border-border bg-surface-raised px-3 py-2 text-sm text-foreground outline-none transition-colors placeholder:text-faint focus:border-accent disabled:opacity-60"
         />
       </div>
-      <button
-        type="submit"
-        disabled={isLoading}
-        className="w-full rounded-lg bg-paper px-4 py-2.5 text-sm font-semibold text-paper-foreground transition-opacity hover:opacity-90 disabled:opacity-60"
-      >
+      <Button type="submit" disabled={isLoading} className="w-full">
         {isLoading ? "Signing in..." : "Sign in"}
-      </button>
+      </Button>
     </form>
   );
 }
