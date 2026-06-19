@@ -23,6 +23,7 @@ thomasar-cv is a personal tool for maintaining a résumé as **structured data**
 ## Required Reading
 
 - **Before creating GitHub issues:** `docs/ai/github-workflow.md` - issue format, labels, and relationships (sub-issues / blocking) via the `gh` CLI.
+- **Before adding or restyling UI components:** `docs/ai/ui-components.md` - the shadcn-on-Base-UI workflow, the `base-vega` style, and the dark-only rules.
 
 ## Git & Workflow
 

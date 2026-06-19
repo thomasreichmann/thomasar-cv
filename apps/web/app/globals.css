@@ -1,122 +1,98 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
 /*
- * Dark-only app chrome (issue #25). Every chrome token lives here, once - there
- * is no light variant, no `dark:` usage, and no system-preference handling
- * anywhere in the app. The concept is a gallery wall: the chrome is a warm
- * graphite surround that lights the white résumé paper like a print under a
- * spotlight.
+ * Dark-only app chrome (ADR 0003, issue #25). The app is permanently dark:
+ * there is no next-themes, no theme toggle, and no light variant. shadcn /
+ * Base UI components ship `dark:` utilities for their dark appearance; the
+ * custom variant below makes those utilities always match, so components
+ * resolve to their dark values once against the semantic tokens defined here.
+ *
+ * Tokens are the default shadcn dark theme (neutral base), not a bespoke
+ * palette - a deliberate visual identity is a later, separate decision (#34),
+ * applied as a token swap without touching component code.
  *
  * The résumé paper and exported PDF are deliberately NOT themed from these
- * tokens. A résumé is a printed, ATS-parsed document, so it stays white (see
- * `bg-white` in preview/pdf-preview.tsx and @thomasar-cv/render). Dark applies
- * to the wall, not the paper.
+ * chrome tokens. A résumé is a printed, ATS-parsed document, so it stays light
+ * (see preview/pdf-preview.tsx `bg-white` and @thomasar-cv/render). Dark is the
+ * chrome, not the paper.
  */
+@custom-variant dark (&);
 
 @theme inline {
-  /* next/font sets these on <html> (see app/layout.tsx). */
-  --font-sans: var(--font-hanken);
-  --font-serif: var(--font-fraunces);
-  --font-mono: var(--font-jetbrains);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
 }
 
-@theme {
-  /* The wall: warm near-blacks the white paper hangs on. */
-  --color-canvas: #0c0b0a;
-  --color-surface: #141311;
-  --color-surface-raised: #1c1a16;
+:root {
+  --radius: 0.625rem;
 
-  /* Parchment-tinted ink, so type never reads pure-white-harsh on warm dark. */
-  --color-foreground: #f4f1ea;
-  --color-muted: #a39c90;
-  --color-faint: #6e685f;
-
-  /* Hairlines as light-at-low-alpha, so they read as edges, not drawn lines. */
-  --color-border: rgba(244, 241, 234, 0.09);
-  --color-border-strong: rgba(244, 241, 234, 0.17);
-
-  /* The one sharp accent: brass, like gallery light catching an edge. */
-  --color-accent: #cba86a;
-  --color-accent-foreground: #1a1611;
-
-  /* Primary actions are the product itself: paper. */
-  --color-paper: #faf8f3;
-  --color-paper-foreground: #16140f;
-
-  /* Inline errors, tuned to read on the dark surfaces. */
-  --color-danger: #f3b7b3;
-  --color-danger-surface: rgba(220, 80, 70, 0.12);
-
-  /* One orchestrated page-load reveal beats scattered micro-interactions. */
-  --animate-rise: rise 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
-}
-
-@keyframes rise {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  /* shadcn default dark theme, neutral base. */
+  --background: oklch(0.141 0.005 285.823);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.21 0.006 285.885);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.21 0.006 285.885);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.92 0.004 286.32);
+  --primary-foreground: oklch(0.21 0.006 285.885);
+  --secondary: oklch(0.274 0.006 286.033);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.274 0.006 286.033);
+  --muted-foreground: oklch(0.705 0.015 286.067);
+  --accent: oklch(0.274 0.006 286.033);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.552 0.016 285.938);
 }
 
 @layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
   html {
     /* Native controls, scrollbars and form widgets render dark to match. */
     color-scheme: dark;
-    background-color: var(--color-canvas);
   }
 
   body {
-    font-family: var(--font-sans);
+    @apply bg-background text-foreground;
   }
 
-  /* Fine grain over the whole wall so large dark fields have texture, not
-     flatness. Sits behind all content (negative z), so the opaque white paper
-     and every surface cover it - the paper is never grained. */
-  body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    opacity: 0.05;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  }
-
-  ::selection {
-    background-color: var(--color-accent);
-    color: var(--color-accent-foreground);
-  }
-
-  /* One visible focus treatment for every interactive element. */
-  :focus-visible {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 2px;
-  }
-
-  /* Keep autofilled auth inputs dark instead of the browser's white/yellow. */
+  /* Keep autofilled inputs dark instead of the browser's white / yellow. */
   input:-webkit-autofill,
   input:-webkit-autofill:hover,
   input:-webkit-autofill:focus {
-    -webkit-text-fill-color: var(--color-foreground);
-    -webkit-box-shadow: 0 0 0 1000px var(--color-surface-raised) inset;
-    caret-color: var(--color-foreground);
-  }
-}
-
-@layer components {
-  /* A soft brass light. Position and size it with utilities; it paints a
-     spotlight glow behind heroes and the preview paper. */
-  .glow {
-    position: absolute;
-    pointer-events: none;
-    border-radius: 9999px;
-    background-color: var(--color-accent);
-    opacity: 0.14;
-    filter: blur(90px);
+    -webkit-text-fill-color: var(--foreground);
+    -webkit-box-shadow: 0 0 0 1000px var(--background) inset;
+    caret-color: var(--foreground);
   }
 }
 
