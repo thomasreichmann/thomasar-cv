@@ -70,8 +70,10 @@ reinstalled it. Nothing else in the set has this problem.
 - Follow the existing files: function declarations, the main export first,
   helpers below, `data-slot` attributes preserved.
 - Tokens, not raw colors. A component should reference `bg-card`, `text-primary`,
-  `border-input`, and so on, never a hex value. The palette is the default
-  shadcn dark theme today; a deliberate visual identity is a later, separate
-  decision (#34) applied as a token swap, so components must not hard-code colors.
+  `border-input`, and so on, never a hex value. The palette is the Oxide identity
+  ([ADR 0004](../decisions/0004-visual-identity.md)): warm-graphite chrome with a
+  burnt-rust accent, Bricolage Grotesque sans and Geist Mono labels. It is a swap
+  of the token values in `globals.css`, so components must not hard-code colors or
+  they will not follow it.
 - The résumé paper and exported PDF are not chrome. They stay light and are
   themed in `@thomasar-cv/render`, never from these tokens.

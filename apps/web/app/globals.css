@@ -8,9 +8,12 @@
  * custom variant below makes those utilities always match, so components
  * resolve to their dark values once against the semantic tokens defined here.
  *
- * Tokens are the default shadcn dark theme (neutral base), not a bespoke
- * palette - a deliberate visual identity is a later, separate decision (#34),
- * applied as a token swap without touching component code.
+ * Tokens are the Oxide identity (ADR 0004, issue #34): a warm-graphite chrome
+ * with a burnt-rust accent, paired with Bricolage Grotesque (sans) and Geist
+ * Mono (the eyebrow labels). It is a pure swap of the values below plus the
+ * fonts, no component changes, since components route through these tokens.
+ * Deliberately no background grain or glow: felt quality comes from motion,
+ * presentation, and loading / navigation, not decorative texture.
  *
  * The résumé paper and exported PDF are deliberately NOT themed from these
  * chrome tokens. A résumé is a printed, ATS-parsed document, so it stays light
@@ -39,7 +42,7 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-bricolage);
   --font-mono: var(--font-geist-mono);
 
   --radius-sm: calc(var(--radius) - 4px);
@@ -49,27 +52,29 @@
 }
 
 :root {
-  --radius: 0.625rem;
+  --radius: 0.5rem;
 
-  /* shadcn default dark theme, neutral base. */
-  --background: oklch(0.141 0.005 285.823);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.21 0.006 285.885);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.21 0.006 285.885);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.92 0.004 286.32);
-  --primary-foreground: oklch(0.21 0.006 285.885);
-  --secondary: oklch(0.274 0.006 286.033);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.274 0.006 286.033);
-  --muted-foreground: oklch(0.705 0.015 286.067);
-  --accent: oklch(0.274 0.006 286.033);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.552 0.016 285.938);
+  /* Oxide identity (ADR 0004): warm graphite (hue ~50) with a burnt-rust
+   * accent (hue 45). The primary is the rust; destructive stays a clearer,
+   * brighter red so danger reads distinct from the accent. */
+  --background: oklch(0.16 0.008 50);
+  --foreground: oklch(0.94 0.012 70);
+  --card: oklch(0.205 0.011 48);
+  --card-foreground: oklch(0.94 0.012 70);
+  --popover: oklch(0.205 0.011 48);
+  --popover-foreground: oklch(0.94 0.012 70);
+  --primary: oklch(0.6 0.15 45);
+  --primary-foreground: oklch(0.98 0.01 70);
+  --secondary: oklch(0.27 0.014 50);
+  --secondary-foreground: oklch(0.94 0.012 70);
+  --muted: oklch(0.27 0.014 50);
+  --muted-foreground: oklch(0.73 0.022 58);
+  --accent: oklch(0.32 0.045 45);
+  --accent-foreground: oklch(0.94 0.012 70);
+  --destructive: oklch(0.64 0.2 18);
+  --border: oklch(0.8 0.04 50 / 14%);
+  --input: oklch(0.8 0.04 50 / 18%);
+  --ring: oklch(0.6 0.15 45);
 }
 
 @layer base {
