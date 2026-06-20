@@ -202,3 +202,15 @@ export const resumeContent = z.object({
   sections: z.array(section).default([]),
 });
 export type ResumeContent = z.infer<typeof resumeContent>;
+
+/**
+ * The minimal valid document: schemaVersion 1, a blank header name, no sections.
+ * `resume.create` stamps this when the caller supplies no content, so a fresh
+ * résumé starts as a valid (if empty) document the editor fills in - never a null
+ * or half-formed `content`. Parsed at load, like `exampleResume`, so it can't
+ * drift from the schema (defaults like empty `contacts` / `sections` fill in here).
+ */
+export const emptyResume: ResumeContent = resumeContent.parse({
+  schemaVersion: 1,
+  header: { name: "" },
+});

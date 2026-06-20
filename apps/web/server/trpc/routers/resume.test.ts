@@ -1,4 +1,5 @@
 import type { Connection } from "@thomasar-cv/db";
+import { emptyResume, exampleResume } from "@thomasar-cv/db/schema";
 import {
   createTestDb,
   seedResume,
@@ -79,9 +80,106 @@ describe("resume router ownership", () => {
     expect(got.name).toBe("Mine");
   });
 
+  it("create stamps the caller as owner and defaults to the empty document", async () => {
+    // No content supplied, so the row should hold the minimal valid document -
+    // not null or a half-formed shape - owned by the caller, reachable only by them.
+    const created = await callerFor(db, USER_A).resume.create({ name: "Blank" });
+
+    expect(created.userId).toBe(USER_A);
+    expect(created.content).toEqual(emptyResume);
+    expect(await callerFor(db, USER_B).resume.list()).toHaveLength(0);
+  });
+
+  it("create persists a supplied content document", async () => {
+    const created = await callerFor(db, USER_A).resume.create({
+      name: "Filled",
+      content: exampleResume,
+    });
+
+    expect(created.content).toEqual(exampleResume);
+  });
+
+  it("create refuses a malformed content document before it reaches the column", async () => {
+    await expect(
+      callerFor(db, USER_A).resume.create({
+        name: "Bad",
+        // schemaVersion must be the literal 1; the input schema refuses the bad
+        // document, so a malformed write can never reach the jsonb column.
+        content: { schemaVersion: 2, header: { name: "x" } } as never,
+      }),
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+
+    expect(await callerFor(db, USER_A).resume.list()).toHaveLength(0);
+  });
+
+  it("the owner can update their own résumé's name and content", async () => {
+    const a = await seedResume(db, { userId: USER_A, name: "Old" });
+
+    const updated = await callerFor(db, USER_A).resume.update({
+      id: a.id,
+      name: "New",
+      content: exampleResume,
+    });
+
+    expect(updated.name).toBe("New");
+    expect(updated.content).toEqual(exampleResume);
+  });
+
+  it("update of another user's résumé surfaces NOT_FOUND and leaves it intact", async () => {
+    const a = await seedResume(db, { userId: USER_A, name: "Original" });
+
+    await expect(
+      callerFor(db, USER_B).resume.update({ id: a.id, name: "Hijacked" }),
+    ).rejects.toMatchObject({ code: "NOT_FOUND" });
+
+    const still = await callerFor(db, USER_A).resume.get({ id: a.id });
+    expect(still.name).toBe("Original");
+  });
+
+  it("update of a nonexistent id surfaces the same NOT_FOUND", async () => {
+    await expect(
+      callerFor(db, USER_A).resume.update({
+        id: crypto.randomUUID(),
+        name: "x",
+      }),
+    ).rejects.toMatchObject({ code: "NOT_FOUND" });
+  });
+
+  it("update that sets neither name nor content is refused", async () => {
+    const a = await seedResume(db, { userId: USER_A });
+
+    await expect(
+      callerFor(db, USER_A).resume.update({ id: a.id }),
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+  });
+
+  it("the owner can remove their own résumé", async () => {
+    const a = await seedResume(db, { userId: USER_A });
+
+    await callerFor(db, USER_A).resume.remove({ id: a.id });
+
+    expect(await callerFor(db, USER_A).resume.list()).toHaveLength(0);
+  });
+
+  it("remove of another user's résumé surfaces NOT_FOUND and leaves it in place", async () => {
+    const a = await seedResume(db, { userId: USER_A });
+
+    await expect(
+      callerFor(db, USER_B).resume.remove({ id: a.id }),
+    ).rejects.toMatchObject({ code: "NOT_FOUND" });
+
+    expect(await callerFor(db, USER_A).resume.list()).toHaveLength(1);
+  });
+
   it("protectedProcedure rejects an anonymous call", async () => {
     await expect(callerFor(db, null).resume.list()).rejects.toMatchObject({
       code: "UNAUTHORIZED",
     });
+  });
+
+  it("protectedProcedure rejects an anonymous write", async () => {
+    await expect(
+      callerFor(db, null).resume.create({ name: "X" }),
+    ).rejects.toMatchObject({ code: "UNAUTHORIZED" });
   });
 });
