@@ -38,6 +38,11 @@ export function ResumeDashboard() {
 
   const onCreate = () => create.mutate({ name: NEW_RESUME_NAME });
 
+  // The empty state owns the create CTA when there's nothing yet, so the header
+  // button only shows once there's a list beside it. That keeps exactly one
+  // "New résumé" button on screen instead of two competing ones.
+  const hasResumes = !!resumes.data && resumes.data.length > 0;
+
   return (
     <section className="flex flex-col gap-6">
       <header className="flex items-end justify-between gap-4">
@@ -49,10 +54,16 @@ export function ResumeDashboard() {
             Your résumés
           </h1>
         </div>
-        <Button onClick={onCreate} disabled={create.isPending} className="shrink-0">
-          <PlusIcon />
-          {create.isPending ? "Creating…" : "New résumé"}
-        </Button>
+        {hasResumes && (
+          <Button
+            onClick={onCreate}
+            disabled={create.isPending}
+            className="shrink-0"
+          >
+            <PlusIcon />
+            {create.isPending ? "Creating…" : "New résumé"}
+          </Button>
+        )}
       </header>
 
       {resumes.isPending ? (
