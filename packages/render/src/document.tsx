@@ -17,7 +17,6 @@ export interface ResumeDocumentProps {
   content: ResumeContent;
   /** Locale used to resolve translatable values. Defaults to English. */
   locale?: string;
-  /** Template that styles the blocks. Defaults to the ATS template. */
   template?: ResumeTemplate;
 }
 

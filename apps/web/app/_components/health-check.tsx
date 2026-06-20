@@ -7,7 +7,7 @@ import { useTRPC } from "@/trpc/react";
 /**
  * Smallest possible proof that the typed client reaches the server router and
  * back. Stands in until there is real UI to drive; remove once that exists.
- * Rendered as a mono status pill - it doubles as a "data" accent in the chrome.
+ * Doubles as a "data" accent in the chrome.
  */
 export function HealthCheck() {
   const trpc = useTRPC();

@@ -13,8 +13,6 @@ import type { Block } from "./model";
 export interface ResumeTemplate {
   /** Stable id, e.g. for a future template picker. */
   id: string;
-  /** Human label. */
   label: string;
-  /** Render the blocks into one react-pdf `<Page>` element. */
   renderPage(blocks: Block[]): ReactElement;
 }
