@@ -38,8 +38,8 @@ describe("ownedResumes write scoping", () => {
       ownedResumes(db, USER_B).update(a.id, { name: "Hijacked" }),
     ).rejects.toMatchObject({ code: "NOT_FOUND" });
 
-    // The scoped `where id and user_id` matched nothing, so A's row is intact -
-    // the write neither no-oped silently nor touched another user's row.
+    // Confirms the scoped `where id and user_id` rejected rather than silently
+    // no-oping or touching another user's row.
     const [row] = await db.select().from(resume).where(eq(resume.id, a.id));
     expect(row?.name).toBe("Original");
   });

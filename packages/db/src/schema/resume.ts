@@ -4,7 +4,7 @@ import { user } from "./auth";
 import { resumeSchema } from "./resume-schema";
 import type { ResumeContent } from "./resume-content";
 
-/** Created-once / auto-touched timestamps, fresh builders per call. */
+/** Factory so each table gets fresh column builders rather than sharing instances. */
 const timestamps = () => ({
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()

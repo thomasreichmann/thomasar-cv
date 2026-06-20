@@ -15,6 +15,6 @@ export function resumeFileName(content: ResumeContent, locale = "en"): string {
     .normalize("NFKD")
     .replace(COMBINING_MARKS, "") // fold diacritics: é -> e
     .replace(/[^A-Za-z0-9]+/g, "-") // non-alphanumeric runs -> single hyphen
-    .replace(/^-+|-+$/g, ""); // trim leading / trailing hyphens
+    .replace(/^-+|-+$/g, "");
   return `${slug || "resume"}.pdf`;
 }

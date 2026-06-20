@@ -13,7 +13,6 @@ import { ResumeDocument, type ResumeDocumentProps } from "./document";
 
 export type RenderOptions = Omit<ResumeDocumentProps, "content">;
 
-/** Render a résumé document to PDF bytes. */
 export function renderResumeToBuffer(
   content: ResumeContent,
   options: RenderOptions = {},

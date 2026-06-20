@@ -23,7 +23,6 @@ export function createDb(
   return drizzle(client, { schema });
 }
 
-/** Raw database connection type. */
 export type Connection = ReturnType<typeof createDb>;
 
 /** Transaction type, extracted from the db.transaction callback parameter. */

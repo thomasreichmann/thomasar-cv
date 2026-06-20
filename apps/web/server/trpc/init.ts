@@ -35,10 +35,9 @@ const t = initTRPC.context<Context>().create({
   transformer: superjson,
 });
 
-/** Build a router. */
 export const createTRPCRouter = t.router;
 
-/** Build a server-side caller for a router (used by RSC and tests). */
+/** Used by RSC and tests. */
 export const createCallerFactory = t.createCallerFactory;
 
 /** Open to anyone. */
