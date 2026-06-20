@@ -14,7 +14,7 @@ export const appRouter = createTRPCRouter({
   /** Current signed-in user, or null. Reads the session off the tRPC context. */
   me: publicProcedure.query(({ ctx }) => ctx.session?.user ?? null),
 
-  /** Résumé reads, scoped to the signed-in user. */
+  /** Résumé reads and writes, scoped to the signed-in user. */
   resume: resumeRouter,
 });
 
