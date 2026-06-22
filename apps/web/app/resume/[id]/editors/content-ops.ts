@@ -110,9 +110,14 @@ export function emptyCustomItem(): CustomItem {
   return { id: newId("custom"), hidden: false, bullets: [] };
 }
 
-/** A fresh section of `type`, seeded with one blank entry so it is never an empty void. */
+/**
+ * A fresh section of `type`, seeded with one blank entry so it is never an empty
+ * void. The title starts empty rather than pre-filled with the type label: the
+ * editor shows that label as the heading's placeholder, so a copy of it stored as
+ * the value would just be a duplicate heading to delete (#51).
+ */
 export function emptySection(type: SectionType): Section {
-  const base = { id: newId("sec"), hidden: false, title: SECTION_LABEL[type] };
+  const base = { id: newId("sec"), hidden: false, title: "" };
   switch (type) {
     case "summary":
       return { ...base, type, items: [emptySummaryItem()] };
