@@ -4,8 +4,19 @@ import { migrate } from "drizzle-orm/pglite/migrator";
 import { fileURLToPath } from "node:url";
 
 import type { Connection } from "../connection";
-import { exampleResume, resume, user } from "../schema";
 import * as schema from "../schema";
+import { truncateAll } from "./seed";
+
+// The connection-generic seed helpers live in ./seed (so the e2e runner can use
+// them without importing pglite/WASM); re-export them here so existing imports
+// from `@thomasar-cv/db/testing` keep working unchanged.
+export {
+  deleteResume,
+  findUserByEmail,
+  seedResume,
+  seedUser,
+  truncateAll,
+} from "./seed";
 
 /**
  * Real Postgres for tests, in-process via pglite (WASM) - no Docker, no network,
@@ -20,6 +31,10 @@ import * as schema from "../schema";
  * One instance per test file (`beforeAll`) with a `truncate()` between tests is
  * the intended shape: pglite's cost is the WASM boot, so reusing the instance and
  * only clearing rows keeps the suite fast.
+ *
+ * The browser e2e suite needs a real, networked Postgres instead (a separate
+ * process connects to it), so it uses an ephemeral container rather than pglite,
+ * but reuses the same ./seed helpers. See apps/web/e2e.
  */
 
 // The generated migrations live at packages/db/drizzle; resolve relative to this
@@ -43,55 +58,11 @@ export async function createTestDb(): Promise<TestDb> {
   const client = new PGlite();
   const db = drizzle(client, { schema });
   await migrate(db, { migrationsFolder });
+  const connection = db as unknown as Connection;
 
   return {
-    db: db as unknown as Connection,
-    // Deleting users cascades to resumes (FK is ON DELETE CASCADE), so this one
-    // statement clears the owned data every ownership test cares about.
-    truncate: async () => {
-      await db.delete(user);
-    },
+    db: connection,
+    truncate: () => truncateAll(connection),
     close: () => client.close(),
   };
-}
-
-/**
- * Insert a user. Resumes carry a foreign key to `user.id`, so every ownership
- * test needs the owner to exist first; this fills the BetterAuth-managed columns
- * tests never care about. Pass a distinct `id` per user to keep emails unique.
- */
-export async function seedUser(
-  db: Connection,
-  overrides: { id: string } & Partial<typeof user.$inferInsert>,
-): Promise<typeof user.$inferSelect> {
-  const [row] = await db
-    .insert(user)
-    .values({
-      name: `User ${overrides.id}`,
-      email: `${overrides.id}@example.test`,
-      ...overrides,
-    })
-    .returning();
-  if (!row) throw new Error("seedUser: insert returned no row");
-  return row;
-}
-
-/**
- * Insert a résumé owned by `userId`, defaulting to the shared example content so
- * tests that only care about ownership don't have to author a valid document.
- */
-export async function seedResume(
-  db: Connection,
-  values: { userId: string } & Partial<typeof resume.$inferInsert>,
-): Promise<typeof resume.$inferSelect> {
-  const [row] = await db
-    .insert(resume)
-    .values({
-      name: "Default",
-      content: exampleResume,
-      ...values,
-    })
-    .returning();
-  if (!row) throw new Error("seedResume: insert returned no row");
-  return row;
 }

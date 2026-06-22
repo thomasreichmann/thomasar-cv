@@ -5,18 +5,22 @@ import {
   USER_STATE_PATH,
   ensureUserAndSaveState,
 } from "./helpers/auth";
+import { resetDb } from "./helpers/db";
 
 /**
- * Seeds the shared test user and persists its signed-in state. Runs once
- * before the smoke suite (as the `setup` project dependency) so authenticated
- * specs can load the cookie instead of signing in themselves.
+ * Brings the database to a known state and persists the signed-in user. Runs
+ * once before the suites (as the `setup` dependency): it empties the database so
+ * every run starts clean regardless of what a previous run left, then creates
+ * the shared user and saves its cookie so authenticated specs load it instead of
+ * signing in themselves.
  */
 setup(
-  "seed and authenticate the regular user",
+  "reset the database and authenticate the regular user",
   async ({ request, baseURL }) => {
+    await resetDb();
     await ensureUserAndSaveState(
       request,
-      baseURL ?? "http://localhost:3000",
+      baseURL ?? "http://localhost:3100",
       REGULAR_USER,
       USER_STATE_PATH,
     );

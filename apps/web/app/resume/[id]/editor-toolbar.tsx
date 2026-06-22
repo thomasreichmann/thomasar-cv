@@ -121,6 +121,7 @@ function BackToDashboard() {
         variant="ghost"
         size="icon-sm"
         aria-label="Back to dashboard"
+        nativeButton={false}
         render={<Link href="/dashboard" />}
       >
         <ArrowLeftIcon />

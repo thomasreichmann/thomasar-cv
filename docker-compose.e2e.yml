@@ -1,0 +1,22 @@
+# Throwaway Postgres for local e2e, mirroring the CI service container
+# (postgres:16-alpine, same credentials and database) so local and CI exercise
+# the same setup. Brought up, migrated, and torn down by scripts/e2e.mjs
+# (`pnpm test:e2e`). It never holds real data, so it is safe to wipe: the data
+# directory is tmpfs (in memory), trading durability for speed. The host port is
+# 5433 to avoid colliding with a local Postgres on 5432.
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5433:5432"
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 1s
+      timeout: 5s
+      retries: 30
