@@ -1,6 +1,5 @@
 import config from "@thomasar-cv/eslint-config/next";
 
-// Named (not an anonymous default export) to satisfy import/no-anonymous-default-export.
 const eslintConfig = [
   ...config,
   // The e2e server builds into its own dir (see next.config.ts); it's generated

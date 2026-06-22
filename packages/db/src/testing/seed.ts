@@ -77,7 +77,6 @@ export async function findUserByEmail(
   return row;
 }
 
-/** Delete a single résumé by id. Used by fixture teardown. */
 export async function deleteResume(db: Connection, id: string): Promise<void> {
   await db.delete(resume).where(eq(resume.id, id));
 }

@@ -30,27 +30,24 @@ function db(): Connection {
   return connection;
 }
 
-/** Empty the database. The setup project runs this so every run starts clean. */
 export function resetDb(): Promise<void> {
   return truncateAll(db());
 }
 
-/** The seeded user's row, looked up by email (needed to own seeded data). */
 export function findUser(email: string) {
   return findUserByEmail(db(), email);
 }
 
-/** Insert a résumé; returns the row, whose id opens the editor. */
 export function seedResumeFor(values: Parameters<typeof seedResume>[1]) {
   return seedResume(db(), values);
 }
 
-/** Insert a user row directly. Auth users come from sign-up; this is rarely needed. */
+// Auth users come from BetterAuth sign-up, which hashes the password; seed a row
+// directly only for the rare case that doesn't go through auth.
 export function seedUserRow(overrides: Parameters<typeof seedUser>[1]) {
   return seedUser(db(), overrides);
 }
 
-/** Remove one résumé. Fixture teardown. */
 export function removeResume(id: string) {
   return deleteResume(db(), id);
 }
