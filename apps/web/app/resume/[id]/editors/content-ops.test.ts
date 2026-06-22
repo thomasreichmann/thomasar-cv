@@ -8,10 +8,12 @@ import { describe, expect, it } from "vitest";
 import {
   emptyContact,
   emptySection,
+  moveAt,
   newId,
   removeAt,
   replaceAt,
   SECTION_TYPES,
+  toggleHidden,
 } from "./content-ops";
 
 describe("newId", () => {
@@ -61,5 +63,30 @@ describe("list helpers", () => {
     const source = [1, 2, 3];
     expect(removeAt(source, 0)).toEqual([2, 3]);
     expect(source).toEqual([1, 2, 3]);
+  });
+
+  it("moveAt shifts one element up and down without mutating the source", () => {
+    const source = [1, 2, 3];
+    expect(moveAt(source, 2, 1)).toEqual([1, 3, 2]);
+    expect(moveAt(source, 0, 2)).toEqual([2, 3, 1]);
+    expect(source).toEqual([1, 2, 3]);
+  });
+
+  it("moveAt past either end is a no-op clone", () => {
+    const source = [1, 2, 3];
+    expect(moveAt(source, 0, -1)).toEqual([1, 2, 3]);
+    expect(moveAt(source, 2, 3)).toEqual([1, 2, 3]);
+    expect(moveAt(source, 0, -1)).not.toBe(source);
+  });
+
+  it("toggleHidden flips the flag, preserving the rest of the node", () => {
+    const node = { id: "exp-1", hidden: false, company: "Acme" };
+    expect(toggleHidden(node)).toEqual({
+      id: "exp-1",
+      hidden: true,
+      company: "Acme",
+    });
+    expect(toggleHidden({ ...node, hidden: true }).hidden).toBe(false);
+    expect(node.hidden).toBe(false);
   });
 });

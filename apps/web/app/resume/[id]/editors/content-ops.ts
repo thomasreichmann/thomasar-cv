@@ -37,6 +37,39 @@ export function removeAt<T>(items: readonly T[], index: number): T[] {
   return items.filter((_, i) => i !== index);
 }
 
+/**
+ * Move the element at `from` to index `to`, returning a new array (originals
+ * untouched). A `to` outside the array is a no-op clone, so the move-up control on
+ * the first row and move-down on the last simply do nothing rather than wrapping -
+ * the reorder controls (#38) disable at the ends, and this keeps the helper safe
+ * if one ever fires anyway. Order is the only thing that changes; the schema reads
+ * display order straight off array position (see resume-content.ts), so this is
+ * the whole of "reorder".
+ */
+export function moveAt<T>(items: readonly T[], from: number, to: number): T[] {
+  const next = [...items];
+  if (to < 0 || to >= next.length || from < 0 || from >= next.length) {
+    return next;
+  }
+  // Pull `from` out and splice it back in at `to`. Spreading the one-element
+  // removal back in (rather than destructuring it) keeps the value typed `T`, not
+  // `T | undefined`, under `noUncheckedIndexedAccess`.
+  const removed = next.splice(from, 1);
+  next.splice(to, 0, ...removed);
+  return next;
+}
+
+/**
+ * Flip a node's `hidden` flag, returning a new node (original untouched). The cast
+ * is the same shape as `withTitle`'s in section-editor.tsx: re-stamping one field
+ * on a `Section` (a discriminated union) drops the link to its `type` discriminant,
+ * so TS can't prove the spread is still the same member. Only `hidden` changes, so
+ * it is sound, and keeping the one cast here spares every caller its own.
+ */
+export function toggleHidden<T extends { hidden: boolean }>(node: T): T {
+  return { ...node, hidden: !node.hidden } as T;
+}
+
 export const SECTION_TYPES: readonly SectionType[] = [
   "summary",
   "experience",

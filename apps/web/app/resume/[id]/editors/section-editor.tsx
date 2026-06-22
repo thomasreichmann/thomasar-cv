@@ -17,6 +17,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/cn";
 
 import {
   emptyCustomItem,
@@ -25,12 +26,20 @@ import {
   emptyProjectItem,
   emptySkillsItem,
   emptySummaryItem,
+  moveAt,
   removeAt,
   replaceAt,
   SECTION_ITEM_NOUN,
   SECTION_LABEL,
+  toggleHidden,
 } from "./content-ops";
-import { AddButton, EditorPanel, ItemPanel } from "./editor-fields";
+import {
+  AddButton,
+  EditorPanel,
+  HiddenMarker,
+  ItemPanel,
+  NodeControls,
+} from "./editor-fields";
 import {
   CustomItemEditor,
   EducationItemEditor,
@@ -58,22 +67,43 @@ export function SectionEditor({
   section,
   onChange,
   onRemove,
+  onMoveUp,
+  onMoveDown,
+  isFirst,
+  isLast,
 }: {
   section: Section;
   onChange: (section: Section) => void;
   onRemove: () => void;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
+  isFirst: boolean;
+  isLast: boolean;
 }) {
   return (
     <EditorPanel>
       <div className="space-y-4">
-        <div className="flex items-start gap-2">
+        <div className="flex items-center gap-2">
           <input
             value={readText(section.title)}
             onChange={(e) => onChange(withTitle(section, e.target.value))}
             aria-label={`${SECTION_LABEL[section.type]} section title`}
             placeholder={SECTION_LABEL[section.type]}
             spellCheck={false}
-            className="-ml-1.5 min-w-0 flex-1 truncate rounded-md bg-transparent px-1.5 py-0.5 text-lg font-semibold tracking-tight outline-none transition-colors placeholder:text-muted-foreground/50 hover:bg-muted/40 focus-visible:bg-muted/40 focus-visible:ring-2 focus-visible:ring-ring"
+            className={cn(
+              "-ml-1.5 min-w-0 flex-1 truncate rounded-md bg-transparent px-1.5 py-0.5 text-lg font-semibold tracking-tight outline-none transition-colors placeholder:text-muted-foreground/50 hover:bg-muted/40 focus-visible:bg-muted/40 focus-visible:ring-2 focus-visible:ring-ring",
+              section.hidden && "text-muted-foreground",
+            )}
+          />
+          {section.hidden ? <HiddenMarker /> : null}
+          <NodeControls
+            label={`${SECTION_LABEL[section.type]} section`}
+            hidden={section.hidden}
+            isFirst={isFirst}
+            isLast={isLast}
+            onMoveUp={onMoveUp}
+            onMoveDown={onMoveDown}
+            onToggleHidden={() => onChange(toggleHidden(section))}
           />
           <RemoveSectionButton
             sectionLabel={SECTION_LABEL[section.type]}
@@ -82,7 +112,14 @@ export function SectionEditor({
           />
         </div>
 
-        <SectionBody section={section} onChange={onChange} />
+        <div
+          className={cn(
+            "transition-opacity",
+            section.hidden && "opacity-45",
+          )}
+        >
+          <SectionBody section={section} onChange={onChange} />
+        </div>
       </div>
     </EditorPanel>
   );
@@ -107,8 +144,6 @@ function SectionBody({
   }
 
   const noun = SECTION_ITEM_NOUN[section.type];
-  const addLabel = `Add ${noun}`;
-  const removeLabel = `Remove ${noun}`;
 
   switch (section.type) {
     case "experience":
@@ -117,8 +152,7 @@ function SectionBody({
           items={section.items}
           onChange={(items) => onChange({ ...section, items })}
           makeEmpty={emptyExperienceItem}
-          addLabel={addLabel}
-          removeLabel={removeLabel}
+          noun={noun}
           renderItem={(item, set) => (
             <ExperienceItemEditor item={item} onChange={set} />
           )}
@@ -130,8 +164,7 @@ function SectionBody({
           items={section.items}
           onChange={(items) => onChange({ ...section, items })}
           makeEmpty={emptyEducationItem}
-          addLabel={addLabel}
-          removeLabel={removeLabel}
+          noun={noun}
           renderItem={(item, set) => (
             <EducationItemEditor item={item} onChange={set} />
           )}
@@ -143,8 +176,7 @@ function SectionBody({
           items={section.items}
           onChange={(items) => onChange({ ...section, items })}
           makeEmpty={emptySkillsItem}
-          addLabel={addLabel}
-          removeLabel={removeLabel}
+          noun={noun}
           renderItem={(item, set) => (
             <SkillsItemEditor item={item} onChange={set} />
           )}
@@ -156,8 +188,7 @@ function SectionBody({
           items={section.items}
           onChange={(items) => onChange({ ...section, items })}
           makeEmpty={emptyProjectItem}
-          addLabel={addLabel}
-          removeLabel={removeLabel}
+          noun={noun}
           renderItem={(item, set) => (
             <ProjectItemEditor item={item} onChange={set} />
           )}
@@ -169,8 +200,7 @@ function SectionBody({
           items={section.items}
           onChange={(items) => onChange({ ...section, items })}
           makeEmpty={emptyCustomItem}
-          addLabel={addLabel}
-          removeLabel={removeLabel}
+          noun={noun}
           renderItem={(item, set) => (
             <CustomItemEditor item={item} onChange={set} />
           )}
@@ -211,20 +241,18 @@ function SummaryBody({
   );
 }
 
-function SectionItems<I extends { id: string }>({
+function SectionItems<I extends { id: string; hidden: boolean }>({
   items,
   onChange,
   makeEmpty,
   renderItem,
-  addLabel,
-  removeLabel,
+  noun,
 }: {
   items: I[];
   onChange: (items: I[]) => void;
   makeEmpty: () => I;
   renderItem: (item: I, onChange: (item: I) => void) => ReactNode;
-  addLabel: string;
-  removeLabel: string;
+  noun: string;
 }) {
   return (
     <div className="space-y-4">
@@ -235,7 +263,18 @@ function SectionItems<I extends { id: string }>({
           {items.map((item, i) => (
             <ItemPanel
               key={item.id}
-              removeLabel={removeLabel}
+              // Position-numbered, so each entry's controls get a distinct
+              // accessible name within the section ("Move role 2 up"). The number
+              // is the current slot, so it tracks the entry after a reorder.
+              label={`${noun} ${i + 1}`}
+              hidden={item.hidden}
+              isFirst={i === 0}
+              isLast={i === items.length - 1}
+              onMoveUp={() => onChange(moveAt(items, i, i - 1))}
+              onMoveDown={() => onChange(moveAt(items, i, i + 1))}
+              onToggleHidden={() =>
+                onChange(replaceAt(items, i, toggleHidden(item)))
+              }
               onRemove={() => onChange(removeAt(items, i))}
             >
               {renderItem(item, (next) => onChange(replaceAt(items, i, next)))}
@@ -244,7 +283,7 @@ function SectionItems<I extends { id: string }>({
         </div>
       )}
       <AddButton onClick={() => onChange([...items, makeEmpty()])}>
-        {addLabel}
+        {`Add ${noun}`}
       </AddButton>
     </div>
   );

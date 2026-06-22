@@ -16,6 +16,7 @@ import {
 import { useEditor } from "./editor-context";
 import {
   emptySection,
+  moveAt,
   SECTION_LABEL,
   SECTION_TYPES,
 } from "./editors/content-ops";
@@ -51,6 +52,8 @@ export function EditorColumn() {
         >
           <SectionEditor
             section={section}
+            isFirst={i === 0}
+            isLast={i === sections.length - 1}
             onChange={(next) =>
               updateContent((prev) => ({
                 ...prev,
@@ -58,6 +61,21 @@ export function EditorColumn() {
                   s.id === section.id ? next : s,
                 ),
               }))
+            }
+            // Reorder resolves the section's live index inside the updater rather
+            // than closing over `i`: a stale `i` from a render before the previous
+            // move would shift the wrong section. `id` is stable, so this is exact.
+            onMoveUp={() =>
+              updateContent((prev) => {
+                const at = prev.sections.findIndex((s) => s.id === section.id);
+                return { ...prev, sections: moveAt(prev.sections, at, at - 1) };
+              })
+            }
+            onMoveDown={() =>
+              updateContent((prev) => {
+                const at = prev.sections.findIndex((s) => s.id === section.id);
+                return { ...prev, sections: moveAt(prev.sections, at, at + 1) };
+              })
             }
             onRemove={() =>
               updateContent((prev) => ({
