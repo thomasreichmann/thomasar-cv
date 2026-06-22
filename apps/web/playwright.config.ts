@@ -82,8 +82,11 @@ export default defineConfig({
     env: {
       PORT,
       // Separate build dir so this server coexists with a normal `next dev` on
-      // .next (Next's dev lock is per build dir). See next.config.ts.
-      NEXT_DIST_DIR: ".next-e2e",
+      // .next (Next's dev lock is per build dir). Lives under node_modules/.cache
+      // so it inherits the ignores every tool already applies to node_modules,
+      // rather than being a novel top-level dir that searches and tsc mis-scan.
+      // See next.config.ts.
+      NEXT_DIST_DIR: "node_modules/.cache/next-e2e",
       // Pin the auth base URL to the e2e origin so BetterAuth doesn't fall back
       // to deriving it per-request (which it warns about).
       BETTER_AUTH_URL: BASE_URL,

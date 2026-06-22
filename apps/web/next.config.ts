@@ -4,7 +4,8 @@ const nextConfig: NextConfig = {
   // Lets the e2e server use a separate build dir so it can run alongside a normal
   // `next dev`: Next holds a per-project dev lock tied to the build dir, so a
   // second dev server on the default `.next` is refused. The e2e run sets this to
-  // `.next-e2e` (see playwright.config.ts).
+  // `node_modules/.cache/next-e2e` -- nested under node_modules so no tool treats
+  // its generated output as source (see playwright.config.ts).
   distDir: process.env.NEXT_DIST_DIR ?? ".next",
   // @thomasar-cv/* workspace packages export raw TypeScript (no build step), so
   // Next has to transpile them like first-party source.
