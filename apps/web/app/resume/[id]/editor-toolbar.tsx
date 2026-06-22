@@ -121,6 +121,9 @@ function BackToDashboard() {
         variant="ghost"
         size="icon-sm"
         aria-label="Back to dashboard"
+        // Rendered as a link, not a native button, so tell Base UI not to expect
+        // a <button> (otherwise it warns about lost native button semantics).
+        nativeButton={false}
         render={<Link href="/dashboard" />}
       >
         <ArrowLeftIcon />

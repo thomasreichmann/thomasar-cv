@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "../fixtures/console";
 
 // Runs unauthenticated (the bare `smoke` project carries no storage state).
 test.describe("auth (signed out)", () => {

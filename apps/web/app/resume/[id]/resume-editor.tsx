@@ -82,7 +82,12 @@ function EditorError({
         </p>
       </div>
       <div className="flex items-center gap-2">
-        <Button variant="outline" render={<Link href="/dashboard" />}>
+        <Button
+          variant="outline"
+          // Rendered as a link, not a native button (see editor-toolbar.tsx).
+          nativeButton={false}
+          render={<Link href="/dashboard" />}
+        >
           <ArrowLeftIcon />
           Back to dashboard
         </Button>
