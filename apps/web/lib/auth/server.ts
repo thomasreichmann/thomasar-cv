@@ -14,13 +14,21 @@ import { db } from "@/server/db";
  * `BETTER_AUTH_SECRET` signs session cookies; BetterAuth reads it from the
  * environment. See apps/web/.env.example.
  *
- * No `baseURL` is set on purpose: BetterAuth then derives the origin from each
- * request, which is what we want on Vercel where preview deployments each get
- * a distinct URL. Set `BETTER_AUTH_URL` to pin it for a stable domain. (The
- * "Base URL is not set" dev warning is expected and harmless for email +
- * password, which has no OAuth callback to redirect to.)
+ * `baseURL` is a dynamic config rather than a pinned string: we still want the
+ * origin derived per request (Vercel preview deployments each get a distinct
+ * URL), but `allowedHosts` validates that derived Host against an allowlist
+ * instead of trusting whatever header arrives, and it silences the "Base URL
+ * is not set" warning a bare/undefined baseURL emits on every build. The list
+ * covers the production domain, all Vercel deploys (aliases + previews), and
+ * localhost on any port (dev on 3000, e2e on 3100). `fallback` is the origin
+ * used when no request is in scope - e.g. the headerless `auth.api.signUpEmail`
+ * call in the dev-login provisioning path, which would otherwise throw.
  */
 export const auth = betterAuth({
+  baseURL: {
+    allowedHosts: ["cv.thomasar.dev", "*.vercel.app", "localhost:*"],
+    fallback: "https://cv.thomasar.dev",
+  },
   database: drizzleAdapter(db, {
     provider: "pg",
     schema,
