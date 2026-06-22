@@ -32,8 +32,11 @@ Every spec built on these fixtures inherits a guard (`fixtures/console.ts`) that
 fails the test if the page logged a console error or threw an uncaught one. It
 catches the regressions that don't break an assertion but still mean something is
 wrong - React / Base UI dev-time errors, hydration mismatches, a failed request
-surfaced to the console. If a test legitimately expects an error, narrow the page
-interaction rather than loosening the guard.
+surfaced to the console. If a test legitimately provokes one - asserting a 404,
+which the browser logs as a failed resource load - declare it with
+`test.use({ expectedConsoleErrors: [/.../] })`; the guard drops the matches and
+still fails on anything else. `resume-authz.spec.ts` is the example. Reach for it
+only for an error intrinsic to the behavior under test, not to silence a real one.
 
 ## The three layers
 
@@ -44,7 +47,7 @@ Setup is built in three layers, each one allowed to lean on the one below.
    whole document. Shared with the unit tests rather than kept as a second set.
 2. Fixtures (`fixtures/`) provision a precondition through the back door and yield
    it to the test, with teardown. `seededResume` is the example: it seeds a résumé
-   owned by the signed-in user and hands back its id.
+   owned by the signed-in worker user and hands back its id.
 3. Scenario helpers (`scenarios/`) reach states a single seed can't express,
    because they need more than one step or have to drive the UI. `makeEditorDirty`
    opens a résumé and edits it without saving.
@@ -60,14 +63,18 @@ multi-step precondition.
 
 ```
 e2e/
-  global.setup.ts      reset the db + create and sign in the shared user
+  global.setup.ts      reset the db to a clean slate before the suites run
   helpers/             db (back-door connection + seeding), trpc, auth
-  fixtures/            console (fail on console errors), authenticated (storageState), resume (seededResume)
+  fixtures/            console (fail on console errors), authenticated (per-worker user), resume (seededResume)
   scenarios/           multi-step / UI-driven preconditions
   smoke/               pages render and the auth gate holds
-  flows/               interactive flows (the editor save loop, nav guard)
+  flows/               interactive flows (editor save, nav guard, cross-tenant authz)
 ```
 
-Auth: the setup project creates the user through BetterAuth's sign-up endpoint
-and saves its session cookie to `.auth/`, so authenticated specs load it instead
-of signing in through the form every time.
+Auth: one user per parallel worker. The `workerAccount` fixture (worker-scoped)
+provisions its user once through BetterAuth's sign-up endpoint and saves the
+session cookie under `.auth/`, which `storageState` then loads, so authenticated
+specs start signed in without driving the form. Per-worker ownership is what keeps
+parallel specs isolated: a résumé seeded on one worker belongs to a user no other
+worker shares, so two tests can't see each other's rows even when both run flat
+out. CI runs parallel too (not `workers: 1`), so it exercises this same path.
