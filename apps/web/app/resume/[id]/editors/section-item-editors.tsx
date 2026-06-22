@@ -6,7 +6,6 @@ import type {
   ExperienceItem,
   ProjectItem,
   SkillsItem,
-  SummaryItem,
 } from "@thomasar-cv/db/schema";
 
 import { Button } from "@/components/ui/button";
@@ -20,25 +19,10 @@ import { readOptional, readText, toOptional } from "./text";
  * Each takes a controlled item and reports the whole next item up; the section
  * editor owns where it sits in the list. List values (bullets, details, skills)
  * are stored as the plain strings they already are - the i18n seam is left
- * untouched (v1 is single-language).
+ * untouched (v1 is single-language). A summary has no entry editor: the schema
+ * models it as a single text node, so the section editor renders it as one bare
+ * textarea (#51).
  */
-
-export function SummaryItemEditor({
-  item,
-  onChange,
-}: {
-  item: SummaryItem;
-  onChange: (item: SummaryItem) => void;
-}) {
-  return (
-    <TextAreaField
-      label="Summary"
-      value={readText(item.text)}
-      onChange={(text) => onChange({ ...item, text })}
-      placeholder="A few lines on who you are and what you do."
-    />
-  );
-}
 
 export function ExperienceItemEditor({
   item,
@@ -49,7 +33,7 @@ export function ExperienceItemEditor({
 }) {
   return (
     <>
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2">
         <TextField
           label="Company"
           value={readText(item.company)}
@@ -107,7 +91,7 @@ export function EducationItemEditor({
 }) {
   return (
     <>
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2">
         <TextField
           label="Institution"
           value={readText(item.institution)}
@@ -159,6 +143,7 @@ export function SkillsItemEditor({
       <TextField
         label="Category"
         hint="optional"
+        width="sm"
         value={readOptional(item.category)}
         onChange={(value) => onChange({ ...item, category: toOptional(value) })}
         placeholder="e.g. Languages, Cloud"
@@ -183,7 +168,7 @@ export function ProjectItemEditor({
 }) {
   return (
     <>
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2">
         <TextField
           label="Name"
           value={readText(item.name)}
@@ -210,7 +195,7 @@ export function ProjectItemEditor({
         placeholder="One line on what it is."
       />
       {item.dateRange ? (
-        <div className="space-y-1">
+        <div className="space-y-2">
           <DateRangeField
             value={item.dateRange}
             onChange={(dateRange) => onChange({ ...item, dateRange })}
@@ -258,7 +243,7 @@ export function CustomItemEditor({
 }) {
   return (
     <>
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2">
         <TextField
           label="Heading"
           hint="optional"

@@ -67,12 +67,13 @@ export function HeaderEditor({
   const { contacts } = header;
 
   return (
-    <EditorPanel className="space-y-5">
-      <Eyebrow>Header</Eyebrow>
-
+    <EditorPanel>
       <div className="space-y-4">
+        <Eyebrow>Header</Eyebrow>
+
         <TextField
           label="Full name"
+          width="sm"
           value={readText(header.name)}
           onChange={(name) => onChange({ ...header, name })}
           placeholder="Your name"
@@ -87,37 +88,37 @@ export function HeaderEditor({
           }
           placeholder="e.g. Open to remote (US / EU)"
         />
-      </div>
 
-      <div className="space-y-2.5">
-        <Label>Contacts</Label>
-        {contacts.length > 0 ? (
-          <ul className="space-y-2">
-            {contacts.map((contact, i) => (
-              <li key={i}>
-                <ContactRow
-                  contact={contact}
-                  onChange={(next) =>
-                    onChange({
-                      ...header,
-                      contacts: replaceAt(contacts, i, next),
-                    })
-                  }
-                  onRemove={() =>
-                    onChange({ ...header, contacts: removeAt(contacts, i) })
-                  }
-                />
-              </li>
-            ))}
-          </ul>
-        ) : null}
-        <AddButton
-          onClick={() =>
-            onChange({ ...header, contacts: [...contacts, emptyContact()] })
-          }
-        >
-          Add contact
-        </AddButton>
+        <div className="space-y-2">
+          <Label>Contacts</Label>
+          {contacts.length > 0 ? (
+            <ul className="space-y-2">
+              {contacts.map((contact, i) => (
+                <li key={i}>
+                  <ContactRow
+                    contact={contact}
+                    onChange={(next) =>
+                      onChange({
+                        ...header,
+                        contacts: replaceAt(contacts, i, next),
+                      })
+                    }
+                    onRemove={() =>
+                      onChange({ ...header, contacts: removeAt(contacts, i) })
+                    }
+                  />
+                </li>
+              ))}
+            </ul>
+          ) : null}
+          <AddButton
+            onClick={() =>
+              onChange({ ...header, contacts: [...contacts, emptyContact()] })
+            }
+          >
+            Add contact
+          </AddButton>
+        </div>
       </div>
     </EditorPanel>
   );

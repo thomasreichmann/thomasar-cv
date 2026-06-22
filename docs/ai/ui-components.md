@@ -57,11 +57,20 @@ A newly added component works as-is; you do not add a `.dark` class, a theme
 provider, or next-themes. If the CLI ever offers to rewrite `globals.css` with a
 light/dark split, decline it.
 
-One component needs a manual edit after `add`: `sonner`. The stock version reads
-the theme from next-themes, which we do not use. After adding or re-adding it,
-drop the `useTheme`/next-themes import and hardcode `theme="dark"` (see the
-current `components/ui/sonner.tsx`), then remove next-themes if the CLI
-reinstalled it. Nothing else in the set has this problem.
+Two components need a manual edit after `add`:
+
+- `sonner`. The stock version reads the theme from next-themes, which we do not
+  use. After adding or re-adding it, drop the `useTheme`/next-themes import and
+  hardcode `theme="dark"` (see the current `components/ui/sonner.tsx`), then
+  remove next-themes if the CLI reinstalled it.
+- `dropdown-menu`. The Positioner carries an added `disableAnchorTracking` prop.
+  Base UI tracks layout shifts of the trigger while the menu is open, so a menu
+  whose own item-select handler grows content above the trigger (e.g. the editor
+  "Add section" menu appending a section) makes the still-fading popup teleport
+  down to follow the trigger. The prop disables that tracking; scroll and
+  window-resize repositioning are unaffected. Re-apply it after re-adding.
+
+Nothing else in the set has this problem.
 
 ## Conventions
 

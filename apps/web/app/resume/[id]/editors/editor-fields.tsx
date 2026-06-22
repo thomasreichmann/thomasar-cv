@@ -17,9 +17,14 @@ import { removeAt, replaceAt } from "./content-ops";
  * Oxide chrome the editor shell already established (card surfaces hairlined with
  * `ring-foreground/10`, burnt-rust used sparingly), so the editors read as one
  * instrument rather than a bolted-on form.
+ *
+ * Spacing is one scale, not a per-component guess (#51). Layout gaps come from
+ * three steps - 2 (label/control), 4 (field/field, grids, card body), 6 (card
+ * padding, section/section) - and only the *anatomy* of a single control (an
+ * input's padding, the date toggle's seams) sits off it.
  */
 
-/** A mono, wide-tracked label - the spec-sheet voice used for tags and headings. */
+/** A mono, wide-tracked label - the spec-sheet voice used for card eyebrows. */
 export function Eyebrow({ children }: { children: ReactNode }) {
   return (
     <p className="font-mono text-[0.65rem] uppercase tracking-[0.3em] text-muted-foreground">
@@ -39,7 +44,7 @@ export function EditorPanel({
   return (
     <section
       className={cn(
-        "rounded-xl bg-card p-5 text-card-foreground ring-1 ring-foreground/10",
+        "rounded-xl bg-card p-6 text-card-foreground ring-1 ring-foreground/10",
         className,
       )}
     >
@@ -48,23 +53,40 @@ export function EditorPanel({
   );
 }
 
+/**
+ * Constrain a short field so a name or a category doesn't stretch the full column
+ * width (#51). A value with no natural max (a summary line, a link) keeps the
+ * default full width by leaving `width` unset.
+ */
+export type FieldWidth = "sm" | "xs";
+const FIELD_WIDTH: Record<FieldWidth, string> = {
+  sm: "max-w-sm",
+  xs: "max-w-[12rem]",
+};
+
 function Field({
   label,
   hint,
   htmlFor,
+  width,
   children,
 }: {
   label: string;
   hint?: string;
   htmlFor?: string;
+  width?: FieldWidth;
   children: ReactNode;
 }) {
   return (
-    <div className="space-y-1.5">
-      <div className="flex items-baseline justify-between gap-2">
+    <div className={cn("space-y-2", width && FIELD_WIDTH[width])}>
+      {/* The hint rides next to its label, not floated to the far edge of a wide
+          field where it reads as unrelated chrome (#51). */}
+      <div className="flex items-baseline gap-2">
         <Label htmlFor={htmlFor}>{label}</Label>
         {hint ? (
-          <span className="text-[0.7rem] text-muted-foreground">{hint}</span>
+          <span className="text-xs font-normal text-muted-foreground">
+            {hint}
+          </span>
         ) : null}
       </div>
       {children}
@@ -78,6 +100,7 @@ export function TextField({
   onChange,
   placeholder,
   hint,
+  width,
   type = "text",
   inputMode,
   spellCheck,
@@ -88,6 +111,7 @@ export function TextField({
   onChange: (value: string) => void;
   placeholder?: string;
   hint?: string;
+  width?: FieldWidth;
   type?: "text" | "url";
   inputMode?: "text" | "url" | "email";
   spellCheck?: boolean;
@@ -95,7 +119,7 @@ export function TextField({
 }) {
   const id = useId();
   return (
-    <Field label={label} hint={hint} htmlFor={id}>
+    <Field label={label} hint={hint} htmlFor={id} width={width}>
       <Input
         id={id}
         type={type}
@@ -160,7 +184,7 @@ export function StringListField({
     <div className="space-y-2">
       <Label>{label}</Label>
       {items.length > 0 ? (
-        <ul className="space-y-1.5">
+        <ul className="space-y-2">
           {items.map((item, i) => (
             <li key={i} className="flex items-start gap-2">
               <span
@@ -251,9 +275,12 @@ export function RemoveButton({
 }
 
 /**
- * One entry inside a section (a role, a project, …). The remove control sits
- * quiet until the row is hovered or focused, so a column of entries stays calm
- * but never hides the affordance from a keyboard user.
+ * One entry inside a section (a role, a project, …). It is flat - no card of its
+ * own - so an entry doesn't stack a third bordered surface inside the section
+ * card and its inputs (#51); the section's entry list hairlines them apart
+ * instead. The remove control sits quiet until the row is hovered or focused, so
+ * a column of entries stays calm but never hides the affordance from a keyboard
+ * user.
  */
 export function ItemPanel({
   onRemove,
@@ -265,14 +292,20 @@ export function ItemPanel({
   children: ReactNode;
 }) {
   return (
-    <div className="group/item relative rounded-lg bg-background/40 p-4 pr-10 ring-1 ring-foreground/10">
-      <div className="space-y-3">{children}</div>
-      <RemoveButton
-        trash
-        label={removeLabel}
-        onClick={onRemove}
-        className="absolute top-2 right-2 opacity-0 transition-opacity group-focus-within/item:opacity-100 group-hover/item:opacity-100"
-      />
+    // py-4 + the list's divider hairline separate one entry from the next; the
+    // first/last collapse their outer padding so entries sit flush to the card
+    // body. The relative wrapper starts after that padding, so the remove control
+    // aligns to the first field whether or not this is the first entry.
+    <div className="group/item py-4 first:pt-0 last:pb-0">
+      <div className="relative pr-10">
+        <div className="space-y-4">{children}</div>
+        <RemoveButton
+          trash
+          label={removeLabel}
+          onClick={onRemove}
+          className="absolute top-0 right-0 opacity-0 transition-opacity group-focus-within/item:opacity-100 group-hover/item:opacity-100"
+        />
+      </div>
     </div>
   );
 }

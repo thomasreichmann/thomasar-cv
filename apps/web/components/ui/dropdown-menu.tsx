@@ -38,6 +38,12 @@ function DropdownMenuContent({
         alignOffset={alignOffset}
         side={side}
         sideOffset={sideOffset}
+        // Without this the popup chases its anchor while the close animation is
+        // still playing: selecting an item that shifts the trigger (e.g. adding a
+        // section pushes the "Add section" button down) makes the fading menu
+        // teleport to the trigger's new spot. Only layout-shift / element-resize
+        // tracking is disabled here; scroll and window-resize still reposition.
+        disableAnchorTracking
       >
         <MenuPrimitive.Popup
           data-slot="dropdown-menu-content"

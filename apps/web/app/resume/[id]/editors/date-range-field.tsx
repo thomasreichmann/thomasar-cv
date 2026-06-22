@@ -115,7 +115,7 @@ export function DateRangeField({
         ))}
       </div>
 
-      <div className="flex flex-wrap items-end gap-x-3 gap-y-2">
+      <div className="flex flex-wrap items-end gap-x-4 gap-y-2">
         {mode === "single" ? (
           <YearMonthInput
             label="Date"
@@ -191,9 +191,9 @@ function YearMonthInput({
   }
 
   return (
-    <div className="space-y-1">
+    <div className="space-y-2">
       <span className="block text-[0.7rem] text-muted-foreground">{label}</span>
-      <div className="flex gap-1.5">
+      <div className="flex gap-2">
         <Input
           className="w-[4.5rem]"
           inputMode="numeric"
