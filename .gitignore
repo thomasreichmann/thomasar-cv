@@ -17,8 +17,9 @@ playwright-report/
 test-results/
 blob-report/
 .playwright/
-# Saved Playwright auth state (contains live session cookies)
-**/e2e/.auth/
+# Saved Playwright auth state (contains live session cookies). No trailing
+# slash, so a symlink of this name (local worktree setup) is ignored too.
+**/e2e/.auth
 
 # Environment
 .env
@@ -27,8 +28,8 @@ blob-report/
 # Throwaway local e2e config (ephemeral database, no real secrets); see apps/web/e2e.
 !.env.e2e
 
-# Vercel
-.vercel/
+# Vercel (no trailing slash: also ignores a symlink of this name)
+.vercel
 
 # Reference CV (private for now; remove this line to publish)
 /reference/*.pdf
