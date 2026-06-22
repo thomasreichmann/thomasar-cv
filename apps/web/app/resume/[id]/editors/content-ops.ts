@@ -70,6 +70,36 @@ export function toggleHidden<T extends { hidden: boolean }>(node: T): T {
   return { ...node, hidden: !node.hidden } as T;
 }
 
+/**
+ * Move the node with `id` by `delta` slots (negative = earlier), returning a new
+ * array. The position is resolved here, by id, against the array passed in - so a
+ * caller can run this inside a state updater on the *live* array and never close
+ * over a stale index from an earlier render. An unknown id, or a target past
+ * either end, falls through `moveAt`'s bounds guard to a no-op clone.
+ */
+export function moveById<T extends { id: string }>(
+  items: readonly T[],
+  id: string,
+  delta: number,
+): T[] {
+  const from = items.findIndex((item) => item.id === id);
+  return moveAt(items, from, from + delta);
+}
+
+/**
+ * Replace the node with `id` by passing it through `fn`, returning a new array
+ * (originals untouched). Like `moveById`, the lookup is by stable id against the
+ * array given, so per-node edits (hide toggle, field change) compose inside a
+ * state updater without ever capturing a positional index.
+ */
+export function updateById<T extends { id: string }>(
+  items: readonly T[],
+  id: string,
+  fn: (item: T) => T,
+): T[] {
+  return items.map((item) => (item.id === id ? fn(item) : item));
+}
+
 export const SECTION_TYPES: readonly SectionType[] = [
   "summary",
   "experience",

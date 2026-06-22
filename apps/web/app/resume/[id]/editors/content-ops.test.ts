@@ -9,11 +9,13 @@ import {
   emptyContact,
   emptySection,
   moveAt,
+  moveById,
   newId,
   removeAt,
   replaceAt,
   SECTION_TYPES,
   toggleHidden,
+  updateById,
 } from "./content-ops";
 
 describe("newId", () => {
@@ -88,5 +90,45 @@ describe("list helpers", () => {
     });
     expect(toggleHidden({ ...node, hidden: true }).hidden).toBe(false);
     expect(node.hidden).toBe(false);
+  });
+
+  it("moveById moves the matching node by delta, resolving its position by id", () => {
+    const source = [{ id: "a" }, { id: "b" }, { id: "c" }];
+    expect(moveById(source, "a", 1)).toEqual([
+      { id: "b" },
+      { id: "a" },
+      { id: "c" },
+    ]);
+    expect(moveById(source, "c", -2)).toEqual([
+      { id: "c" },
+      { id: "a" },
+      { id: "b" },
+    ]);
+    expect(source).toEqual([{ id: "a" }, { id: "b" }, { id: "c" }]);
+  });
+
+  it("moveById no-ops (clone) on an unknown id or a move past either end", () => {
+    const source = [{ id: "a" }, { id: "b" }];
+    expect(moveById(source, "missing", 1)).toEqual(source);
+    expect(moveById(source, "a", -1)).toEqual(source);
+    expect(moveById(source, "b", 1)).toEqual(source);
+    expect(moveById(source, "missing", 1)).not.toBe(source);
+  });
+
+  it("updateById replaces only the matching node, leaving a new array", () => {
+    const source = [
+      { id: "a", n: 1 },
+      { id: "b", n: 2 },
+    ];
+    const next = updateById(source, "b", (item) => ({ ...item, n: 9 }));
+    expect(next).toEqual([
+      { id: "a", n: 1 },
+      { id: "b", n: 9 },
+    ]);
+    expect(next).not.toBe(source);
+    expect(source).toEqual([
+      { id: "a", n: 1 },
+      { id: "b", n: 2 },
+    ]);
   });
 });

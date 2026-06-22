@@ -101,7 +101,11 @@ export function flattenResume(
 
     switch (section.type) {
       case "summary":
-        for (const it of visible(section.items)) {
+        // A summary is one logical block; its visibility is the section's own
+        // `hidden`, already applied above. The editor exposes no per-item toggle
+        // for it, so honoring a lone item's `hidden` here would only drop the
+        // summary text with no way to bring it back - so it is left in.
+        for (const it of section.items) {
           out.push({ t: "text", text: t(it.text) });
         }
         break;

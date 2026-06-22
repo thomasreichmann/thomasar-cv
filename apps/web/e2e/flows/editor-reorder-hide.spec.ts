@@ -1,6 +1,7 @@
 import { type Page } from "@playwright/test";
 
 import { expect, test } from "../fixtures/resume";
+import { isTrpcRequest } from "../helpers/trpc";
 
 /**
  * Reorder and show/hide (#38) are content-document edits - array position and a
@@ -14,9 +15,16 @@ import { expect, test } from "../fixtures/resume";
 async function save(page: Page): Promise<void> {
   const button = page.getByRole("button", { name: "Save" });
   await expect(button).toBeEnabled();
+  // The button disables both while saving and once clean, so its disabled state
+  // alone isn't proof the write landed - reloading on it could abort an in-flight
+  // request. Wait for the update POST to actually fire first (as editor-save does).
+  const updateFired = page.waitForRequest(
+    (request) =>
+      request.method() === "POST" &&
+      isTrpcRequest(request.url(), "resume.update"),
+  );
   await button.click();
-  // The control disables the instant the working draft matches what was written,
-  // so its disabled state is the signal the save landed.
+  await updateFired;
   await expect(button).toBeDisabled();
 }
 
@@ -67,7 +75,9 @@ test("reordering items within a section survives a save + reload", async ({
   await expect(companies.nth(0)).toHaveValue("Acme Corp");
   await expect(companies.nth(1)).toHaveValue("Globex");
 
-  await page.getByRole("button", { name: "Move role 1 down" }).click();
+  await page
+    .getByRole("button", { name: "Move Experience role 1 down" })
+    .click();
   await expect(companies.nth(0)).toHaveValue("Globex");
   await expect(companies.nth(1)).toHaveValue("Acme Corp");
 
@@ -89,16 +99,16 @@ test("hiding an item persists, and a seeded hidden item stays editable", async (
   // deleted). It must arrive hidden in the editor and still be a real, editable
   // entry - its Company field is on the page.
   await expect(
-    page.getByRole("button", { name: "Show role 3" }),
+    page.getByRole("button", { name: "Show Experience role 3" }),
   ).toBeVisible();
   const companies = page.getByRole("textbox", { name: "Company" });
   await expect(companies).toHaveCount(3);
   await expect(companies.nth(2)).toHaveValue("Initech");
 
-  // Hide the first role too; its toggle flips to "Show role 1".
-  await page.getByRole("button", { name: "Hide role 1" }).click();
+  // Hide the first role too; its toggle flips to "Show Experience role 1".
+  await page.getByRole("button", { name: "Hide Experience role 1" }).click();
   await expect(
-    page.getByRole("button", { name: "Show role 1" }),
+    page.getByRole("button", { name: "Show Experience role 1" }),
   ).toBeVisible();
 
   await save(page);
@@ -107,10 +117,10 @@ test("hiding an item persists, and a seeded hidden item stays editable", async (
   // Both stay hidden across the reload, and the document still holds all three
   // entries - hiding never drops a node.
   await expect(
-    page.getByRole("button", { name: "Show role 1" }),
+    page.getByRole("button", { name: "Show Experience role 1" }),
   ).toBeVisible();
   await expect(
-    page.getByRole("button", { name: "Show role 3" }),
+    page.getByRole("button", { name: "Show Experience role 3" }),
   ).toBeVisible();
   await expect(page.getByRole("textbox", { name: "Company" })).toHaveCount(3);
 });

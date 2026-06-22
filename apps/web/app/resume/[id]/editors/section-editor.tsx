@@ -26,12 +26,11 @@ import {
   emptyProjectItem,
   emptySkillsItem,
   emptySummaryItem,
-  moveAt,
-  removeAt,
-  replaceAt,
+  moveById,
   SECTION_ITEM_NOUN,
   SECTION_LABEL,
   toggleHidden,
+  updateById,
 } from "./content-ops";
 import {
   AddButton,
@@ -67,16 +66,14 @@ export function SectionEditor({
   section,
   onChange,
   onRemove,
-  onMoveUp,
-  onMoveDown,
+  onMove,
   isFirst,
   isLast,
 }: {
   section: Section;
-  onChange: (section: Section) => void;
+  onChange: (update: (section: Section) => Section) => void;
   onRemove: () => void;
-  onMoveUp: () => void;
-  onMoveDown: () => void;
+  onMove: (delta: -1 | 1) => void;
   isFirst: boolean;
   isLast: boolean;
 }) {
@@ -86,7 +83,7 @@ export function SectionEditor({
         <div className="flex items-center gap-2">
           <input
             value={readText(section.title)}
-            onChange={(e) => onChange(withTitle(section, e.target.value))}
+            onChange={(e) => onChange((s) => withTitle(s, e.target.value))}
             aria-label={`${SECTION_LABEL[section.type]} section title`}
             placeholder={SECTION_LABEL[section.type]}
             spellCheck={false}
@@ -101,9 +98,8 @@ export function SectionEditor({
             hidden={section.hidden}
             isFirst={isFirst}
             isLast={isLast}
-            onMoveUp={onMoveUp}
-            onMoveDown={onMoveDown}
-            onToggleHidden={() => onChange(toggleHidden(section))}
+            onMove={onMove}
+            onToggleHidden={() => onChange(toggleHidden)}
           />
           <RemoveSectionButton
             sectionLabel={SECTION_LABEL[section.type]}
@@ -137,22 +133,35 @@ function SectionBody({
   onChange,
 }: {
   section: Section;
-  onChange: (section: Section) => void;
+  onChange: (update: (section: Section) => Section) => void;
 }) {
   if (section.type === "summary") {
     return <SummaryBody section={section} onChange={onChange} />;
   }
 
   const noun = SECTION_ITEM_NOUN[section.type];
+  // Prefix item control labels with the section's name so two sections that share
+  // a noun (education and custom both use "entry") don't produce the same
+  // accessible name; the title is the natural handle, falling back to the type.
+  const sectionName = readText(section.title) || SECTION_LABEL[section.type];
 
+  // Each branch passes the same item updater: it rewrites the section's items
+  // against the section's *live* value inside `onChange`, so an edit never acts on
+  // a captured snapshot. The cast mirrors withTitle - re-stamping `items` on a
+  // union member drops the link to the `type` discriminant, but only `items`
+  // changes, so it is sound. It is inlined per branch (not hoisted) because the
+  // narrowed `section` is what makes `fn` line up with the branch's item type.
   switch (section.type) {
     case "experience":
       return (
         <SectionItems
           items={section.items}
-          onChange={(items) => onChange({ ...section, items })}
+          update={(fn) =>
+            onChange((s) => ({ ...s, items: fn((s as typeof section).items) }) as Section)
+          }
           makeEmpty={emptyExperienceItem}
           noun={noun}
+          sectionName={sectionName}
           renderItem={(item, set) => (
             <ExperienceItemEditor item={item} onChange={set} />
           )}
@@ -162,9 +171,12 @@ function SectionBody({
       return (
         <SectionItems
           items={section.items}
-          onChange={(items) => onChange({ ...section, items })}
+          update={(fn) =>
+            onChange((s) => ({ ...s, items: fn((s as typeof section).items) }) as Section)
+          }
           makeEmpty={emptyEducationItem}
           noun={noun}
+          sectionName={sectionName}
           renderItem={(item, set) => (
             <EducationItemEditor item={item} onChange={set} />
           )}
@@ -174,9 +186,12 @@ function SectionBody({
       return (
         <SectionItems
           items={section.items}
-          onChange={(items) => onChange({ ...section, items })}
+          update={(fn) =>
+            onChange((s) => ({ ...s, items: fn((s as typeof section).items) }) as Section)
+          }
           makeEmpty={emptySkillsItem}
           noun={noun}
+          sectionName={sectionName}
           renderItem={(item, set) => (
             <SkillsItemEditor item={item} onChange={set} />
           )}
@@ -186,9 +201,12 @@ function SectionBody({
       return (
         <SectionItems
           items={section.items}
-          onChange={(items) => onChange({ ...section, items })}
+          update={(fn) =>
+            onChange((s) => ({ ...s, items: fn((s as typeof section).items) }) as Section)
+          }
           makeEmpty={emptyProjectItem}
           noun={noun}
+          sectionName={sectionName}
           renderItem={(item, set) => (
             <ProjectItemEditor item={item} onChange={set} />
           )}
@@ -198,9 +216,12 @@ function SectionBody({
       return (
         <SectionItems
           items={section.items}
-          onChange={(items) => onChange({ ...section, items })}
+          update={(fn) =>
+            onChange((s) => ({ ...s, items: fn((s as typeof section).items) }) as Section)
+          }
           makeEmpty={emptyCustomItem}
           noun={noun}
+          sectionName={sectionName}
           renderItem={(item, set) => (
             <CustomItemEditor item={item} onChange={set} />
           )}
@@ -221,20 +242,23 @@ function SummaryBody({
   onChange,
 }: {
   section: Extract<Section, { type: "summary" }>;
-  onChange: (section: Section) => void;
+  onChange: (update: (section: Section) => Section) => void;
 }) {
   const first = section.items[0];
   return (
     <Textarea
       aria-label="Summary"
       value={first ? readText(first.text) : ""}
-      onChange={(e) => {
-        const base = first ?? emptySummaryItem();
-        onChange({
-          ...section,
-          items: [{ ...base, text: e.target.value }, ...section.items.slice(1)],
-        });
-      }}
+      onChange={(e) =>
+        onChange((s) => {
+          const items = (s as typeof section).items;
+          const base = items[0] ?? emptySummaryItem();
+          return {
+            ...s,
+            items: [{ ...base, text: e.target.value }, ...items.slice(1)],
+          } as Section;
+        })
+      }
       placeholder="A few lines on who you are and what you do."
       className="min-h-20"
     />
@@ -243,16 +267,18 @@ function SummaryBody({
 
 function SectionItems<I extends { id: string; hidden: boolean }>({
   items,
-  onChange,
+  update,
   makeEmpty,
   renderItem,
   noun,
+  sectionName,
 }: {
   items: I[];
-  onChange: (items: I[]) => void;
+  update: (fn: (items: I[]) => I[]) => void;
   makeEmpty: () => I;
   renderItem: (item: I, onChange: (item: I) => void) => ReactNode;
   noun: string;
+  sectionName: string;
 }) {
   return (
     <div className="space-y-4">
@@ -263,26 +289,33 @@ function SectionItems<I extends { id: string; hidden: boolean }>({
           {items.map((item, i) => (
             <ItemPanel
               key={item.id}
-              // Position-numbered, so each entry's controls get a distinct
-              // accessible name within the section ("Move role 2 up"). The number
-              // is the current slot, so it tracks the entry after a reorder.
-              label={`${noun} ${i + 1}`}
+              // Numbered by current slot for a readable name, prefixed with the
+              // section so it stays distinct across sections ("Move Experience
+              // role 2 up"). The operations below key off the stable `item.id`,
+              // not this index, so a concurrent reorder can't make them act on the
+              // wrong entry.
+              label={`${sectionName} ${noun} ${i + 1}`}
               hidden={item.hidden}
               isFirst={i === 0}
               isLast={i === items.length - 1}
-              onMoveUp={() => onChange(moveAt(items, i, i - 1))}
-              onMoveDown={() => onChange(moveAt(items, i, i + 1))}
-              onToggleHidden={() =>
-                onChange(replaceAt(items, i, toggleHidden(item)))
+              onMove={(delta) =>
+                update((live) => moveById(live, item.id, delta))
               }
-              onRemove={() => onChange(removeAt(items, i))}
+              onToggleHidden={() =>
+                update((live) => updateById(live, item.id, toggleHidden))
+              }
+              onRemove={() =>
+                update((live) => live.filter((entry) => entry.id !== item.id))
+              }
             >
-              {renderItem(item, (next) => onChange(replaceAt(items, i, next)))}
+              {renderItem(item, (next) =>
+                update((live) => updateById(live, item.id, () => next)),
+              )}
             </ItemPanel>
           ))}
         </div>
       )}
-      <AddButton onClick={() => onChange([...items, makeEmpty()])}>
+      <AddButton onClick={() => update((live) => [...live, makeEmpty()])}>
         {`Add ${noun}`}
       </AddButton>
     </div>
