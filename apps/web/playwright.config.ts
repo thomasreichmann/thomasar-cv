@@ -28,6 +28,10 @@ loadE2EEnv();
 // place of) a normal `pnpm dev` on 3000, which points at the real database.
 const PORT = process.env.E2E_PORT ?? "3100";
 const BASE_URL = process.env.E2E_BASE_URL ?? `http://localhost:${PORT}`;
+// Publish the resolved origin so the per-worker auth fixture (a worker-scoped
+// fixture, which can't read the project's `use.baseURL`) signs up against the
+// same server. Workers inherit this process's env.
+process.env.E2E_BASE_URL ??= BASE_URL;
 
 /**
  * Projects run in stages: `setup` resets the database and saves the signed-in
@@ -41,7 +45,12 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  // Run parallel in CI too (not workers: 1), so CI exercises the same per-worker
+  // isolation developers run locally; a worker-collision bug can't hide behind
+  // serial execution. Two is the floor that does that - one would be serial - and
+  // enough on a small CI runner, where more workers only contend over the single
+  // dev server and ephemeral Postgres without covering anything new.
+  workers: process.env.CI ? 2 : undefined,
   reporter: process.env.CI ? "github" : "list",
   use: {
     baseURL: BASE_URL,

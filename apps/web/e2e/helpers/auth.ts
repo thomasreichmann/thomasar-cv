@@ -13,15 +13,26 @@ export interface TestUser {
   password: string;
 }
 
-/** The seeded user reused across authenticated specs. */
-export const REGULAR_USER: TestUser = {
-  name: "Regular E2E",
-  email: "user-e2e@test.local",
-  password: "user-e2e-password-123",
-};
+/**
+ * One user per parallel worker, so résumés seeded by tests on different workers
+ * are owned by different accounts and a spec can never see another's rows. Keyed
+ * by `parallelIndex` (not `workerIndex`): it is bounded by the worker count and
+ * reused when a worker respawns on retry, so the same account is reused and the
+ * idempotent sign-in-then-sign-up below covers it.
+ */
+export function userForWorker(parallelIndex: number): TestUser {
+  const slug = `w${parallelIndex}`;
+  return {
+    name: `E2E worker ${parallelIndex}`,
+    email: `user-e2e-${slug}@test.local`,
+    password: `user-e2e-${slug}-password-123`,
+  };
+}
 
-/** Where the signed-in cookie state for REGULAR_USER is saved. */
-export const USER_STATE_PATH = "e2e/.auth/user.json";
+/** Where a worker's signed-in cookie state is saved (one file per worker). */
+export function userStatePath(parallelIndex: number): string {
+  return `e2e/.auth/user-w${parallelIndex}.json`;
+}
 
 // BetterAuth rejects sign-up/sign-in POSTs whose Origin isn't trusted; the
 // dev/CI server trusts its own origin, so echo it back.

@@ -8,10 +8,21 @@ import { test as base, expect, type ConsoleMessage } from "@playwright/test";
  * request surfaced to the console. The check is `auto`, so every spec built on
  * this fixture gets it without opting in; the other fixtures (authenticated,
  * resume) extend this, so it rides along with the whole suite.
+ *
+ * `expectedConsoleErrors` is the escape hatch for a test that legitimately
+ * provokes a console error - e.g. asserting a 404, which the browser logs as a
+ * failed resource load. A spec declares the patterns it expects with
+ * `test.use({ expectedConsoleErrors: [/.../] })`; matching messages are dropped
+ * and anything else still fails the test, so the guard stays strict for the
+ * errors nobody asked for.
  */
-export const test = base.extend<{ failOnConsoleError: void }>({
+export const test = base.extend<{
+  expectedConsoleErrors: RegExp[];
+  failOnConsoleError: void;
+}>({
+  expectedConsoleErrors: [[], { option: true }],
   failOnConsoleError: [
-    async ({ page }, use) => {
+    async ({ page, expectedConsoleErrors }, use) => {
       const errors: string[] = [];
       page.on("console", (message: ConsoleMessage) => {
         if (message.type() === "error") errors.push(message.text());
@@ -20,9 +31,12 @@ export const test = base.extend<{ failOnConsoleError: void }>({
 
       await use();
 
+      const unexpected = errors.filter(
+        (error) => !expectedConsoleErrors.some((pattern) => pattern.test(error)),
+      );
       expect(
-        errors,
-        `the page logged ${errors.length} console error(s):\n${errors.join("\n")}`,
+        unexpected,
+        `the page logged ${unexpected.length} unexpected console error(s):\n${unexpected.join("\n")}`,
       ).toEqual([]);
     },
     { auto: true },
