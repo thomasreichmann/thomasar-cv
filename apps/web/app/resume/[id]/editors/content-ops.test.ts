@@ -8,10 +8,14 @@ import { describe, expect, it } from "vitest";
 import {
   emptyContact,
   emptySection,
+  moveAt,
+  moveById,
   newId,
   removeAt,
   replaceAt,
   SECTION_TYPES,
+  toggleHidden,
+  updateById,
 } from "./content-ops";
 
 describe("newId", () => {
@@ -61,5 +65,70 @@ describe("list helpers", () => {
     const source = [1, 2, 3];
     expect(removeAt(source, 0)).toEqual([2, 3]);
     expect(source).toEqual([1, 2, 3]);
+  });
+
+  it("moveAt shifts one element up and down without mutating the source", () => {
+    const source = [1, 2, 3];
+    expect(moveAt(source, 2, 1)).toEqual([1, 3, 2]);
+    expect(moveAt(source, 0, 2)).toEqual([2, 3, 1]);
+    expect(source).toEqual([1, 2, 3]);
+  });
+
+  it("moveAt past either end is a no-op clone", () => {
+    const source = [1, 2, 3];
+    expect(moveAt(source, 0, -1)).toEqual([1, 2, 3]);
+    expect(moveAt(source, 2, 3)).toEqual([1, 2, 3]);
+    expect(moveAt(source, 0, -1)).not.toBe(source);
+  });
+
+  it("toggleHidden flips the flag, preserving the rest of the node", () => {
+    const node = { id: "exp-1", hidden: false, company: "Acme" };
+    expect(toggleHidden(node)).toEqual({
+      id: "exp-1",
+      hidden: true,
+      company: "Acme",
+    });
+    expect(toggleHidden({ ...node, hidden: true }).hidden).toBe(false);
+    expect(node.hidden).toBe(false);
+  });
+
+  it("moveById moves the matching node by delta, resolving its position by id", () => {
+    const source = [{ id: "a" }, { id: "b" }, { id: "c" }];
+    expect(moveById(source, "a", 1)).toEqual([
+      { id: "b" },
+      { id: "a" },
+      { id: "c" },
+    ]);
+    expect(moveById(source, "c", -2)).toEqual([
+      { id: "c" },
+      { id: "a" },
+      { id: "b" },
+    ]);
+    expect(source).toEqual([{ id: "a" }, { id: "b" }, { id: "c" }]);
+  });
+
+  it("moveById no-ops (clone) on an unknown id or a move past either end", () => {
+    const source = [{ id: "a" }, { id: "b" }];
+    expect(moveById(source, "missing", 1)).toEqual(source);
+    expect(moveById(source, "a", -1)).toEqual(source);
+    expect(moveById(source, "b", 1)).toEqual(source);
+    expect(moveById(source, "missing", 1)).not.toBe(source);
+  });
+
+  it("updateById replaces only the matching node, leaving a new array", () => {
+    const source = [
+      { id: "a", n: 1 },
+      { id: "b", n: 2 },
+    ];
+    const next = updateById(source, "b", (item) => ({ ...item, n: 9 }));
+    expect(next).toEqual([
+      { id: "a", n: 1 },
+      { id: "b", n: 9 },
+    ]);
+    expect(next).not.toBe(source);
+    expect(source).toEqual([
+      { id: "a", n: 1 },
+      { id: "b", n: 2 },
+    ]);
   });
 });

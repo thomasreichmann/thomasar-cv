@@ -16,8 +16,10 @@ import {
 import { useEditor } from "./editor-context";
 import {
   emptySection,
+  moveById,
   SECTION_LABEL,
   SECTION_TYPES,
+  updateById,
 } from "./editors/content-ops";
 import { HeaderEditor } from "./editors/header-editor";
 import { SectionEditor } from "./editors/section-editor";
@@ -51,12 +53,23 @@ export function EditorColumn() {
         >
           <SectionEditor
             section={section}
-            onChange={(next) =>
+            isFirst={i === 0}
+            isLast={i === sections.length - 1}
+            // Every write resolves the section by its stable `id` inside the
+            // updater, never by the closed-over `i`: a stale index from a render
+            // before the previous move would touch the wrong section. Edits run
+            // through `update` (applied to the live section), reorders through
+            // `moveById`, so both levels share one id-keyed mechanism.
+            onChange={(update) =>
               updateContent((prev) => ({
                 ...prev,
-                sections: prev.sections.map((s) =>
-                  s.id === section.id ? next : s,
-                ),
+                sections: updateById(prev.sections, section.id, update),
+              }))
+            }
+            onMove={(delta) =>
+              updateContent((prev) => ({
+                ...prev,
+                sections: moveById(prev.sections, section.id, delta),
               }))
             }
             onRemove={() =>

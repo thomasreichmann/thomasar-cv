@@ -17,6 +17,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/cn";
 
 import {
   emptyCustomItem,
@@ -25,12 +26,19 @@ import {
   emptyProjectItem,
   emptySkillsItem,
   emptySummaryItem,
-  removeAt,
-  replaceAt,
+  moveById,
   SECTION_ITEM_NOUN,
   SECTION_LABEL,
+  toggleHidden,
+  updateById,
 } from "./content-ops";
-import { AddButton, EditorPanel, ItemPanel } from "./editor-fields";
+import {
+  AddButton,
+  EditorPanel,
+  HiddenMarker,
+  ItemPanel,
+  NodeControls,
+} from "./editor-fields";
 import {
   CustomItemEditor,
   EducationItemEditor,
@@ -58,22 +66,40 @@ export function SectionEditor({
   section,
   onChange,
   onRemove,
+  onMove,
+  isFirst,
+  isLast,
 }: {
   section: Section;
-  onChange: (section: Section) => void;
+  onChange: (update: (section: Section) => Section) => void;
   onRemove: () => void;
+  onMove: (delta: -1 | 1) => void;
+  isFirst: boolean;
+  isLast: boolean;
 }) {
   return (
     <EditorPanel>
       <div className="space-y-4">
-        <div className="flex items-start gap-2">
+        <div className="flex items-center gap-2">
           <input
             value={readText(section.title)}
-            onChange={(e) => onChange(withTitle(section, e.target.value))}
+            onChange={(e) => onChange((s) => withTitle(s, e.target.value))}
             aria-label={`${SECTION_LABEL[section.type]} section title`}
             placeholder={SECTION_LABEL[section.type]}
             spellCheck={false}
-            className="-ml-1.5 min-w-0 flex-1 truncate rounded-md bg-transparent px-1.5 py-0.5 text-lg font-semibold tracking-tight outline-none transition-colors placeholder:text-muted-foreground/50 hover:bg-muted/40 focus-visible:bg-muted/40 focus-visible:ring-2 focus-visible:ring-ring"
+            className={cn(
+              "-ml-1.5 min-w-0 flex-1 truncate rounded-md bg-transparent px-1.5 py-0.5 text-lg font-semibold tracking-tight outline-none transition-colors placeholder:text-muted-foreground/50 hover:bg-muted/40 focus-visible:bg-muted/40 focus-visible:ring-2 focus-visible:ring-ring",
+              section.hidden && "text-muted-foreground",
+            )}
+          />
+          {section.hidden ? <HiddenMarker /> : null}
+          <NodeControls
+            label={`${SECTION_LABEL[section.type]} section`}
+            hidden={section.hidden}
+            isFirst={isFirst}
+            isLast={isLast}
+            onMove={onMove}
+            onToggleHidden={() => onChange(toggleHidden)}
           />
           <RemoveSectionButton
             sectionLabel={SECTION_LABEL[section.type]}
@@ -82,7 +108,14 @@ export function SectionEditor({
           />
         </div>
 
-        <SectionBody section={section} onChange={onChange} />
+        <div
+          className={cn(
+            "transition-opacity",
+            section.hidden && "opacity-45",
+          )}
+        >
+          <SectionBody section={section} onChange={onChange} />
+        </div>
       </div>
     </EditorPanel>
   );
@@ -100,25 +133,35 @@ function SectionBody({
   onChange,
 }: {
   section: Section;
-  onChange: (section: Section) => void;
+  onChange: (update: (section: Section) => Section) => void;
 }) {
   if (section.type === "summary") {
     return <SummaryBody section={section} onChange={onChange} />;
   }
 
   const noun = SECTION_ITEM_NOUN[section.type];
-  const addLabel = `Add ${noun}`;
-  const removeLabel = `Remove ${noun}`;
+  // Prefix item control labels with the section's name so two sections that share
+  // a noun (education and custom both use "entry") don't produce the same
+  // accessible name; the title is the natural handle, falling back to the type.
+  const sectionName = readText(section.title) || SECTION_LABEL[section.type];
 
+  // Each branch passes the same item updater: it rewrites the section's items
+  // against the section's *live* value inside `onChange`, so an edit never acts on
+  // a captured snapshot. The cast mirrors withTitle - re-stamping `items` on a
+  // union member drops the link to the `type` discriminant, but only `items`
+  // changes, so it is sound. It is inlined per branch (not hoisted) because the
+  // narrowed `section` is what makes `fn` line up with the branch's item type.
   switch (section.type) {
     case "experience":
       return (
         <SectionItems
           items={section.items}
-          onChange={(items) => onChange({ ...section, items })}
+          update={(fn) =>
+            onChange((s) => ({ ...s, items: fn((s as typeof section).items) }) as Section)
+          }
           makeEmpty={emptyExperienceItem}
-          addLabel={addLabel}
-          removeLabel={removeLabel}
+          noun={noun}
+          sectionName={sectionName}
           renderItem={(item, set) => (
             <ExperienceItemEditor item={item} onChange={set} />
           )}
@@ -128,10 +171,12 @@ function SectionBody({
       return (
         <SectionItems
           items={section.items}
-          onChange={(items) => onChange({ ...section, items })}
+          update={(fn) =>
+            onChange((s) => ({ ...s, items: fn((s as typeof section).items) }) as Section)
+          }
           makeEmpty={emptyEducationItem}
-          addLabel={addLabel}
-          removeLabel={removeLabel}
+          noun={noun}
+          sectionName={sectionName}
           renderItem={(item, set) => (
             <EducationItemEditor item={item} onChange={set} />
           )}
@@ -141,10 +186,12 @@ function SectionBody({
       return (
         <SectionItems
           items={section.items}
-          onChange={(items) => onChange({ ...section, items })}
+          update={(fn) =>
+            onChange((s) => ({ ...s, items: fn((s as typeof section).items) }) as Section)
+          }
           makeEmpty={emptySkillsItem}
-          addLabel={addLabel}
-          removeLabel={removeLabel}
+          noun={noun}
+          sectionName={sectionName}
           renderItem={(item, set) => (
             <SkillsItemEditor item={item} onChange={set} />
           )}
@@ -154,10 +201,12 @@ function SectionBody({
       return (
         <SectionItems
           items={section.items}
-          onChange={(items) => onChange({ ...section, items })}
+          update={(fn) =>
+            onChange((s) => ({ ...s, items: fn((s as typeof section).items) }) as Section)
+          }
           makeEmpty={emptyProjectItem}
-          addLabel={addLabel}
-          removeLabel={removeLabel}
+          noun={noun}
+          sectionName={sectionName}
           renderItem={(item, set) => (
             <ProjectItemEditor item={item} onChange={set} />
           )}
@@ -167,10 +216,12 @@ function SectionBody({
       return (
         <SectionItems
           items={section.items}
-          onChange={(items) => onChange({ ...section, items })}
+          update={(fn) =>
+            onChange((s) => ({ ...s, items: fn((s as typeof section).items) }) as Section)
+          }
           makeEmpty={emptyCustomItem}
-          addLabel={addLabel}
-          removeLabel={removeLabel}
+          noun={noun}
+          sectionName={sectionName}
           renderItem={(item, set) => (
             <CustomItemEditor item={item} onChange={set} />
           )}
@@ -191,40 +242,43 @@ function SummaryBody({
   onChange,
 }: {
   section: Extract<Section, { type: "summary" }>;
-  onChange: (section: Section) => void;
+  onChange: (update: (section: Section) => Section) => void;
 }) {
   const first = section.items[0];
   return (
     <Textarea
       aria-label="Summary"
       value={first ? readText(first.text) : ""}
-      onChange={(e) => {
-        const base = first ?? emptySummaryItem();
-        onChange({
-          ...section,
-          items: [{ ...base, text: e.target.value }, ...section.items.slice(1)],
-        });
-      }}
+      onChange={(e) =>
+        onChange((s) => {
+          const items = (s as typeof section).items;
+          const base = items[0] ?? emptySummaryItem();
+          return {
+            ...s,
+            items: [{ ...base, text: e.target.value }, ...items.slice(1)],
+          } as Section;
+        })
+      }
       placeholder="A few lines on who you are and what you do."
       className="min-h-20"
     />
   );
 }
 
-function SectionItems<I extends { id: string }>({
+function SectionItems<I extends { id: string; hidden: boolean }>({
   items,
-  onChange,
+  update,
   makeEmpty,
   renderItem,
-  addLabel,
-  removeLabel,
+  noun,
+  sectionName,
 }: {
   items: I[];
-  onChange: (items: I[]) => void;
+  update: (fn: (items: I[]) => I[]) => void;
   makeEmpty: () => I;
   renderItem: (item: I, onChange: (item: I) => void) => ReactNode;
-  addLabel: string;
-  removeLabel: string;
+  noun: string;
+  sectionName: string;
 }) {
   return (
     <div className="space-y-4">
@@ -235,16 +289,34 @@ function SectionItems<I extends { id: string }>({
           {items.map((item, i) => (
             <ItemPanel
               key={item.id}
-              removeLabel={removeLabel}
-              onRemove={() => onChange(removeAt(items, i))}
+              // Numbered by current slot for a readable name, prefixed with the
+              // section so it stays distinct across sections ("Move Experience
+              // role 2 up"). The operations below key off the stable `item.id`,
+              // not this index, so a concurrent reorder can't make them act on the
+              // wrong entry.
+              label={`${sectionName} ${noun} ${i + 1}`}
+              hidden={item.hidden}
+              isFirst={i === 0}
+              isLast={i === items.length - 1}
+              onMove={(delta) =>
+                update((live) => moveById(live, item.id, delta))
+              }
+              onToggleHidden={() =>
+                update((live) => updateById(live, item.id, toggleHidden))
+              }
+              onRemove={() =>
+                update((live) => live.filter((entry) => entry.id !== item.id))
+              }
             >
-              {renderItem(item, (next) => onChange(replaceAt(items, i, next)))}
+              {renderItem(item, (next) =>
+                update((live) => updateById(live, item.id, () => next)),
+              )}
             </ItemPanel>
           ))}
         </div>
       )}
-      <AddButton onClick={() => onChange([...items, makeEmpty()])}>
-        {addLabel}
+      <AddButton onClick={() => update((live) => [...live, makeEmpty()])}>
+        {`Add ${noun}`}
       </AddButton>
     </div>
   );

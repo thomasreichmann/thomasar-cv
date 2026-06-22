@@ -1,7 +1,15 @@
 "use client";
 
-import { PlusIcon, Trash2Icon, XIcon } from "lucide-react";
-import { useId, type ReactNode } from "react";
+import {
+  ArrowDownIcon,
+  ArrowUpIcon,
+  EyeIcon,
+  EyeOffIcon,
+  PlusIcon,
+  Trash2Icon,
+  XIcon,
+} from "lucide-react";
+import { useId, useRef, type ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -274,37 +282,176 @@ export function RemoveButton({
   );
 }
 
+/** A ghost icon button sized for the control rail. */
+function RailButton({
+  label,
+  disabled,
+  onClick,
+  children,
+}: {
+  label: string;
+  disabled?: boolean;
+  onClick: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <Button
+      type="button"
+      variant="ghost"
+      size="icon-xs"
+      aria-label={label}
+      disabled={disabled}
+      onClick={onClick}
+      className="hover:text-foreground"
+    >
+      {children}
+    </Button>
+  );
+}
+
+/**
+ * The reorder + visibility cluster a section or an entry carries: move up, move
+ * down, and a hide/show toggle. Moves disable at the ends of the list instead of
+ * wrapping, so focus order stays predictable; every control is a real button, so
+ * the cluster is fully keyboard-operable - drag-and-drop was explicitly optional
+ * for #38. Remove stays a separate control: it is destructive and, for a section,
+ * sits behind a confirm.
+ *
+ * `label` names the node ("Experience section", "Experience role 2") so each
+ * button lands a distinct accessible name; the hide toggle's name flips with
+ * state so a screen reader hears the action it will take, while the dimmed surface
+ * and the `Hidden` marker carry the state itself.
+ */
+export function NodeControls({
+  label,
+  hidden,
+  isFirst,
+  isLast,
+  onMove,
+  onToggleHidden,
+}: {
+  label: string;
+  hidden: boolean;
+  isFirst: boolean;
+  isLast: boolean;
+  onMove: (delta: -1 | 1) => void;
+  onToggleHidden: () => void;
+}) {
+  const railRef = useRef<HTMLDivElement>(null);
+
+  // A move that lands the node at a list end disables the button that fired it,
+  // and a disabled element can't keep focus, so a keyboard reorder would lose its
+  // place. Once the move commits, if focus has dropped out of the rail, pull it
+  // back to the first still-enabled control (the opposite arrow) so the next key
+  // press continues the reorder instead of falling to <body>.
+  const move = (delta: -1 | 1) => {
+    onMove(delta);
+    requestAnimationFrame(() => {
+      const rail = railRef.current;
+      if (!rail || rail.contains(document.activeElement)) return;
+      rail.querySelector<HTMLButtonElement>("button:not([disabled])")?.focus();
+    });
+  };
+
+  return (
+    <div ref={railRef} className="flex items-center text-muted-foreground">
+      <RailButton
+        label={`Move ${label} up`}
+        disabled={isFirst}
+        onClick={() => move(-1)}
+      >
+        <ArrowUpIcon />
+      </RailButton>
+      <RailButton
+        label={`Move ${label} down`}
+        disabled={isLast}
+        onClick={() => move(1)}
+      >
+        <ArrowDownIcon />
+      </RailButton>
+      <RailButton
+        label={`${hidden ? "Show" : "Hide"} ${label}`}
+        onClick={onToggleHidden}
+      >
+        {hidden ? <EyeIcon /> : <EyeOffIcon />}
+      </RailButton>
+    </div>
+  );
+}
+
+/**
+ * The tag a tailored-out node wears. Hidden nodes stay in the document and stay
+ * editable (#38) - they are only dropped from the render - so the editor marks the
+ * state instead of removing the card. Always shown when hidden (not hover-gated),
+ * because it is the cue that explains the dimmed surface; pair it with that dim.
+ */
+export function HiddenMarker() {
+  return (
+    <span className="rounded-full bg-muted px-2 py-0.5 font-mono text-[0.6rem] uppercase tracking-[0.2em] text-muted-foreground">
+      Hidden
+    </span>
+  );
+}
+
 /**
  * One entry inside a section (a role, a project, …). It is flat - no card of its
  * own - so an entry doesn't stack a third bordered surface inside the section
  * card and its inputs (#51); the section's entry list hairlines them apart
- * instead. The remove control sits quiet until the row is hovered or focused, so
- * a column of entries stays calm but never hides the affordance from a keyboard
- * user.
+ * instead. The control rail (reorder, hide, remove) rides in the gutter gap above
+ * the fields so it never overlaps them, and stays quiet until the row is hovered
+ * or focused so a column of entries reads calm without hiding the affordances from
+ * a keyboard user. The `Hidden` marker is the exception: it stays visible whenever
+ * the entry is hidden, since it is what explains the dimmed fields.
  */
 export function ItemPanel({
+  label,
+  hidden,
+  isFirst,
+  isLast,
+  onMove,
+  onToggleHidden,
   onRemove,
-  removeLabel,
   children,
 }: {
+  label: string;
+  hidden: boolean;
+  isFirst: boolean;
+  isLast: boolean;
+  onMove: (delta: -1 | 1) => void;
+  onToggleHidden: () => void;
   onRemove: () => void;
-  removeLabel: string;
   children: ReactNode;
 }) {
   return (
     // py-4 + the list's divider hairline separate one entry from the next; the
-    // first/last collapse their outer padding so entries sit flush to the card
-    // body. The relative wrapper starts after that padding, so the remove control
-    // aligns to the first field whether or not this is the first entry.
-    <div className="group/item py-4 first:pt-0 last:pb-0">
-      <div className="relative pr-10">
-        <div className="space-y-4">{children}</div>
-        <RemoveButton
-          trash
-          label={removeLabel}
-          onClick={onRemove}
-          className="absolute top-0 right-0 opacity-0 transition-opacity group-focus-within/item:opacity-100 group-hover/item:opacity-100"
-        />
+    // last collapses its bottom padding so the column sits flush to the card body.
+    // The first keeps a small top gutter (pt-3, matching the rail's -top-3 pull)
+    // rather than collapsing to zero, so the control rail has room above the first
+    // field instead of riding over it.
+    <div className="group/item relative py-4 first:pt-3 last:pb-0">
+      {/* Pinned into the top gutter and right edge, on a card-coloured chip so it
+          sits cleanly on the divider hairline rather than over the first field. */}
+      <div className="absolute -top-3 right-0 z-10 flex items-center gap-1 rounded-md bg-card">
+        {hidden ? <HiddenMarker /> : null}
+        <div className="flex items-center opacity-0 transition-opacity group-focus-within/item:opacity-100 group-hover/item:opacity-100">
+          <NodeControls
+            label={label}
+            hidden={hidden}
+            isFirst={isFirst}
+            isLast={isLast}
+            onMove={onMove}
+            onToggleHidden={onToggleHidden}
+          />
+          <RemoveButton trash label={`Remove ${label}`} onClick={onRemove} />
+        </div>
+      </div>
+      <div
+        className={cn(
+          "space-y-4 transition-opacity",
+          hidden && "opacity-45",
+        )}
+      >
+        {children}
       </div>
     </div>
   );

@@ -45,6 +45,24 @@ describe("flattenResume", () => {
     );
   });
 
+  it("renders a summary whose lone item is flagged hidden (section-level visibility governs a summary)", () => {
+    const content: ResumeContent = {
+      ...exampleResume,
+      sections: [
+        {
+          id: "sec-summary",
+          type: "summary",
+          title: "Summary",
+          hidden: false,
+          items: [{ id: "s1", text: "still shown", hidden: true }],
+        },
+      ],
+    };
+    expect(texts(flattenResume(content, "en")).join("\n")).toContain(
+      "still shown",
+    );
+  });
+
   it("keeps section and item order from array position", () => {
     const titles = flattenResume(exampleResume, "en")
       .filter((b) => b.t === "sectionTitle")
