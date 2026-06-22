@@ -10,7 +10,9 @@ test.describe("auth (signed out)", () => {
     ).toBeVisible();
     await expect(page.getByLabel("Email")).toBeVisible();
     await expect(page.getByLabel("Password")).toBeVisible();
-    await expect(page.getByRole("button", { name: /sign in/i })).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Sign in", exact: true }),
+    ).toBeVisible();
   });
 
   test("the dashboard redirects to sign-in when signed out", async ({
