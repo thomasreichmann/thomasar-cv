@@ -90,6 +90,7 @@ export const summaryItem = z.object({
   ...nodeBase,
   text: localizedText,
 });
+export type SummaryItem = z.infer<typeof summaryItem>;
 
 export const experienceItem = z.object({
   ...nodeBase,
@@ -101,6 +102,7 @@ export const experienceItem = z.object({
   dateRange,
   bullets: z.array(localizedText).default([]),
 });
+export type ExperienceItem = z.infer<typeof experienceItem>;
 
 export const educationItem = z.object({
   ...nodeBase,
@@ -110,6 +112,7 @@ export const educationItem = z.object({
   dateRange,
   details: z.array(localizedText).default([]),
 });
+export type EducationItem = z.infer<typeof educationItem>;
 
 export const skillsItem = z.object({
   ...nodeBase,
@@ -117,6 +120,7 @@ export const skillsItem = z.object({
   category: localizedText.optional(),
   skills: z.array(localizedText).default([]),
 });
+export type SkillsItem = z.infer<typeof skillsItem>;
 
 export const projectItem = z.object({
   ...nodeBase,
@@ -126,6 +130,7 @@ export const projectItem = z.object({
   bullets: z.array(localizedText).default([]),
   dateRange: dateRange.optional(),
 });
+export type ProjectItem = z.infer<typeof projectItem>;
 
 export const customItem = z.object({
   ...nodeBase,
@@ -133,6 +138,7 @@ export const customItem = z.object({
   body: localizedText.optional(),
   bullets: z.array(localizedText).default([]),
 });
+export type CustomItem = z.infer<typeof customItem>;
 
 /** Fields shared by every section, regardless of type. */
 const sectionBase = {
