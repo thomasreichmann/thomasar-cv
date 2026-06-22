@@ -1,4 +1,5 @@
 import { createTRPCRouter, publicProcedure } from "../init";
+import { devRouter } from "./dev";
 import { resumeRouter } from "./resume";
 
 export const appRouter = createTRPCRouter({
@@ -16,6 +17,9 @@ export const appRouter = createTRPCRouter({
 
   /** Résumé reads and writes, scoped to the signed-in user. */
   resume: resumeRouter,
+
+  /** Dev-only sign-in shortcut for preview/local review. Refused in prod. */
+  dev: devRouter,
 });
 
 /** Router type consumed by the typed client. Export type only, never values. */
