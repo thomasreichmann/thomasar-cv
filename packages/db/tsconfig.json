@@ -1,5 +1,10 @@
 {
   "extends": "@thomasar-cv/tsconfig/base.json",
-  "include": ["src/**/*.ts", "drizzle.config.ts", "vitest.config.ts"],
+  "include": [
+    "src/**/*.ts",
+    "scripts/**/*.ts",
+    "drizzle.config.ts",
+    "vitest.config.ts"
+  ],
   "exclude": ["node_modules", "dist", "drizzle"]
 }
