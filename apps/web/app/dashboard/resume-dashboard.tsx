@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { FileTextIcon, PlusIcon } from "lucide-react";
+import { FileTextIcon, Loader2Icon, PlusIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -16,8 +16,8 @@ const NEW_RESUME_NAME = "Untitled résumé";
  * The résumé management surface (issue #36): list, create, open, delete. Data
  * lives entirely in the client cache so a create or delete can refresh the list
  * in place. Creating opens the new résumé straight in the editor, which is where
- * the user fills it in; the list is invalidated first so the row is present when
- * they navigate back.
+ * the user fills it in; the list refreshes in the background so the row is
+ * present when they navigate back.
  */
 export function ResumeDashboard() {
   const trpc = useTRPC();
@@ -28,15 +28,26 @@ export function ResumeDashboard() {
 
   const create = useMutation(
     trpc.resume.create.mutationOptions({
-      onSuccess: async (created) => {
-        await queryClient.invalidateQueries(trpc.resume.list.queryFilter());
+      onSuccess: (created) => {
+        // Redirect into the editor straight away, then refresh the list in the
+        // background. Awaiting the refetch first rendered the new row into the
+        // dashboard for a beat before the redirect fired, so the user could
+        // click a row that was about to navigate there anyway — it felt like
+        // being interrupted mid-action. The redirect shouldn't wait on a list
+        // the user is leaving; the refresh just keeps it current for the return.
         router.push(`/resume/${created.id}`);
+        void queryClient.invalidateQueries(trpc.resume.list.queryFilter());
       },
       onError: () => toast.error("Could not create the résumé."),
     }),
   );
 
   const onCreate = () => create.mutate({ name: NEW_RESUME_NAME });
+
+  // Once a create succeeds we're navigating away. Hold the surface on a quiet
+  // "opening" state instead of letting the background refetch flash the new,
+  // clickable row in where the user was just looking.
+  const redirecting = create.isSuccess;
 
   // The empty state owns the create CTA when there's nothing yet, so the header
   // button only shows once there's a list beside it. That keeps exactly one
@@ -57,7 +68,7 @@ export function ResumeDashboard() {
         {hasResumes && (
           <Button
             onClick={onCreate}
-            disabled={create.isPending}
+            disabled={create.isPending || redirecting}
             className="shrink-0"
           >
             <PlusIcon />
@@ -66,7 +77,9 @@ export function ResumeDashboard() {
         )}
       </header>
 
-      {resumes.isPending ? (
+      {redirecting ? (
+        <RedirectingState />
+      ) : resumes.isPending ? (
         <ListSkeleton />
       ) : resumes.isError ? (
         <ErrorState onRetry={() => resumes.refetch()} />
@@ -99,6 +112,15 @@ function ListSkeleton() {
         />
       ))}
     </ul>
+  );
+}
+
+function RedirectingState() {
+  return (
+    <div className="flex flex-col items-center gap-4 rounded-xl border border-dashed border-border/70 px-6 py-16 text-center">
+      <Loader2Icon className="size-5 animate-spin text-muted-foreground" />
+      <p className="text-sm text-muted-foreground">Opening your résumé…</p>
+    </div>
   );
 }
 
