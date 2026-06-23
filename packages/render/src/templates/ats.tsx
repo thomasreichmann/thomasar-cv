@@ -59,7 +59,9 @@ function createStyles(theme: ResumeTheme) {
     rowRight: { fontSize: fs(9), color: "#555" },
     sub: { fontSize: fs(9), color: "#555" },
     bulletRow: { flexDirection: "row", marginTop: sp(1) },
-    bulletGlyph: { width: 10 },
+    // The hanging indent is a type dimension, so it scales with the font; left
+    // fixed, a larger `scale` would shrink the gap before bullet text.
+    bulletGlyph: { width: fs(10) },
     bulletText: { flex: 1 },
     text: { marginTop: sp(2) },
   });
