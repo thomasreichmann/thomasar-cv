@@ -4,3 +4,4 @@ export { renderResumeToBuffer, type RenderOptions } from "./render";
 export { resumeFileName } from "./filename";
 export type { ResumeTemplate } from "./template";
 export { atsTemplate } from "./templates/ats";
+export { resolveTheme, type ResolvedTheme } from "./theme";
