@@ -93,4 +93,18 @@ describe("reassignResumes (guest conversion merge, ADR 0005)", () => {
       ["Untouched"],
     );
   });
+
+  it("rejects and moves nothing when the target account does not exist", async () => {
+    await seedResume(db, { userId: GUEST, name: "Guest draft" });
+
+    await expect(reassignResumes(db, GUEST, "user_missing")).rejects.toThrow();
+
+    // The guest keeps its résumé. This is the safety property onLinkAccount
+    // leans on: a reassign that throws (here, the resume->user foreign key
+    // rejecting an unknown target) must leave the guest's rows intact, so the
+    // plugin aborts before deleting the guest and nothing is lost on a retry.
+    expect((await ownedResumes(db, GUEST).list()).map((r) => r.name)).toEqual([
+      "Guest draft",
+    ]);
+  });
 });

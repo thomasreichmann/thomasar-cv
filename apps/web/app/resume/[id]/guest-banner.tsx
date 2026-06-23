@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 import { Button } from "@/components/ui/button";
 
 /**
@@ -23,15 +21,20 @@ export function GuestBanner() {
             Create an account to keep it.
           </span>
         </p>
+        {/* Plain anchors, not next/link: the editor guards unsaved edits only
+            through `beforeunload`, which a soft client navigation skips. A
+            full-document navigation fires it, so a guest mid-edit gets the same
+            "leave with unsaved changes?" prompt the back control gives a
+            signed-in user, instead of silently losing work on the way to convert. */}
         <div className="flex shrink-0 items-center gap-2">
-          <Button size="sm" nativeButton={false} render={<Link href="/sign-up" />}>
+          <Button size="sm" nativeButton={false} render={<a href="/sign-up" />}>
             Sign up
           </Button>
           <Button
             size="sm"
             variant="ghost"
             nativeButton={false}
-            render={<Link href="/sign-in" />}
+            render={<a href="/sign-in" />}
           >
             Sign in
           </Button>

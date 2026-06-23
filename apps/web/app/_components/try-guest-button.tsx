@@ -7,13 +7,8 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { authClient, signIn } from "@/lib/auth/client";
+import { DEFAULT_RESUME_NAME } from "@/lib/resume";
 import { useTRPC } from "@/trpc/react";
-
-/**
- * Name a guest's first (and only) résumé starts with; the editor makes it
- * editable, matching what the dashboard does for a signed-in user's first row.
- */
-const GUEST_RESUME_NAME = "Untitled résumé";
 
 /**
  * The landing "try it" entry into guest mode (issue #67): mint an anonymous
@@ -46,13 +41,18 @@ export function TryGuestButton({ className }: { className?: string }) {
         if (error) throw new Error(error.message ?? "anonymous sign-in failed");
       }
 
-      // One résumé per guest: reopen the existing one for a returning guest,
-      // create it for a fresh session. Either way we land in the editor.
-      const existing = await queryClient.fetchQuery(
-        trpc.resume.list.queryOptions(),
-      );
+      // One résumé per guest: reopen the existing one, or create it for a fresh
+      // session. Force a network read (staleTime 0): resume.list's cache key
+      // carries no user id, so a prior account's list - or this guest's own
+      // stale empty list - can still be "fresh" under the 30s default, and would
+      // otherwise reopen a résumé this guest doesn't own (NOT_FOUND) or mint a
+      // duplicate by reusing a stale empty list.
+      const existing = await queryClient.fetchQuery({
+        ...trpc.resume.list.queryOptions(),
+        staleTime: 0,
+      });
       const target =
-        existing[0] ?? (await create.mutateAsync({ name: GUEST_RESUME_NAME }));
+        existing[0] ?? (await create.mutateAsync({ name: DEFAULT_RESUME_NAME }));
       router.push(`/resume/${target.id}`);
     } catch {
       toast.error("Couldn't start guest mode. Try again.");

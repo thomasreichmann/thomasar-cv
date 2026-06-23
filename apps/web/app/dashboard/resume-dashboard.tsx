@@ -6,11 +6,9 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { DEFAULT_RESUME_NAME } from "@/lib/resume";
 import { useTRPC } from "@/trpc/react";
 import { ResumeRow } from "./resume-row";
-
-/** Label a new résumé starts with; the editor (#40) makes the name editable. */
-const NEW_RESUME_NAME = "Untitled résumé";
 
 /**
  * The résumé management surface (issue #36): list, create, open, delete. Data
@@ -42,7 +40,7 @@ export function ResumeDashboard() {
     }),
   );
 
-  const onCreate = () => create.mutate({ name: NEW_RESUME_NAME });
+  const onCreate = () => create.mutate({ name: DEFAULT_RESUME_NAME });
 
   // Once a create succeeds we're navigating away. Hold the surface on a quiet
   // "opening" state instead of letting the background refetch flash the new,

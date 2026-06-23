@@ -42,7 +42,10 @@ test.describe("guest mode (issue #67)", () => {
     await page.getByLabel("Résumé name").fill(resumeName);
     const save = page.getByRole("button", { name: "Save", exact: true });
     await save.click();
-    await expect(save).toBeDisabled({ timeout: COLD }); // clean once the write lands
+    // Save is disabled both while the write is in flight and once clean, so this
+    // can resolve mid-save; the post-conversion dashboard assertion below is what
+    // actually proves the edit was persisted, not just submitted.
+    await expect(save).toBeDisabled({ timeout: COLD });
 
     // Convert by creating an account (the banner's Sign up links to /sign-up;
     // Base UI keeps role="button" on it even rendered as an anchor).
