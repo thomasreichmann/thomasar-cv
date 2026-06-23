@@ -4,9 +4,9 @@ A small, personal tool for maintaining a résumé as structured data instead of 
 
 The problem is deliberately small; the point is to build it the way something that has to last gets built - risk-first sequencing, decisions recorded as [ADRs](./docs/decisions/), ownership enforced structurally, real tests against a real database.
 
-**Live at [cv.thomasar.dev](https://cv.thomasar.dev).**
+**Live at [cv.thomasar.dev](https://cv.thomasar.dev)** - open the editor straight from the landing page in guest mode, no sign-up; create an account whenever you want to keep the work.
 
-> Status: v0.3 in progress - a deployed app with email + password auth, per-user résumé storage, a structured editor with live preview, and PDF export carrying a real, ATS-parseable text layer. Version history and tailored variants are next. See the [roadmap](./docs/planning/roadmap.md) for direction and [idea-and-requirements.md](./idea-and-requirements.md) for scope and non-goals.
+> Status: v0.3 in progress - a deployed app with email + password auth (plus a guest mode that lets a visitor try the editor anonymously and convert to an account, merging their work), per-user résumé storage, a structured editor with live preview, and PDF export carrying a real, ATS-parseable text layer. Version history and tailored variants are next. See the [roadmap](./docs/planning/roadmap.md) for direction and [idea-and-requirements.md](./idea-and-requirements.md) for scope and non-goals.
 
 ## Stack (as built)
 

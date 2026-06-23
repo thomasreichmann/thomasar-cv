@@ -9,6 +9,7 @@ import { useTRPC } from "@/trpc/react";
 import { EditorProvider } from "./editor-context";
 import { EditorToolbar } from "./editor-toolbar";
 import { EditorWorkspace } from "./editor-shell";
+import { GuestBanner } from "./guest-banner";
 
 /**
  * Loads one résumé and mounts the editor on it. The document is fetched on the
@@ -16,7 +17,13 @@ import { EditorWorkspace } from "./editor-shell";
  * cache share one source of truth: a save writes through both. Loading and the
  * not-found / failed cases are handled here, before any editor state exists.
  */
-export function ResumeEditor({ resumeId }: { resumeId: string }) {
+export function ResumeEditor({
+  resumeId,
+  isGuest = false,
+}: {
+  resumeId: string;
+  isGuest?: boolean;
+}) {
   const trpc = useTRPC();
   const query = useQuery(trpc.resume.get.queryOptions({ id: resumeId }));
 
@@ -25,13 +32,18 @@ export function ResumeEditor({ resumeId }: { resumeId: string }) {
   if (query.isError) {
     const notFound = query.error.data?.code === "NOT_FOUND";
     return (
-      <EditorError notFound={notFound} onRetry={() => void query.refetch()} />
+      <EditorError
+        notFound={notFound}
+        isGuest={isGuest}
+        onRetry={() => void query.refetch()}
+      />
     );
   }
 
   return (
     <EditorProvider resume={query.data}>
-      <EditorToolbar />
+      {isGuest ? <GuestBanner /> : null}
+      <EditorToolbar isGuest={isGuest} />
       <EditorWorkspace />
     </EditorProvider>
   );
@@ -64,11 +76,17 @@ function EditorSkeleton() {
 
 function EditorError({
   notFound,
+  isGuest,
   onRetry,
 }: {
   notFound: boolean;
+  isGuest: boolean;
   onRetry: () => void;
 }) {
+  // A guest has no dashboard to return to (issue #67); send them home, which is
+  // where guest mode is re-entered.
+  const backHref = isGuest ? "/" : "/dashboard";
+  const backLabel = isGuest ? "Back to home" : "Back to dashboard";
   return (
     <div className="mx-auto flex w-full max-w-md flex-1 flex-col items-center justify-center gap-5 px-6 py-16 text-center">
       <div className="space-y-1.5">
@@ -85,10 +103,10 @@ function EditorError({
         <Button
           variant="outline"
           nativeButton={false}
-          render={<Link href="/dashboard" />}
+          render={<Link href={backHref} />}
         >
           <ArrowLeftIcon />
-          Back to dashboard
+          {backLabel}
         </Button>
         {!notFound ? <Button onClick={onRetry}>Try again</Button> : null}
       </div>

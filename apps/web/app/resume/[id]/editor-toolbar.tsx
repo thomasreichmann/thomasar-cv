@@ -24,14 +24,16 @@ import { useEditor } from "./editor-context";
  * save control, pinned to the top so save is reachable from anywhere in a long
  * document. The back control guards against leaving with unsaved edits.
  */
-export function EditorToolbar() {
+export function EditorToolbar({ isGuest = false }: { isGuest?: boolean }) {
   const { name, setName, isDirty, isSaving, lastSavedAt, error, save } =
     useEditor();
 
   return (
     <header className="sticky top-0 z-20 border-b border-border/70 bg-background/80 backdrop-blur">
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-2 px-4 sm:gap-3 sm:px-6">
-        <BackToDashboard />
+        {/* A guest has no dashboard to go back to (issue #67); the guest banner
+            above carries the only way out (create an account). */}
+        {isGuest ? null : <BackToDashboard />}
 
         <div className="min-w-0 flex-1">
           <p className="px-1.5 font-mono text-[0.6rem] uppercase tracking-[0.3em] text-muted-foreground">

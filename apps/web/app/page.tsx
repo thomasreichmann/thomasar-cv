@@ -1,8 +1,7 @@
 import Link from "next/link";
 
-import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/cn";
 import { HealthCheck } from "./_components/health-check";
+import { TryGuestButton } from "./_components/try-guest-button";
 
 export default function Home() {
   return (
@@ -14,24 +13,20 @@ export default function Home() {
         thomasar-cv
       </h1>
       <p className="mt-4 max-w-md text-pretty text-sm leading-relaxed text-muted-foreground">
-        A résumé maintained as structured data, not a hand-formatted document.
-        Foundation scaffolding is in place; the editor and renderer come next.
+        A résumé maintained as structured data, not a hand-formatted document,
+        rendered to an ATS-parseable single page. Open the editor right now - no
+        sign-up - and keep your work by creating an account whenever you like.
       </p>
-      <Link href="/sign-in" className={cn(buttonVariants(), "group mt-8")}>
-        Sign in
-        <span
-          aria-hidden
-          className="transition-transform group-hover:translate-x-0.5"
-        >
-          &rarr;
-        </span>
-      </Link>
+
+      {/* Guest mode is the primary entry: the live demo (issue #67). Sign-in is
+          the secondary path for visitors who already have an account. */}
+      <TryGuestButton className="mt-8" />
 
       <Link
-        href="/preview"
+        href="/sign-in"
         className="mt-4 text-sm text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
       >
-        View résumé preview
+        Sign in to your account
       </Link>
 
       <div className="mt-12">

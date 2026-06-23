@@ -1,8 +1,10 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { anonymous } from "better-auth/plugins";
 import * as schema from "@thomasar-cv/db/schema";
 
 import { db } from "@/server/db";
+import { reassignResumes } from "@/server/resume/reassign";
 
 /**
  * Server-side auth instance. Email + password only (no OAuth / magic-link in
@@ -40,4 +42,18 @@ export const auth = betterAuth({
     expiresIn: 60 * 60 * 24 * 7, // 7 days
     updateAge: 60 * 60 * 24, // refresh the session at most once a day
   },
+  plugins: [
+    // Guest mode (issue #67): an anonymous visitor is a real `user` row flagged
+    // `isAnonymous`, with a normal session, so their résumés are owned through
+    // the same boundary as any account's - no parallel code path (ADR 0005).
+    anonymous({
+      // Fires from an `after` hook on /sign-in and /sign-up when the prior
+      // session was anonymous, before the plugin deletes the guest user. We
+      // move the guest's résumés onto the target account first, so the cascade
+      // on that deletion finds nothing to drop. Reassign throwing leaves the
+      // guest user (and its résumés) intact for a retry rather than losing them.
+      onLinkAccount: ({ anonymousUser, newUser }) =>
+        reassignResumes(db, anonymousUser.user.id, newUser.user.id),
+    }),
+  ],
 });
