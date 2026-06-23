@@ -1,0 +1,7 @@
+# Untracked files copied into each `claude --worktree` checkout (.gitignore
+# syntax; only files that are ALSO gitignored are copied, so nothing tracked is
+# duplicated). Replaces the manual symlinking of these into sibling worktrees.
+.env
+.env.*
+.vercel
+**/e2e/.auth
