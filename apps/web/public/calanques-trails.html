@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#102E34" />
+<title>Trail Notes · Cap Canaille coves + Port-Pin</title>
+<meta name="description" content="Exact parking and walking directions for Plage de l'Arène, Anse de Corton and Calanque de Port-Pin near Cassis — with fallbacks." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;600;700;800;900&family=Spline+Sans:wght@400;500;600;700&family=Spline+Sans+Mono:wght@500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --paper:#E8E2D3;--paper-2:#F2EDE2;--paper-3:#FBF8F1;
+    --ink:#102E34;--ink-soft:#4A656B;--line:#cdc4b0;
+    --sea:#0E6E7C;--turq:#159C92;--turq-bright:#23B9AC;
+    --cliff:#C26330;--warn:#C53D22;--warn-bg:#F6E3D6;
+    --fr-green:#4E9A63;--fr-orange:#E07B2E;--fr-red:#CC3B22;
+    --shadow:0 1px 0 rgba(16,46,52,.04), 0 8px 26px -16px rgba(16,46,52,.45);
+    --maxw:680px;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;scroll-padding-top:64px}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:"Spline Sans",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+  body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5;background-image:radial-gradient(120% 90% at 80% -10%, rgba(21,156,146,.10), transparent 60%),radial-gradient(90% 70% at -10% 100%, rgba(194,99,48,.08), transparent 55%);}
+  .wrap{position:relative;z-index:1;max-width:var(--maxw);margin:0 auto;padding:0 18px;}
+  a{color:inherit}
+  h1,h2,h3{font-family:"Big Shoulders Display",Impact,sans-serif;font-weight:800;line-height:.94;letter-spacing:.4px;margin:0;text-transform:uppercase}
+
+  .topbar{position:sticky;top:0;z-index:20;background:rgba(16,46,52,.96);color:var(--paper);backdrop-filter:saturate(140%) blur(6px);border-bottom:1px solid rgba(255,255,255,.08);}
+  .topbar .wrap{display:flex;align-items:center;gap:10px;padding-top:9px;padding-bottom:9px;min-height:48px}
+  .topbar .mark{font-family:"Big Shoulders Display";font-weight:800;font-size:18px;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap}
+  .topbar .when{margin-left:auto;font-family:"Spline Sans Mono";font-size:11.5px;color:#bcd6d4;text-align:right;line-height:1.25}
+  .topbar .when b{color:var(--paper);font-weight:600}
+
+  .hero{padding:32px 0 20px}
+  .eyebrow{font-family:"Spline Sans Mono";font-size:12px;letter-spacing:2.5px;text-transform:uppercase;color:var(--sea);font-weight:600;display:flex;align-items:center;gap:8px}
+  .eyebrow::after{content:"";height:1px;flex:1;background:linear-gradient(90deg,var(--line),transparent)}
+  .hero h1{font-size:clamp(38px,11.5vw,66px);margin:14px 0 0;color:var(--ink)}
+  .hero h1 .accent{color:var(--cliff)}
+  .hero .lede{font-size:16.5px;line-height:1.5;margin:15px 0 0;max-width:34em;color:#26474d}
+  .hero .lede b{color:var(--ink);font-weight:600}
+  .jump{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
+  .jump a{flex:1;min-width:150px;text-decoration:none;background:var(--paper-3);border:1px solid var(--line);border-radius:12px;padding:11px 13px;font-family:"Spline Sans Mono";font-size:12.5px;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:8px}
+  .jump a span{color:var(--ink-soft);font-weight:500}
+
+  .place{padding:34px 0 4px}
+  .place .tag{font-family:"Spline Sans Mono";font-size:11.5px;letter-spacing:2px;text-transform:uppercase;color:var(--turq);font-weight:600}
+  .place h2{font-size:clamp(28px,8.5vw,42px);margin:6px 0 0;color:var(--ink)}
+  .place .intro{font-size:14.5px;color:#33555b;margin:10px 0 0;max-width:40em}
+
+  .stats{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:7px;margin-top:16px}
+  .stats div{background:var(--paper-2);border:1px solid var(--line);border-radius:11px;padding:9px 8px;text-align:center}
+  .stats div .s-l{font-family:"Spline Sans Mono";font-size:8.5px;letter-spacing:.6px;text-transform:uppercase;color:var(--ink-soft)}
+  .stats div .s-v{font-family:"Spline Sans Mono";font-size:13px;font-weight:600;color:var(--ink);margin-top:3px}
+
+  .block{background:var(--paper-2);border:1px solid var(--line);border-radius:16px;margin-top:14px;padding:16px;box-shadow:var(--shadow)}
+  .block h3{font-size:19px;color:var(--ink);display:flex;align-items:center;gap:9px;letter-spacing:.4px}
+  .block h3 .bdot{width:22px;height:22px;border-radius:7px;background:var(--sea);display:inline-flex;align-items:center;justify-content:center;flex:none}
+  .block h3 .bdot svg{width:13px;height:13px;color:#fff}
+  .block h3.park .bdot{background:var(--cliff)}
+  .block p{font-size:14.5px;line-height:1.5;color:#2b4a50;margin:10px 0 0}
+  .block p b{color:var(--ink);font-weight:600}
+  .lotname{font-family:"Spline Sans Mono";font-weight:600;font-size:13.5px;background:var(--paper-3);border:1px solid var(--line);border-radius:8px;padding:2px 7px;color:var(--ink);white-space:nowrap}
+
+  /* numbered route timeline */
+  .route{margin-top:13px;position:relative;padding-left:6px}
+  .step{display:flex;gap:13px;padding-bottom:15px;position:relative}
+  .step:last-child{padding-bottom:0}
+  .step::before{content:"";position:absolute;left:13px;top:28px;bottom:-2px;width:2px;background:repeating-linear-gradient(var(--turq) 0 4px, transparent 4px 8px)}
+  .step:last-child::before{display:none}
+  .step .num{flex:none;width:28px;height:28px;border-radius:50%;background:var(--ink);color:var(--paper);font-family:"Big Shoulders Display";font-weight:800;font-size:16px;display:flex;align-items:center;justify-content:center;z-index:1}
+  .step .sb{flex:1;padding-top:2px}
+  .step .sb b{font-size:14.5px;color:var(--ink);font-weight:600;display:block}
+  .step .sb span{font-size:13.5px;color:#46656b;line-height:1.45;display:block;margin-top:2px}
+  .step .sb .t{font-family:"Spline Sans Mono";font-size:11px;color:var(--turq);font-weight:600;margin-top:3px;display:inline-block}
+
+  .btnrow{display:flex;gap:9px;margin-top:14px;flex-wrap:wrap}
+  .btn{flex:1;min-width:150px;text-decoration:none;text-align:center;border-radius:11px;font-family:"Spline Sans Mono";font-size:12.5px;font-weight:600;padding:12px 13px;display:inline-flex;align-items:center;justify-content:center;gap:7px}
+  .btn svg{width:15px;height:15px}
+  .btn.primary{background:var(--ink);color:var(--paper)}
+  .btn.ghost{background:transparent;color:var(--sea);border:1px solid var(--sea)}
+  .btn.cliff{background:var(--cliff);color:#fff}
+
+  .fallback{margin-top:14px;background:var(--paper-3);border:1px solid var(--line);border-left:4px solid var(--turq);border-radius:12px;padding:14px}
+  .fallback b.fl{font-family:"Spline Sans Mono";font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--turq);display:block;margin-bottom:5px}
+  .fallback p{margin:0;font-size:13.5px;line-height:1.5;color:#33555b}
+  .fallback p+p{margin-top:7px}
+  .fallback a.mini{color:var(--sea);font-weight:600;text-decoration:underline;text-underline-offset:2px;white-space:nowrap}
+
+  .warn{margin-top:14px;background:var(--warn-bg);border:1px solid #e3b9a3;border-left:5px solid var(--warn);border-radius:12px;padding:14px}
+  .warn b.wl{font-family:"Spline Sans Mono";font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--warn);display:flex;align-items:center;gap:6px;margin-bottom:6px}
+  .warn p{margin:0;font-size:13.5px;line-height:1.5;color:#6a3826}
+  .warn a{color:var(--warn);font-weight:600;text-decoration:underline;text-underline-offset:2px}
+
+  footer{margin-top:38px;border-top:1px solid var(--line);padding:22px 0 40px;color:var(--ink-soft);font-size:12.5px;line-height:1.6}
+  footer .wrap b{color:var(--ink)}
+  footer .meth{font-family:"Spline Sans Mono";font-size:11px;margin-top:10px;color:#7a8d8c}
+
+  @media (max-width:430px){.stats{grid-template-columns:1fr 1fr}}
+  @media (prefers-reduced-motion:no-preference){.block,.warn{animation:rise .5s cubic-bezier(.2,.7,.3,1) both}}
+  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <span class="mark">▴ Trail Notes</span>
+    <span class="when"><b>Park → walk → swim</b><br>Cassis calanques</span>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <header class="hero">
+    <div class="eyebrow">Directions · for two</div>
+    <h1>Where to park,<br><span class="accent">how to walk in.</span></h1>
+    <p class="lede">Exact parking and on-foot directions for the three spots you asked about — the two <b>Cap Canaille coves</b> (a 4-minute staircase) and <b>Calanque de Port-Pin</b> (a proper 25–35 min coastal walk). Each has a <b>fallback</b> for when the lot's full or the massif is closed.</p>
+    <div class="jump">
+      <a href="#coves"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Coves<br><span>l'Arène &amp; Corton · easy</span></a>
+      <a href="#portpin"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 20l5-9 4 5 3-4 6 8z"/></svg> Port-Pin<br><span>calanque · 25–35 min</span></a>
+    </div>
+  </header>
+
+  <!-- ============ COVES ============ -->
+  <section class="place" id="coves">
+    <div class="tag">Spot 1 · easy staircase</div>
+    <h2>l'Arène &amp; Corton</h2>
+    <p class="intro">Two wild pebble coves at the foot of the red Cap Canaille cliff, side by side, sharing <b>one parking lot</b>. Reached from the town side (avenue du Revestel) — so they stay open even on a red fire-risk day. Park once, look at both, pick whichever is quieter.</p>
+    <div class="stats">
+      <div><div class="s-l">Drive</div><div class="s-v">~25 min</div></div>
+      <div><div class="s-l">Walk</div><div class="s-v">3–5 min</div></div>
+      <div><div class="s-l">Terrain</div><div class="s-v">Steps</div></div>
+      <div><div class="s-l">Swim</div><div class="s-v">Clear · rocky</div></div>
+    </div>
+
+    <div class="block">
+      <h3 class="park"><span class="bdot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 20V6h6a4 4 0 0 1 0 8H6"/></svg></span> Where to park</h3>
+      <p>Aim straight for <span class="lotname">Parking de la Madie</span> on <b>avenue du Revestel</b>, on the eastern edge of Cassis (~150 paid spaces, 4-hour max). It's the realistic lot and sits right above both coves. Midweek in late June you've got a <b>fair shot</b> at noon — and the 4-hour cap means cars keep cycling out.</p>
+      <p>Ignore the tiny cul-de-sac lot right at l'Arène cove (~10–20 cars, last 50 m closed to traffic) — it's full from mid-morning regardless of season, because it's that small.</p>
+      <div class="btnrow">
+        <a class="btn primary" href="https://www.google.com/maps/dir/?api=1&destination=Parking+de+la+Madie+Cassis" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Drive to La Madie</a>
+      </div>
+    </div>
+
+    <div class="block">
+      <h3><span class="bdot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 4l6 4-6 4 6 4-6 4"/></svg></span> Parking → water</h3>
+      <div class="route">
+        <div class="step"><div class="num">1</div><div class="sb"><b>Park at La Madie</b><span>On avenue du Revestel. Pay at the machine (card/app); note your 4-hour window.</span></div></div>
+        <div class="step"><div class="num">2</div><div class="sb"><b>Find the staircase down</b><span>From the seaward edge of the lot, signed stone steps drop toward the shore. Both coves hang below the parking.</span><span class="t">⏱ ~3–5 min on foot</span></div></div>
+        <div class="step"><div class="num">3</div><div class="sb"><b>Pick your cove</b><span><b>Corton</b> is the nearer cove (small paillote café, kayak/paddle hire). <b>l'Arène</b> is just along the shoreline path — wilder, no facilities, slightly clearer water. A short coastal path links them, so swap freely.</span></div></div>
+        <div class="step"><div class="num">4</div><div class="sb"><b>Get in carefully</b><span>Entry is over rock/pebble — wear water shoes. The steps are slippery; it's an uphill climb back to the car.</span></div></div>
+      </div>
+      <div class="btnrow">
+        <a class="btn cliff" href="https://www.google.com/maps/search/?api=1&query=Anse+de+Corton+Cassis" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Pin: Corton</a>
+        <a class="btn cliff" href="https://www.google.com/maps/search/?api=1&query=Plage+de+l%27Ar%C3%A8ne+Cassis" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Pin: l'Arène</a>
+      </div>
+    </div>
+
+    <div class="fallback">
+      <b class="fl">◆ If La Madie is full</b>
+      <p><b>1 · Park &amp; ride.</b> Drive back to <span class="lotname">Relais des Gorguettes</span> (free, at the Cassis A50 exit) and take the shuttle into Cassis (~€1.60, every 15–20 min) — though it drops you in town, ~15–20 min walk from these coves. <a class="mini" href="https://www.google.com/maps/dir/?api=1&destination=Relais+des+Gorguettes+Cassis" target="_blank" rel="noopener">Map ↗</a></p>
+      <p><b>2 · Just go sure-thing.</b> Skip the gamble and drive ~10 min to <b>Grande Plage, La Ciotat</b> — park in the Q-Park garage (always space). <a class="mini" href="https://www.google.com/maps/dir/?api=1&destination=Q-Park+Port+de+Plaisance+La+Ciotat" target="_blank" rel="noopener">Map ↗</a></p>
+    </div>
+  </section>
+
+  <!-- ============ PORT-PIN ============ -->
+  <section class="place" id="portpin">
+    <div class="tag">Spot 2 · coastal walk</div>
+    <h2>Calanque de Port-Pin</h2>
+    <p class="intro">The postcard one: a turquoise inlet where Aleppo pines grow down to a small pebble beach — shady, sheltered, genuinely beautiful, and a swim-friendly gentle entry. It's a real <b>25–35 min walk each way</b> from the trailhead at Port-Miou, and it sits <b>inside the national park's fire-risk zone</b>, which is the catch (see the warning below).</p>
+    <div class="stats">
+      <div><div class="s-l">Drive</div><div class="s-v">~25 min</div></div>
+      <div><div class="s-l">Walk</div><div class="s-v">25–35 min</div></div>
+      <div><div class="s-l">Terrain</div><div class="s-v">Coastal path</div></div>
+      <div><div class="s-l">Swim</div><div class="s-v">Gentle · calm</div></div>
+    </div>
+
+    <div class="warn">
+      <b class="wl"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M12 2s5 4 5 9a5 5 0 0 1-10 0c0-1.5.6-2.8 1.3-3.8C8.7 8.3 9 9.4 10 10c0-2 1-4 2-8z"/></svg> Check this before you drive — it's make-or-break</b>
+      <p>Port-Pin is in the regulated massif. From 1 June, the park sets a daily fire level: on an <b>orange</b> day the trails are open <b>only 6–11am</b>, and on <b>red/black</b> the massif is <b>closed all day</b>. A noon arrival on an orange day means you'll be <b>turned back at the trailhead</b>. Open the <a href="https://www.calanques-parcnational.fr/en/risk-fire" target="_blank" rel="noopener">Mes Calanques fire map</a> first — only go if today is <b>green</b>. Otherwise take the coves above (town-side, always open).</p>
+    </div>
+
+    <div class="block">
+      <h3 class="park"><span class="bdot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 20V6h6a4 4 0 0 1 0 8H6"/></svg></span> Where to park</h3>
+      <p><b>Closest lot:</b> <span class="lotname">Parking de la Presqu'île</span> at the end of avenue Notre-Dame / des Calanques in Cassis (~500 spaces, ~€8–10/day, <b>cash</b>) — it's the only one a road reaches, but it shows “complet” early and the single access road can crawl. At noon, assume it's <b>full or queueing</b>.</p>
+      <p><b>The reliable move:</b> use <span class="lotname">Relais des Gorguettes</span> (free, at the A50 Cassis exit) and ride the navette shuttle (~€1.60 round trip, every 15–20 min) toward La Presqu'île / Port-Miou. No parking gamble — just adds a transfer.</p>
+      <div class="btnrow">
+        <a class="btn ghost" href="https://www.google.com/maps/dir/?api=1&destination=Parking+de+la+Presqu%27%C3%AEle+Cassis" target="_blank" rel="noopener">Presqu'île lot ↗</a>
+        <a class="btn primary" href="https://www.google.com/maps/dir/?api=1&destination=Relais+des+Gorguettes+Cassis" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Gorguettes (reliable)</a>
+      </div>
+    </div>
+
+    <div class="block">
+      <h3><span class="bdot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 4l6 4-6 4 6 4-6 4"/></svg></span> The trail: Port-Miou → Port-Pin</h3>
+      <p>An easy, well-marked coastal path — roughly <b>2–2.3 km / 25–35 min one way</b>, with a couple of short rocky, uneven sections and a slippery pebble descent at the end. <b>Wear trainers</b>, not flip-flops. Carry water — there's nothing out there.</p>
+      <div class="route">
+        <div class="step"><div class="num">1</div><div class="sb"><b>Start at the Port-Miou gate</b><span>From the Presqu'île parking (or the shuttle stop), walk to the barrier at the end of avenue des Calanques — the signed pedestrian entrance into the park.</span></div></div>
+        <div class="step"><div class="num">2</div><div class="sb"><b>Walk the length of Port-Miou</b><span>Follow the wide, flat gravel track along the fjord-like inlet, past the moored boats, to the far end.</span><span class="t">⏱ ~10–12 min · flat</span></div></div>
+        <div class="step"><div class="num">3</div><div class="sb"><b>Climb over to Port-Pin</b><span>At the end of Port-Miou, a marked path (blue/GR markers) rises over a low rocky saddle through the pines and drops toward the next inlet.</span><span class="t">⏱ ~12–18 min · some rock</span></div></div>
+        <div class="step"><div class="num">4</div><div class="sb"><b>Descend to the beach</b><span>A short, slippery pebble/rock descent brings you to the small Port-Pin cove. Gentle, calm entry — among the best swimming of the calanques.</span></div></div>
+      </div>
+      <div class="btnrow">
+        <a class="btn cliff" href="https://www.google.com/maps/search/?api=1&query=Calanque+de+Port-Pin+Cassis" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Pin: Port-Pin beach</a>
+        <a class="btn ghost" href="https://www.google.com/maps/search/?api=1&query=Calanque+de+Port-Miou+entrance+Cassis" target="_blank" rel="noopener">Pin: trailhead</a>
+      </div>
+    </div>
+
+    <div class="fallback">
+      <b class="fl">◆ If it's closed or full</b>
+      <p><b>Fire-closed / orange day:</b> don't even drive — go to <b>l'Arène &amp; Corton</b> instead (town-side, always open). <a class="mini" href="#coves">Jump up ↑</a></p>
+      <p><b>Open but can't park &amp; don't want the shuttle:</b> Port-<b>Miou</b> itself is a flat ~10 min walk from the same trailhead — less of a swim, but you're in the park in minutes. Or fall back to <b>Grande Plage, La Ciotat</b> for guaranteed parking + sand. <a class="mini" href="https://www.google.com/maps/dir/?api=1&destination=Q-Park+Port+de+Plaisance+La+Ciotat" target="_blank" rel="noopener">Map ↗</a></p>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <b>Quick logic:</b> green fire day &amp; you want the prettiest swim → Port-Pin via the Gorguettes shuttle. Any other day, or you want it simple → the Cap Canaille coves from La Madie, with Grande Plage as the safety net.
+      <div class="meth">Parking, trail distances and fire rules drawn from the Calanques National Park, Cassis tourist office and on-the-ground guides, fact-checked for a late-June visit. Distances/times are approximate — treat parking and fire status as “check on the day.” Made for two.</div>
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>
