@@ -6,6 +6,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./schema": "./src/schema/index.ts",
+    "./jsonresume": "./src/jsonresume/index.ts",
     "./testing": "./src/testing/pglite.ts",
     "./testing/seed": "./src/testing/seed.ts",
     "./testing/factories": "./src/testing/factories.ts"
