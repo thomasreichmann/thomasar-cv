@@ -1,5 +1,5 @@
-import { exampleResume } from "@thomasar-cv/db/schema";
-import { renderResumeToBuffer, resumeFileName } from "@thomasar-cv/render";
+import { exampleResume, resumeFileName } from "@thomasar-cv/db/schema";
+import { renderResumeToBuffer } from "@thomasar-cv/render";
 
 /**
  * Downloadable PDF export of the seeded résumé (issue #19). It renders through

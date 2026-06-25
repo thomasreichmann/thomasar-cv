@@ -1,7 +1,7 @@
-import { exampleResume } from "@thomasar-cv/db/schema";
 import { describe, expect, it } from "vitest";
 
-import { resumeFileName } from "./filename";
+import { exampleResume } from "../fixtures/example-resume";
+import { resumeFileName } from "./resume-file-name";
 
 describe("resumeFileName", () => {
   it("derives the file name from the résumé's name", () => {
@@ -22,5 +22,9 @@ describe("resumeFileName", () => {
       header: { ...exampleResume.header, name: "###" },
     };
     expect(resumeFileName(content)).toBe("resume.pdf");
+  });
+
+  it("honors a non-default extension", () => {
+    expect(resumeFileName(exampleResume, "en", "json")).toBe("Jane-Doe.json");
   });
 });

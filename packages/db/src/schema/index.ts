@@ -6,6 +6,8 @@ export { resumeSchema };
 export * from "./auth";
 export * from "./resume";
 export * from "./resume-content";
+export * from "./resume-file-name";
+export * from "./resume-theme";
 export { exampleResume } from "../fixtures/example-resume";
 
 /**

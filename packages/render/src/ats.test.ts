@@ -10,7 +10,7 @@
  * project rows, whose right-aligned dates are the layout that usually scrambles
  * a text layer; a passing extraction over those means something.
  */
-import { exampleResume } from "@thomasar-cv/db/schema";
+import { exampleResume, resumeTheme } from "@thomasar-cv/db/schema";
 import { beforeAll, describe, expect, it } from "vitest";
 
 import {
@@ -76,6 +76,40 @@ describe("exported résumé ATS text layer", () => {
   it("omits hidden content (the tailored-out Initech internship)", () => {
     expect(text).not.toContain("Initech");
     expect(text).not.toContain("Engineering Intern");
+  });
+});
+
+// The theme is presentation only: it sizes and colors blocks but never reorders
+// or drops them. So the ATS guarantees that do not depend on page capacity -
+// whole content, single-column reading order - must hold under any theme, not
+// just the default. (Page count is a layout consequence of scale/spacing and is
+// deliberately not asserted here.) Render under a non-default theme and re-run
+// those checks.
+describe("ATS text layer survives a non-default theme", () => {
+  let layer: ExtractResult;
+  let text: string;
+  let tokens: string[];
+
+  beforeAll(async () => {
+    const pdf = await renderResumeToBuffer(exampleResume, {
+      theme: resumeTheme.parse({
+        density: "compact",
+        spacing: "compact",
+        scale: "small",
+        accent: "rust",
+      }),
+    });
+    layer = await extractTextLayer(pdf);
+    text = norm(layer.text);
+    tokens = expectedOrder(flattenResume(exampleResume, "en"));
+  });
+
+  it("carries every content block, verbatim and in reading order", () => {
+    expect(isOrderedSubsequence(text, tokens).ok).toBe(true);
+  });
+
+  it("stays a single column", () => {
+    expect(layer.upJumps).toBe(0);
   });
 });
 
