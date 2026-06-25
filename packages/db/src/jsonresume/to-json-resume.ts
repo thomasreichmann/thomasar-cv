@@ -92,7 +92,17 @@ function mapContacts(
     const network = c.label ? t(c.label) : PROFILE_NETWORK[c.kind];
     const profile: JsonResumeProfile = { username: c.value };
     if (network) profile.network = network;
-    if (c.url) profile.url = c.url;
+    // An extra email/phone (the first of each already filled its basics field)
+    // lands here; give it a usable href - mailto:/tel: - so a consumer renders a
+    // working link, not a bare handle. tel: URIs carry no spaces. Explicit wins.
+    const href =
+      c.url ??
+      (c.kind === "email"
+        ? `mailto:${c.value}`
+        : c.kind === "phone"
+          ? `tel:${c.value.replace(/\s+/g, "")}`
+          : undefined);
+    if (href) profile.url = href;
     profiles.push(profile);
   }
 

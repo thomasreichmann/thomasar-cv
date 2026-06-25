@@ -41,7 +41,7 @@ tailored-out role never leaks into the file.
 | `header.name` | `basics.name` | |
 | `header.availability` | `basics.label` | nearest field; see gaps |
 | `contact` email / phone / website (first) | `basics.email` / `phone` / `url` | |
-| other contacts, and extra email/phone/website | `basics.profiles[]` | nothing dropped |
+| other contacts, and extra email/phone/website | `basics.profiles[]` | nothing dropped; an extra email/phone gets a `mailto:`/`tel:` url so it stays clickable |
 | `summary` section items | `basics.summary` | joined, blank-line separated |
 | `experience` | `work[]` | |
 | &nbsp;&nbsp;`company` / `title` / `location` | `name` / `position` / `location` | |
@@ -82,6 +82,19 @@ tailored-out role never leaks into the file.
   omit rather than guess. This is the one section type our model has that the
   standard cannot hold, and the requirements' premise (the internal model owns its
   shape) is exactly why we keep it instead of contorting the export.
+
+  Lossless preservation *was* available and was deliberately not taken: the
+  schema's root `additionalProperties` is open, so a vendor-prefixed container
+  (`x-custom`) would be schema-valid. It is skipped because no standard theme
+  reads unknown top-level keys, so it would only serve a round-trip importer -
+  which is out of scope here (#55). To keep the drop from being *silent*, the
+  editor's export control names it when a visible custom section is present.
+- **No `meta` block.** `meta` (canonical / version / lastModified) is optional
+  tooling metadata, not visible content, so the export emits none. The résumé's
+  `updatedAt` lives on the row, *outside* the mapper's document input, so the pure
+  mapper has no honest source for `lastModified` (it is not about determinism -
+  `updatedAt` is stored, not a clock); the route could add it later if a reader
+  needs it. `schemaVersion` is ours and does not map to `meta.version`.
 
 ## Out of scope
 

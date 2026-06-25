@@ -63,7 +63,30 @@ describe("toJsonResume", () => {
     expect(basics?.email).toBe("first@example.dev");
     expect(basics?.phone).toBe("+1 555 0100");
     expect(basics?.profiles).toEqual([
-      { network: "Email", username: "second@example.dev" },
+      {
+        network: "Email",
+        username: "second@example.dev",
+        url: "mailto:second@example.dev",
+      },
+    ]);
+  });
+
+  it("gives an extra email/phone profile a usable mailto:/tel: href", () => {
+    const content: ResumeContent = {
+      ...exampleResume,
+      header: {
+        name: "Jane Doe",
+        contacts: [
+          { kind: "email", value: "a@example.dev" },
+          { kind: "email", value: "b@example.dev" },
+          { kind: "phone", value: "+1 555 0100" },
+          { kind: "phone", value: "+1 555 0200" },
+        ],
+      },
+    };
+    expect(toJsonResume(content).basics?.profiles).toEqual([
+      { network: "Email", username: "b@example.dev", url: "mailto:b@example.dev" },
+      { network: "Phone", username: "+1 555 0200", url: "tel:+15550200" },
     ]);
   });
 
