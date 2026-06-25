@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { signIn } from "@/lib/auth/client";
+import { useHydrated } from "@/lib/use-hydrated";
 import { useTRPC } from "@/trpc/react";
 
 // Hidden in production. This only decides whether to render the button; the
@@ -29,6 +30,14 @@ export function SignInForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Until the island hydrates there is no onSubmit to call preventDefault, so a
+  // click on the submit button posts the form natively - a GET with no action,
+  // which puts the typed email and password in the URL (browser history, server
+  // logs, the Referer header) and never signs in. Keep submit disabled until
+  // hydration; SSR and the first client render both see it disabled, so there's
+  // no hydration mismatch.
+  const hydrated = useHydrated();
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -104,7 +113,11 @@ export function SignInForm() {
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
-        <Button type="submit" disabled={isLoading} className="w-full">
+        <Button
+          type="submit"
+          disabled={isLoading || !hydrated}
+          className="w-full"
+        >
           {isLoading ? "Signing in..." : "Sign in"}
         </Button>
       </form>
@@ -114,7 +127,7 @@ export function SignInForm() {
           <Button
             type="button"
             variant="outline"
-            disabled={isLoading}
+            disabled={isLoading || !hydrated}
             onClick={onDevLogin}
             className="w-full"
           >
