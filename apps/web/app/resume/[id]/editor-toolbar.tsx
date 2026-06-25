@@ -31,9 +31,10 @@ export function EditorToolbar({ isGuest = false }: { isGuest?: boolean }) {
   return (
     <header className="sticky top-0 z-20 border-b border-border/70 bg-background/80 backdrop-blur">
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-2 px-4 sm:gap-3 sm:px-6">
-        {/* A guest has no dashboard to go back to (issue #67); the guest banner
-            above carries the only way out (create an account). */}
-        {isGuest ? null : <BackToDashboard />}
+        {/* A guest has no dashboard to go back to (issue #67); the back control
+            gives way to a "Guest" marker, and the account actions that replace
+            its way out live in the right cluster below. */}
+        {isGuest ? <GuestBadge /> : <BackToDashboard />}
 
         <div className="min-w-0 flex-1">
           <p className="px-1.5 font-mono text-[0.6rem] uppercase tracking-[0.3em] text-muted-foreground">
@@ -52,7 +53,15 @@ export function EditorToolbar({ isGuest = false }: { isGuest?: boolean }) {
 
         <SaveState isDirty={isDirty} lastSavedAt={lastSavedAt} />
 
-        <Button onClick={save} disabled={!isDirty || isSaving}>
+        {/* For a guest, converting is the priority action: Sign up keeps the lone
+            accent (in GuestActions) and Save steps down to secondary, since the
+            saved-state indicator already reassures the work is kept. A signed-in
+            user has no competing CTA, so Save stays primary. */}
+        <Button
+          variant={isGuest ? "secondary" : "default"}
+          onClick={save}
+          disabled={!isDirty || isSaving}
+        >
           {isSaving ? (
             <>
               <Loader2Icon className="animate-spin" />
@@ -65,6 +74,8 @@ export function EditorToolbar({ isGuest = false }: { isGuest?: boolean }) {
             </>
           )}
         </Button>
+
+        {isGuest ? <GuestActions /> : null}
       </div>
 
       {error ? (
@@ -75,6 +86,49 @@ export function EditorToolbar({ isGuest = false }: { isGuest?: boolean }) {
         </div>
       ) : null}
     </header>
+  );
+}
+
+/**
+ * Stands in for the back control a guest lacks (no dashboard to return to, issue
+ * #67) and names the session state that explains why the header offers Sign in /
+ * Sign up rather than a way back. Hidden on narrow screens, where the row has no
+ * room to spare and the account buttons already signal the guest state.
+ */
+function GuestBadge() {
+  return (
+    <span className="hidden shrink-0 items-center rounded-full border border-border/70 bg-muted/40 px-2.5 py-1 font-mono text-[0.6rem] uppercase tracking-[0.2em] text-muted-foreground sm:inline-flex">
+      Guest
+    </span>
+  );
+}
+
+/**
+ * A guest's only path to an account (issue #67), folded into the editor header so
+ * the page carries one chrome bar instead of a stacked conversion banner. Sign up
+ * is the lone accent - converting is what matters - with Sign in beside it for a
+ * returning user; both reassign this résumé on authentication (ADR 0005).
+ *
+ * Plain anchors, not next/link: the editor guards unsaved edits only through
+ * `beforeunload`, which a soft client navigation skips. A full-document
+ * navigation fires it, so a guest mid-edit gets the same "leave with unsaved
+ * changes?" prompt the back control gives a signed-in user.
+ */
+function GuestActions() {
+  return (
+    <>
+      <span aria-hidden className="mx-0.5 h-6 w-px bg-border/70 sm:mx-1" />
+      <Button
+        variant="ghost"
+        nativeButton={false}
+        render={<a href="/sign-in" />}
+      >
+        Sign in
+      </Button>
+      <Button nativeButton={false} render={<a href="/sign-up" />}>
+        Sign up
+      </Button>
+    </>
   );
 }
 
@@ -108,7 +162,8 @@ function SaveState({
 }
 
 /**
- * Back to the dashboard. When there are unsaved edits, a leave confirms first -
+ * Back to the dashboard (signed-in only; a guest gets the GuestBadge instead).
+ * When there are unsaved edits, a leave confirms first -
  * App Router has no global navigation guard, so the editor guards its own exits
  * (this link) and leans on `beforeunload` for the hard ones (refresh, close).
  */

@@ -9,7 +9,6 @@ import { useTRPC } from "@/trpc/react";
 import { EditorProvider } from "./editor-context";
 import { EditorToolbar } from "./editor-toolbar";
 import { EditorWorkspace } from "./editor-shell";
-import { GuestBanner } from "./guest-banner";
 
 /**
  * Loads one résumé and mounts the editor on it. The document is fetched on the
@@ -42,7 +41,6 @@ export function ResumeEditor({
 
   return (
     <EditorProvider resume={query.data}>
-      {isGuest ? <GuestBanner /> : null}
       <EditorToolbar isGuest={isGuest} />
       <EditorWorkspace />
     </EditorProvider>

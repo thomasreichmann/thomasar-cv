@@ -32,11 +32,11 @@ test.describe("guest mode (issue #67)", () => {
     await page.goto("/");
     await page.getByRole("button", { name: /try it/i }).click();
 
-    // Lands straight in the editor on a single résumé, with the guest banner.
+    // Lands straight in the editor on a single résumé, flagged as a guest.
     // The push only fires after anonymous sign-in + résumé create resolve, both
     // cold here, so this is the wait most exposed to first-hit compile latency.
     await expect(page).toHaveURL(/\/resume\/[0-9a-f-]+/i, { timeout: COLD });
-    await expect(page.getByText(/editing as a guest/i)).toBeVisible({
+    await expect(page.getByText("Guest", { exact: true })).toBeVisible({
       timeout: COLD,
     });
 
@@ -114,7 +114,7 @@ test.describe("guest mode (issue #67)", () => {
     await page.goto("/");
     await page.getByRole("button", { name: /try it/i }).click();
     await expect(page).toHaveURL(/\/resume\/[0-9a-f-]+/i, { timeout: COLD });
-    await expect(page.getByText(/editing as a guest/i)).toBeVisible({
+    await expect(page.getByText("Guest", { exact: true })).toBeVisible({
       timeout: COLD,
     });
 
