@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { authClient, signIn } from "@/lib/auth/client";
 import { DEFAULT_RESUME_NAME } from "@/lib/resume";
 import { useTRPC } from "@/trpc/react";
+import { usePrimeResume } from "@/trpc/use-prime-resume";
 
 /**
  * The landing "try it" entry into guest mode (issue #67): mint an anonymous
@@ -22,6 +23,7 @@ export function TryGuestButton({ className }: { className?: string }) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const create = useMutation(trpc.resume.create.mutationOptions());
+  const primeResume = usePrimeResume();
   const [isLoading, setIsLoading] = useState(false);
 
   async function onClick() {
@@ -52,7 +54,11 @@ export function TryGuestButton({ className }: { className?: string }) {
         staleTime: 0,
       });
       const target =
-        existing[0] ?? (await create.mutateAsync({ name: DEFAULT_RESUME_NAME }));
+        existing[0] ??
+        (await create.mutateAsync({ name: DEFAULT_RESUME_NAME }));
+      // Hand the editor the row we already have, so its `resume.get` is a cache
+      // hit rather than a refetch of what we just read or created.
+      primeResume(target);
       router.push(`/resume/${target.id}`);
     } catch {
       toast.error("Couldn't start guest mode. Try again.");
