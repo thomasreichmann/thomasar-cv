@@ -1,8 +1,14 @@
 "use client";
 
-import { ArrowLeftIcon, CheckIcon, Loader2Icon, SaveIcon } from "lucide-react";
+import {
+  ArrowLeftIcon,
+  CheckIcon,
+  DownloadIcon,
+  Loader2Icon,
+  SaveIcon,
+} from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -50,6 +56,8 @@ export function EditorToolbar() {
 
         <SaveState isDirty={isDirty} lastSavedAt={lastSavedAt} />
 
+        <ExportJson />
+
         <Button onClick={save} disabled={!isDirty || isSaving}>
           {isSaving ? (
             <>
@@ -73,6 +81,40 @@ export function EditorToolbar() {
         </div>
       ) : null}
     </header>
+  );
+}
+
+/**
+ * Download the résumé as a JSON Resume document (issue #54). A plain attachment
+ * link to the export route, which scopes the download to the owner. It serves the
+ * last *saved* document, so the icon-only form keeps it understated next to Save
+ * rather than implying it captures in-flight edits.
+ *
+ * JSON Resume has no freeform section, so custom sections are dropped from the
+ * export (see ADR 0007). That loss is otherwise invisible, so when the résumé has
+ * a visible custom section the control says so rather than dropping it silently.
+ */
+function ExportJson() {
+  const { id } = useParams<{ id: string }>();
+  const { content } = useEditor();
+  const dropsCustom = content.sections.some(
+    (s) => !s.hidden && s.type === "custom" && s.items.some((it) => !it.hidden),
+  );
+  const label = dropsCustom
+    ? "Export as JSON Resume - custom sections aren't part of the standard and won't be included"
+    : "Export as JSON Resume";
+
+  return (
+    <Button
+      variant="outline"
+      size="icon"
+      aria-label={label}
+      title={label}
+      nativeButton={false}
+      render={<a href={`/resume/${id}/jsonresume`} download />}
+    >
+      <DownloadIcon />
+    </Button>
   );
 }
 
