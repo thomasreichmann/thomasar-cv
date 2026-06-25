@@ -33,3 +33,10 @@ thomasar-cv is a personal tool for maintaining a résumé as **structured data**
 - PRs reference issues: `Closes #42`, or `No-Issue: <reason>` for trivial changes.
 - Every issue carries exactly one status label (`needs-details` / `ready`) and a `priority:` label.
 - Create / edit issues via `scripts/gh-issue.sh` (wrapper over `gh issue` that strips em dashes), not raw `gh issue`.
+
+## Database migrations
+
+The shared Supabase DB is **not** migrated by CI or by Vercel deploys - CI only ever migrates a throwaway container, so a green PR proves nothing about the live schema. The preview and prod environments point at that same shared DB, so deploying schema-dependent code without applying its migration ships a broken feature (e.g. #67's `is_anonymous` insert failing on a column that was never added).
+
+- A PR that adds a migration must have that migration **applied to the shared DB before the PR is opened** - run `pnpm --filter @thomasar-cv/db db:migrate` (loads the real `DATABASE_URL` from `packages/db/.env`) and confirm the deployed feature works against it.
+- This applies only to **non-destructive, backward-compatible** migrations (additive columns/tables with safe defaults) - ones that can't break the currently-deployed code while the new code rolls out. A migration that drops/renames/retypes a column or otherwise breaks an existing code path is **not** safe to apply ahead of its deploy; flag it and coordinate the rollout instead of running it early.

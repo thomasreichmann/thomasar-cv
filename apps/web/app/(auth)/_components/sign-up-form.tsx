@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { signUp } from "@/lib/auth/client";
+import { useHydrated } from "@/lib/use-hydrated";
 
 /**
  * Email + password sign-up. BetterAuth creates the user and signs them in in
@@ -20,6 +21,14 @@ export function SignUpForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Until the island hydrates there is no onSubmit to call preventDefault, so a
+  // click on the submit button posts the form natively - a GET with no action,
+  // which puts the typed name, email, and password in the URL (browser history,
+  // server logs, the Referer header) and never signs up. Keep submit disabled
+  // until hydration; SSR and the first client render both see it disabled, so
+  // there's no hydration mismatch.
+  const hydrated = useHydrated();
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -87,7 +96,11 @@ export function SignUpForm() {
           onChange={(e) => setPassword(e.target.value)}
         />
       </div>
-      <Button type="submit" disabled={isLoading} className="w-full">
+      <Button
+        type="submit"
+        disabled={isLoading || !hydrated}
+        className="w-full"
+      >
         {isLoading ? "Creating account..." : "Create account"}
       </Button>
     </form>

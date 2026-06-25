@@ -6,11 +6,10 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { DEFAULT_RESUME_NAME } from "@/lib/resume";
 import { useTRPC } from "@/trpc/react";
+import { usePrimeResume } from "@/trpc/use-prime-resume";
 import { ResumeRow } from "./resume-row";
-
-/** Label a new résumé starts with; the editor (#40) makes the name editable. */
-const NEW_RESUME_NAME = "Untitled résumé";
 
 /**
  * The résumé management surface (issue #36): list, create, open, delete. Data
@@ -25,10 +24,12 @@ export function ResumeDashboard() {
   const router = useRouter();
 
   const resumes = useQuery(trpc.resume.list.queryOptions());
+  const primeResume = usePrimeResume();
 
   const create = useMutation(
     trpc.resume.create.mutationOptions({
       onSuccess: (created) => {
+        primeResume(created);
         // Redirect into the editor straight away, then refresh the list in the
         // background. Awaiting the refetch first rendered the new row into the
         // dashboard for a beat before the redirect fired, so the user could
@@ -42,7 +43,7 @@ export function ResumeDashboard() {
     }),
   );
 
-  const onCreate = () => create.mutate({ name: NEW_RESUME_NAME });
+  const onCreate = () => create.mutate({ name: DEFAULT_RESUME_NAME });
 
   // Once a create succeeds we're navigating away. Hold the surface on a quiet
   // "opening" state instead of letting the background refetch flash the new,

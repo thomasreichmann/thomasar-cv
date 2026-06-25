@@ -23,9 +23,11 @@ export default async function ResumeEditorPage({
 
   const { id } = await params;
 
+  // A guest (issue #67) edits here too; the editor swaps dashboard navigation
+  // for a "create an account to keep this" prompt rather than dead-ending them.
   return (
     <main className="flex min-h-screen flex-col">
-      <ResumeEditor resumeId={id} />
+      <ResumeEditor resumeId={id} isGuest={Boolean(session.user.isAnonymous)} />
     </main>
   );
 }

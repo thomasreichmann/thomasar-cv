@@ -2,6 +2,8 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { auth } from "@/lib/auth/server";
+import { db } from "@/server/db";
+import { ownedResumes } from "@/server/resume/ownership";
 import { ResumeDashboard } from "./resume-dashboard";
 import { SignOutButton } from "./sign-out-button";
 
@@ -17,6 +19,15 @@ export default async function DashboardPage() {
 
   if (!session) {
     redirect("/sign-in");
+  }
+
+  // Guest mode is a single résumé in the editor, with no dashboard (issue #67):
+  // send a guest who lands here back to their résumé. The fallback to home only
+  // fires if a guest has none, which the editor can't produce (it has no delete)
+  // - home re-enters guest mode and mints one.
+  if (session.user.isAnonymous) {
+    const [first] = await ownedResumes(db, session.user.id).list();
+    redirect(first ? `/resume/${first.id}` : "/");
   }
 
   return (

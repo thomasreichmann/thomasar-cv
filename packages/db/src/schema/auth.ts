@@ -30,6 +30,11 @@ export const user = resumeSchema.table("user", {
   email: text("email").notNull().unique(),
   emailVerified: boolean("email_verified").notNull().default(false),
   image: text("image"),
+  // Set by BetterAuth's anonymous plugin: a guest user (issue #67) is a real
+  // `user` row flagged here, so an anonymous résumé is owned through the same
+  // boundary as any other. Defaults false; a normal sign-up never sets it. The
+  // JS key must stay camelCase for the Drizzle adapter to resolve the field.
+  isAnonymous: boolean("is_anonymous").notNull().default(false),
   ...timestamps(),
 });
 
