@@ -56,8 +56,6 @@ export function TryGuestButton({ className }: { className?: string }) {
       const target =
         existing[0] ??
         (await create.mutateAsync({ name: DEFAULT_RESUME_NAME }));
-      // Hand the editor the row we already have, so its `resume.get` is a cache
-      // hit rather than a refetch of what we just read or created.
       primeResume(target);
       router.push(`/resume/${target.id}`);
     } catch {

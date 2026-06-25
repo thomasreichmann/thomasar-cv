@@ -8,16 +8,12 @@ import { useTRPC } from "@/trpc/react";
 type Resume = inferRouterOutputs<AppRouter>["resume"]["get"];
 
 /**
- * Seed `resume.get` with a résumé the client already holds - a `create` result or
- * a `list` entry - so opening its editor is a cache hit instead of refetching a
- * row we were just handed. The editor mounts its own `resume.get` keyed by id;
- * without this it round-trips and flashes a loading skeleton for data already in
- * memory. Both create entry points (guest mode, dashboard) navigate straight into
- * the editor, so both prime through here.
+ * Seed `resume.get` with a row the client already holds (a `create` result or a
+ * `list` entry) so the editor it navigates into reads from cache.
  *
- * This is seeding, not an optimistic update: the row is already server-confirmed,
- * so there is nothing provisional to roll back. Under the 30s default staleTime
- * the seeded entry is fresh on arrival, so the editor issues no request at all.
+ * Seeding, not an optimistic update: the row is server-confirmed, so nothing
+ * rolls back. And because it lands fresh under the 30s staleTime, the editor
+ * skips the `get` entirely rather than refetching in the background.
  */
 export function usePrimeResume() {
   const trpc = useTRPC();

@@ -29,8 +29,6 @@ export function ResumeDashboard() {
   const create = useMutation(
     trpc.resume.create.mutationOptions({
       onSuccess: (created) => {
-        // Hand the editor the row we just created, so its `resume.get` is a cache
-        // hit rather than a refetch of data we already have.
         primeResume(created);
         // Redirect into the editor straight away, then refresh the list in the
         // background. Awaiting the refetch first rendered the new row into the
