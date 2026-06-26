@@ -1,3 +1,4 @@
+import { TRPCError } from "@trpc/server";
 import { emptyResume, resumeContent } from "@thomasar-cv/db/schema";
 import { z } from "zod";
 
@@ -33,7 +34,9 @@ export const resumeRouter = createTRPCRouter({
   /**
    * Create a résumé owned by the caller. Ownership is stamped from the session,
    * never taken from input. Content defaults to the minimal empty document, so a
-   * new résumé is always a valid document the editor can fill in.
+   * new résumé is always a valid document the editor can fill in. A guest
+   * (anonymous session) may own at most one résumé (ADR 0008): a second create is
+   * refused FORBIDDEN, so an account's writes stay unbounded while a guest's do not.
    */
   create: protectedProcedure
     .input(
@@ -42,12 +45,24 @@ export const resumeRouter = createTRPCRouter({
         content: resumeContent.optional(),
       }),
     )
-    .mutation(({ ctx, input }) =>
-      ownedResumes(ctx.db, ctx.session.user.id).create({
+    .mutation(async ({ ctx, input }) => {
+      const resumes = ownedResumes(ctx.db, ctx.session.user.id);
+      // A legitimate guest never reaches this branch: the client reuses their
+      // existing résumé rather than creating a second, so only a caller bypassing
+      // the UI gets here. Enforcing the one-per-guest invariant server-side is
+      // what actually bounds a guest's row growth (ADR 0008) - the client check is
+      // an optimization, not a guarantee.
+      if (ctx.session.user.isAnonymous && (await resumes.list()).length > 0) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Guest mode is limited to one résumé.",
+        });
+      }
+      return resumes.create({
         name: input.name,
         content: input.content ?? emptyResume,
-      }),
-    ),
+      });
+    }),
 
   /**
    * Update an owned résumé's name and/or whole content document. At least one

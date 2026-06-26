@@ -16,17 +16,22 @@ import { appRouter } from "./_app";
 const USER_A = "user_a";
 const USER_B = "user_b";
 
-// A minimal BetterAuth-shaped session; the procedures only read `user.id`.
-const session = (userId: string) =>
-  ({ user: { id: userId, email: `${userId}@example.test` } }) as Parameters<
-    typeof buildContext
-  >[0]["session"];
+// A minimal BetterAuth-shaped session; procedures read `user.id`, and `create`
+// reads `user.isAnonymous` to apply the guest one-résumé cap (ADR 0008).
+const session = (userId: string, isAnonymous = false) =>
+  ({
+    user: { id: userId, email: `${userId}@example.test`, isAnonymous },
+  }) as Parameters<typeof buildContext>[0]["session"];
 
 // A caller wired to the real router and schema, signed in as `userId` (or
-// anonymous when null) and backed by the in-process pglite database.
-const callerFor = (db: Connection, userId: string | null) =>
+// signed out when null) and backed by the in-process pglite database. Pass
+// `isAnonymous` to sign in as a guest rather than a full account.
+const callerFor = (db: Connection, userId: string | null, isAnonymous = false) =>
   createCallerFactory(appRouter)(
-    buildContext({ db, session: userId ? session(userId) : null }),
+    buildContext({
+      db,
+      session: userId ? session(userId, isAnonymous) : null,
+    }),
   );
 
 describe("resume router ownership", () => {
@@ -110,6 +115,34 @@ describe("resume router ownership", () => {
     ).rejects.toMatchObject({ code: "BAD_REQUEST" });
 
     expect(await callerFor(db, USER_A).resume.list()).toHaveLength(0);
+  });
+
+  it("a guest can create their first résumé", async () => {
+    const created = await callerFor(db, USER_A, true).resume.create({
+      name: "Draft",
+    });
+
+    expect(created.userId).toBe(USER_A);
+  });
+
+  it("a guest who already owns a résumé is refused a second create (ADR 0008)", async () => {
+    await seedResume(db, { userId: USER_A, name: "Only one" });
+
+    await expect(
+      callerFor(db, USER_A, true).resume.create({ name: "Second" }),
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+
+    // The refusal creates nothing and touches nothing: the guest still owns
+    // exactly the one résumé they started with.
+    const still = await callerFor(db, USER_A, true).resume.list();
+    expect(still.map((r) => r.name)).toEqual(["Only one"]);
+  });
+
+  it("the one-résumé cap is a guest rule: a full account can create many", async () => {
+    await callerFor(db, USER_A).resume.create({ name: "One" });
+    await callerFor(db, USER_A).resume.create({ name: "Two" });
+
+    expect(await callerFor(db, USER_A).resume.list()).toHaveLength(2);
   });
 
   it("the owner can update their own résumé's name and content", async () => {
