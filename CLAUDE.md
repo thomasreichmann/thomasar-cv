@@ -29,6 +29,7 @@ thomasar-cv is a personal tool for maintaining a résumé as **structured data**
 ## Git & Workflow
 
 - Conventional commit messages: `feat: add login form (#42)`.
+- Commits are authored by the repo owner only: do **not** add `Co-Authored-By` or `Claude-Session` trailers to commit messages or PR bodies.
 - All non-trivial work should have a GitHub Issue before starting.
 - PRs reference issues: `Closes #42`, or `No-Issue: <reason>` for trivial changes.
 - Every issue carries exactly one status label (`needs-details` / `ready`) and a `priority:` label.
