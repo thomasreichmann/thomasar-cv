@@ -6,16 +6,37 @@ browser against a running server can: auth, navigation, and the editor save loop
 
 ## Running
 
+Run from the repo root. Everything after `pnpm test:e2e` is forwarded verbatim to
+Playwright, so its native selection is the whole interface - nothing to learn
+twice. (From inside `apps/web`, use `pnpm -w test:e2e`: a bare `pnpm test:e2e`
+there resolves to this package's raw `playwright test`, which skips the managed
+database.)
+
 ```sh
-pnpm test:e2e                      # full suite
-pnpm test:e2e --project=flows      # one project
-pnpm test:e2e -g "save"            # one test by name
+pnpm test:e2e                                 # whole suite
+pnpm test:e2e editor-save                      # one spec   (path substring)
+pnpm test:e2e e2e/flows/editor-save.spec.ts    # one spec   (exact file, optional :line)
+pnpm test:e2e --project=flows                  # one group  (flows | smoke)
+pnpm test:e2e -g "persists the change"         # one test   (by title)
+pnpm test:e2e --list                           # list matching tests (no Docker, instant)
+pnpm test:e2e --ui                             # Playwright's interactive runner
 ```
+
+Any other Playwright flag works through the same passthrough - `--headed`,
+`--debug`, `--last-failed` (re-run only the previous failures), `--repeat-each=N`.
+
+Two flags are handled by the wrapper instead of Playwright:
+
+- `--keep` leaves the throwaway database up after the run (also `E2E_KEEP_DB=1`).
+  The next run reuses it and skips the cold container start - the fast path when
+  iterating on one spec. `docker compose -f docker-compose.e2e.yml down` stops it.
+- `--list` skips the database and server entirely, so test discovery is instant.
 
 `pnpm test:e2e` (scripts/e2e.mjs) brings up a throwaway Postgres
 (docker-compose.e2e.yml), migrates it, runs Playwright, and tears it down, so the
 run is self-contained and never touches the shared Supabase project. Docker has
-to be running. CI does the same steps against a service container.
+to be running (the script says so plainly if it isn't). CI does the same steps
+against a service container.
 
 ## The one rule
 
