@@ -20,7 +20,7 @@ thomasar-cv is a personal tool for maintaining a résumé as **structured data**
 
 **REQUIRED before committing:** `pnpm check` (runs typecheck + lint + test via Turborepo, condensed to a scannable summary; `pnpm check:verbose` for full output). It mirrors CI, so a green check means a green PR.
 
-**E2E tests:** `pnpm test:e2e` runs the full Playwright suite (auto-manages a throwaway Postgres; needs Docker). Args forward to Playwright, so select with `pnpm test:e2e <file-substring>` (one spec), `--project=flows|smoke` (one group), or `-g "<title>"` (one test); add `--list` to list tests, `--keep` to reuse the DB across runs. Details: `apps/web/e2e/README.md`.
+**E2E tests:** `pnpm test:e2e` runs the full Playwright suite (auto-manages a throwaway Postgres; needs Docker). Args forward to Playwright, so select with `pnpm test:e2e <file-substring>` (one spec), `--project=flows|smoke` (one group), or `-g "<title>"` (one test); add `--list` to list tests, `--keep` to reuse the DB across runs. These commands are known-good; don't re-read `apps/web/e2e/README.md` to confirm them. Assume Docker is available.
 
 ## Required Reading
 
