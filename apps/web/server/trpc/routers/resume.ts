@@ -1,5 +1,10 @@
 import { TRPCError } from "@trpc/server";
-import { emptyResume, resumeContent } from "@thomasar-cv/db/schema";
+import {
+  defaultResumeTheme,
+  emptyResume,
+  resumeContent,
+  resumeTheme,
+} from "@thomasar-cv/db/schema";
 import { z } from "zod";
 
 import { ownedResumes } from "@/server/resume/ownership";
@@ -33,16 +38,18 @@ export const resumeRouter = createTRPCRouter({
 
   /**
    * Create a résumé owned by the caller. Ownership is stamped from the session,
-   * never taken from input. Content defaults to the minimal empty document, so a
-   * new résumé is always a valid document the editor can fill in. A guest
-   * (anonymous session) may own at most one résumé (ADR 0008): a second create is
-   * refused FORBIDDEN, so an account's writes stay unbounded while a guest's do not.
+   * never taken from input. Content defaults to the minimal empty document and
+   * theme to the neutral baseline, so a new résumé is always a valid document the
+   * editor can fill in with the original ink-only look. A guest (anonymous
+   * session) may own at most one résumé (ADR 0008): a second create is refused
+   * FORBIDDEN, so an account's writes stay unbounded while a guest's do not.
    */
   create: protectedProcedure
     .input(
       z.object({
         name: z.string().min(1),
         content: resumeContent.optional(),
+        theme: resumeTheme.optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -61,13 +68,15 @@ export const resumeRouter = createTRPCRouter({
       return resumes.create({
         name: input.name,
         content: input.content ?? emptyResume,
+        theme: input.theme ?? defaultResumeTheme,
       });
     }),
 
   /**
-   * Update an owned résumé's name and/or whole content document. At least one
+   * Update an owned résumé's name, content document and/or theme. At least one
    * field is required - an update that sets nothing is refused (BAD_REQUEST). Only
-   * the supplied fields are written: absent optional inputs never reach `.set()`.
+   * the supplied fields are written: absent optional inputs never reach `.set()`,
+   * so a theme-only save leaves the content untouched and vice-versa.
    */
   update: protectedProcedure
     .input(
@@ -76,10 +85,15 @@ export const resumeRouter = createTRPCRouter({
           id: z.string().uuid(),
           name: z.string().min(1).optional(),
           content: resumeContent.optional(),
+          theme: resumeTheme.optional(),
         })
-        .refine((v) => v.name !== undefined || v.content !== undefined, {
-          message: "Provide a name and/or content to update.",
-        }),
+        .refine(
+          (v) =>
+            v.name !== undefined ||
+            v.content !== undefined ||
+            v.theme !== undefined,
+          { message: "Provide a name, content and/or theme to update." },
+        ),
     )
     .mutation(({ ctx, input }) => {
       const { id, ...values } = input;
