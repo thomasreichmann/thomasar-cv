@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#3a1410" />
+<title>Fréjus &amp; Estérel · Beaches &amp; red-rock coves</title>
+<meta name="description" content="A phone-first, parking-first guide to the best easy-access, low-crowd beaches and Estérel calanques around Fréjus — with the naturist spots flagged." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;600;700;800;900&family=Spline+Sans:wght@400;500;600;700&family=Spline+Sans+Mono:wght@500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    /* Estérel red porphyry + sea — a warmer palette than the Cassis pages */
+    --paper:#EADFD3;--paper-2:#F4EBDF;--paper-3:#FCF6EC;
+    --ink:#3A1712;            /* deep porphyry brown-red ink */
+    --ink-soft:#7a5347;--line:#d8c4b0;
+    --sea:#0E7C82;--turq:#1AA39A;--turq-bright:#27BDB0;
+    --rock:#B5402B;          /* Estérel red rock accent */
+    --rock-deep:#8E2E1E;
+    --warn:#C0391E;--warn-bg:#F7E0D4;
+    --nat:#9A6CB0;--nat-bg:#efe4f3; /* naturist tag */
+    --fr-green:#4E9A63;--fr-orange:#E07B2E;--fr-red:#CC3B22;
+    --shadow:0 1px 0 rgba(58,23,18,.04), 0 8px 26px -16px rgba(58,23,18,.5);
+    --maxw:680px;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;scroll-padding-top:64px}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:"Spline Sans",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+  body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.55;background-image:radial-gradient(120% 90% at 85% -10%, rgba(181,64,43,.14), transparent 58%),radial-gradient(90% 70% at -10% 100%, rgba(26,163,154,.10), transparent 55%);}
+  .wrap{position:relative;z-index:1;max-width:var(--maxw);margin:0 auto;padding:0 18px;}
+  a{color:inherit}
+  h1,h2,h3{font-family:"Big Shoulders Display",Impact,sans-serif;font-weight:800;line-height:.94;letter-spacing:.4px;margin:0;text-transform:uppercase}
+
+  .topbar{position:sticky;top:0;z-index:20;background:rgba(58,23,18,.97);color:var(--paper);backdrop-filter:saturate(140%) blur(6px);border-bottom:1px solid rgba(255,255,255,.08);}
+  .topbar .wrap{display:flex;align-items:center;gap:10px;padding-top:9px;padding-bottom:9px;min-height:48px}
+  .topbar .mark{font-family:"Big Shoulders Display";font-weight:800;font-size:18px;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap}
+  .topbar .when{margin-left:auto;font-family:"Spline Sans Mono";font-size:11.5px;color:#e6b9a6;text-align:right;line-height:1.25}
+  .topbar .when b{color:var(--paper);font-weight:600}
+
+  .hero{padding:34px 0 22px}
+  .eyebrow{font-family:"Spline Sans Mono";font-size:12px;letter-spacing:2.5px;text-transform:uppercase;color:var(--rock);font-weight:600;display:flex;align-items:center;gap:8px}
+  .eyebrow::after{content:"";height:1px;flex:1;background:linear-gradient(90deg,var(--line),transparent)}
+  .hero h1{font-size:clamp(40px,12.5vw,72px);margin:14px 0 0;color:var(--ink)}
+  .hero h1 .accent{color:var(--rock)}
+  .hero .lede{font-size:16.5px;line-height:1.5;margin:15px 0 0;max-width:34em;color:#5c372d}
+  .hero .lede b{color:var(--ink);font-weight:600}
+  .plan-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  .pill{font-family:"Spline Sans Mono";font-size:12px;font-weight:500;background:var(--paper-3);border:1px solid var(--line);border-radius:999px;padding:7px 12px;display:inline-flex;align-items:center;gap:7px;color:#6a4234}
+  .pill svg{width:14px;height:14px;flex:none;color:var(--sea)}
+
+  .alert{margin:22px 0 4px;background:var(--warn-bg);border:1px solid #e6bca8;border-left:5px solid var(--warn);border-radius:14px;padding:15px 16px;box-shadow:var(--shadow);}
+  .alert h3{font-size:18px;color:var(--warn);text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;gap:8px}
+  .alert p{margin:8px 0 0;font-size:14px;line-height:1.5;color:#6a3826}
+  .alert a{color:var(--warn);font-weight:600;text-decoration:underline;text-underline-offset:2px}
+
+  .sec{padding:30px 0 4px}
+  .sec-kicker{font-family:"Spline Sans Mono";font-size:11.5px;letter-spacing:2px;text-transform:uppercase;color:var(--turq);font-weight:600}
+  .sec h2{font-size:clamp(27px,8vw,38px);margin:6px 0 0;color:var(--ink)}
+  .sec .sub{font-size:14.5px;color:var(--ink-soft);margin:9px 0 0;max-width:40em}
+
+  .card{background:var(--paper-2);border:1px solid var(--line);border-radius:18px;margin-top:16px;overflow:hidden;box-shadow:var(--shadow);}
+  .card-top{display:flex;gap:13px;padding:16px 16px 13px;align-items:flex-start}
+  .rank{flex:none;width:46px;height:46px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--ink);color:var(--paper);line-height:1;}
+  .rank .n{font-family:"Big Shoulders Display";font-weight:800;font-size:25px;margin-top:1px}
+  .rank .lab{font-family:"Spline Sans Mono";font-size:7px;letter-spacing:1px;text-transform:uppercase;color:#d8a48f;margin-top:2px}
+  .card.gold .rank{background:linear-gradient(160deg,var(--turq),var(--sea))}
+  .card.gold{border-color:#a6cbc6}
+  .card.red .rank{background:linear-gradient(160deg,var(--rock),var(--rock-deep))}
+  .card.red{border-color:#dcab97}
+  .head-txt{flex:1;min-width:0}
+  .head-txt h3{font-size:24px;color:var(--ink);letter-spacing:.3px}
+  .head-txt .where{font-size:12.5px;color:var(--ink-soft);margin-top:3px;display:flex;align-items:center;gap:5px}
+  .badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
+  .tg{font-family:"Spline Sans Mono";font-size:9.5px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;border-radius:6px;padding:3px 7px;border:1px solid}
+  .tg.scenic{color:var(--rock);background:#f6e1d8;border-color:#e3b6a3}
+  .tg.quiet{color:var(--sea);background:#d8efea;border-color:#a6cbc6}
+  .tg.nat{color:var(--nat);background:var(--nat-bg);border-color:#cdb3d8}
+  .tg.sand{color:#9a7b1e;background:#f2e9cf;border-color:#dac98f}
+  .tagline{font-size:14.5px;color:var(--rock-deep);font-weight:600;font-style:italic;margin:11px 16px 0;line-height:1.4}
+  .card.gold .tagline{color:var(--sea)}
+
+  .meters{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:13px 16px 4px}
+  .meter{background:var(--paper-3);border:1px solid var(--line);border-radius:11px;padding:9px}
+  .meter.key{background:#fff;border-color:#cdb8a6}
+  .meter .mlab{font-family:"Spline Sans Mono";font-size:9.5px;letter-spacing:.8px;text-transform:uppercase;color:var(--ink-soft)}
+  .meter .mval{font-size:13px;font-weight:600;margin-top:4px;color:var(--ink);font-family:"Spline Sans Mono";line-height:1.15}
+  .gauge{display:flex;gap:3px;margin-top:7px}
+  .gauge i{height:4px;flex:1;border-radius:2px;background:#decab6}
+  .g3 i:nth-child(-n+3){background:var(--fr-green)}
+  .g2 i:nth-child(-n+2){background:var(--fr-orange)}
+  .g1 i:nth-child(-n+1){background:var(--fr-red)}
+
+  .card-body{padding:6px 16px 16px}
+  .row{display:flex;gap:9px;padding:11px 0;border-top:1px solid var(--line)}
+  .row:first-child{border-top:0}
+  .row .ico{flex:none;width:26px;height:26px;border-radius:8px;background:var(--paper-3);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--sea)}
+  .row .ico svg{width:15px;height:15px}
+  .row .rt{flex:1;min-width:0}
+  .row .rt b{display:block;font-family:"Spline Sans Mono";font-size:10.5px;letter-spacing:.8px;text-transform:uppercase;color:var(--ink-soft);font-weight:600;margin-bottom:2px}
+  .row .rt span{font-size:14px;line-height:1.45;color:#5c372d}
+  .row.park .ico{background:#f6e1d8;border-color:#e3b6a3;color:var(--rock)}
+
+  .cta{display:flex;gap:9px;padding:4px 16px 16px;flex-wrap:wrap}
+  .btn{flex:1;min-width:150px;text-decoration:none;text-align:center;border-radius:11px;font-family:"Spline Sans Mono";font-size:12.5px;font-weight:600;padding:12px 13px;display:inline-flex;align-items:center;justify-content:center;gap:7px}
+  .btn svg{width:15px;height:15px}
+  .btn.primary{background:var(--ink);color:var(--paper)}
+  .btn.rock{background:var(--rock);color:#fff}
+
+  .note{margin:0 16px 15px;font-size:12.5px;color:var(--ink-soft);background:var(--paper-3);border:1px dashed var(--line);border-radius:10px;padding:9px 11px;line-height:1.45}
+  .note b{color:var(--rock)}
+
+  .skip{margin-top:16px;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--paper-2)}
+  .skip-item{display:flex;gap:12px;padding:14px 16px;border-top:1px solid var(--line)}
+  .skip-item:first-child{border-top:0}
+  .skip-x{flex:none;width:24px;height:24px;border-radius:50%;background:var(--warn-bg);color:var(--warn);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;margin-top:1px}
+  .skip-item .st b{font-family:"Big Shoulders Display";font-size:18px;letter-spacing:.4px;text-transform:uppercase;display:block;color:var(--ink)}
+  .skip-item .st span{font-size:13.5px;color:#6a4234;line-height:1.45;display:block;margin-top:2px}
+  .skip-item .st .why{color:var(--warn);font-weight:600}
+
+  .pack{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:16px}
+  .pack div{background:var(--paper-2);border:1px solid var(--line);border-radius:12px;padding:12px;font-size:13.5px;line-height:1.4;display:flex;gap:9px;align-items:flex-start}
+  .pack div .pk{font-size:18px;line-height:1;flex:none}
+  .pack div b{display:block;color:var(--ink);font-weight:600;margin-bottom:1px}
+  .pack div small{color:var(--ink-soft);font-size:12px}
+
+  .nbanner{background:linear-gradient(165deg,#4a2a55,#33203b);color:#f3e9f5;border-radius:18px;margin-top:16px;padding:18px;box-shadow:var(--shadow)}
+  .nbanner h3{color:#dcc0e8;font-size:22px}
+  .nbanner p{font-size:14px;line-height:1.55;color:#e3d3e8;margin:9px 0 0}
+  .nbanner p b{color:#fff;font-weight:600}
+
+  footer{margin-top:36px;border-top:1px solid var(--line);padding:22px 0 40px;color:var(--ink-soft);font-size:12.5px;line-height:1.6}
+  footer .wrap b{color:var(--ink)}
+  footer .meth{font-family:"Spline Sans Mono";font-size:11px;margin-top:10px;color:#9a7b6c}
+
+  @media (max-width:380px){.meters{grid-template-columns:1fr 1fr}.meter.key{grid-column:1 / -1}}
+  @media (prefers-reduced-motion:no-preference){.card,.alert,.nbanner{animation:rise .5s cubic-bezier(.2,.7,.3,1) both}}
+  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <span class="mark">▴ Fréjus &amp; Estérel</span>
+    <span class="when"><b>Red rock · turquoise</b><br>parking-first picks</span>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <header class="hero">
+    <div class="eyebrow">Côte d'Azur · for two</div>
+    <h1>Red rocks,<br><span class="accent">turquoise<br>coves.</span></h1>
+    <p class="lede">The Estérel coast hides its best swimming in small <b>red-porphyry calanques</b> — wilder and clearer than the wide town sands. The catch is the same as always: tiny lots that fill by late morning. So this is ranked <b>parking-first</b> — one guaranteed sure-thing up top, then the scenic coves worth a small gamble, plus where to go <b>clothing-optional</b>.</p>
+    <div class="plan-row">
+      <span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Go mid-morning if you can</span>
+      <span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M12 3v18"/></svg>Weekday + late June = shoulder</span>
+      <span class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>All within ~30 min of Fréjus</span>
+    </div>
+  </header>
+
+  <div class="alert">
+    <h3><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 2s5 4 5 9a5 5 0 0 1-10 0c0-1.5.6-2.8 1.3-3.8C8.7 8.3 9 9.4 10 10c0-2 1-4 2-8z"/></svg> Good news on fire closures</h3>
+    <p>Late June, the <b>Estérel &amp; Maures massifs</b> fall under daily fire-risk rules that can shut <b>forest trails</b> — but every beach below is reached <b>directly from the coast road</b>, not a forest path, so they stay open even on a red day. Only matters if you'd planned an inland Estérel <em>hike</em>; for the swims, you're clear. Quick check: <a href="https://www.risque-prevention-incendie.fr/83" target="_blank" rel="noopener">Var fire-risk map</a>.</p>
+  </div>
+
+  <!-- SURE THING -->
+  <section class="sec">
+    <div class="sec-kicker">Park without thinking · 1</div>
+    <h2>The sure thing</h2>
+    <p class="sub">If you just want to be in the water with zero parking stress, this is it — an ~840-space lot and a 4-minute flat walk.</p>
+  </section>
+
+  <article class="card gold">
+    <div class="card-top">
+      <div class="rank"><span class="n">1</span><span class="lab">Surest</span></div>
+      <div class="head-txt">
+        <h3>Plage de la Base Nature</h3>
+        <div class="where"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Fréjus · ~8 min</div>
+        <div class="badges"><span class="tg sand">Sandy</span><span class="tg quiet">Lifeguarded</span></div>
+      </div>
+    </div>
+    <p class="tagline">Guaranteed parking, flat sand, safe swim — the no-stress default.</p>
+    <div class="meters">
+      <div class="meter key"><div class="mlab">🅿️ Park</div><div class="mval">Reliable · free*</div><div class="gauge g3"><i></i><i></i><i></i></div></div>
+      <div class="meter"><div class="mlab">🥾 Walk</div><div class="mval">~4 min flat</div><div class="gauge g3"><i></i><i></i><i></i></div></div>
+      <div class="meter"><div class="mlab">🚗 Drive</div><div class="mval">~8 min</div><div class="gauge g3"><i></i><i></i><i></i></div></div>
+    </div>
+    <div class="card-body">
+      <div class="row park"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 16V8h3a3 3 0 0 1 0 6H9"/></svg></div><div class="rt"><b>The parking truth</b><span>~840-space dedicated lot right by the sand. <b>Free in late June</b> (paid only Jul–Aug). The one spot here where a midday arrival genuinely doesn't matter.</span></div></div>
+      <div class="row"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17c2-2 4-2 6 0s4 2 6 0 4-2 6 0M3 12c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/></svg></div><div class="rt"><b>Swim & scene</b><span>Long flat sand strip backed by a big green park; gentle, clear, lifeguarded water. Easy and safe — but open and <em>busy</em>, not a wild cove.</span></div></div>
+      <div class="row"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg></div><div class="rt"><b>Good to know</b><span>Toilets, bar-restaurant, shade trees, excellent accessibility. Not in the massif, so unaffected by any fire closure.</span></div></div>
+    </div>
+    <div class="cta"><a class="btn primary" href="https://www.google.com/maps/dir/?api=1&destination=Parking+Base+Nature+Fr%C3%A9jus" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Directions to parking</a></div>
+    <p class="note">* Free for ~10 months; paid only 1 Jul–31 Aug. You're in the free window now.</p>
+  </article>
+
+  <!-- RED ROCK COVES -->
+  <section class="sec">
+    <div class="sec-kicker">The good stuff · 2–4</div>
+    <h2>Red-rock coves</h2>
+    <p class="sub">The reason to be on this coast: little porphyry calanques with turquoise, snorkel-clear water. Smaller lots — arrive mid-morning, or have the sure thing as backup.</p>
+  </section>
+
+  <!-- Camp Long -->
+  <article class="card red">
+    <div class="card-top">
+      <div class="rank"><span class="n">2</span><span class="lab">Best cove</span></div>
+      <div class="head-txt">
+        <h3>Plage de Camp Long</h3>
+        <div class="where"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Agay · Estérel · ~18 min</div>
+        <div class="badges"><span class="tg scenic">Red rock</span><span class="tg quiet">Sheltered swim</span></div>
+      </div>
+    </div>
+    <p class="tagline">A pocket cove funnelled by deep-red cliffs into a calm, clear lagoon.</p>
+    <div class="meters">
+      <div class="meter key"><div class="mlab">🅿️ Park</div><div class="mval">Arrive early</div><div class="gauge g2"><i></i><i></i><i></i></div></div>
+      <div class="meter"><div class="mlab">🥾 Walk</div><div class="mval">~4 min flat</div><div class="gauge g3"><i></i><i></i><i></i></div></div>
+      <div class="meter"><div class="mlab">🚗 Drive</div><div class="mval">~18 min</div><div class="gauge g2"><i></i><i></i><i></i></div></div>
+    </div>
+    <div class="card-body">
+      <div class="row park"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 16V8h3a3 3 0 0 1 0 6H9"/></svg></div><div class="rt"><b>The parking truth</b><span>The Tiki Plage lot sits right above the cove but is small and <b>saturates from ~11:00</b> in peak summer. Late June is better — but arrive by ~10:30 to be safe, or fall back to Base Nature.</span></div></div>
+      <div class="row"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17c2-2 4-2 6 0s4 2 6 0 4-2 6 0M3 12c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/></svg></div><div class="rt"><b>Swim & scene</b><span>The rock funnel kills the swell, so it's calm, shallow and clear — a lovely couple's swim. Golden sand, gravelly in patches; Île d'Or out front.</span></div></div>
+      <div class="row"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg></div><div class="rt"><b>Good to know</b><span>Seasonal showers/toilets, a well-liked beach restaurant on the sand, lifeguard in season. Sea-edge access — open on red fire days.</span></div></div>
+    </div>
+    <div class="cta"><a class="btn rock" href="https://www.google.com/maps/dir/?api=1&destination=Plage+de+Camp+Long+Agay" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Directions</a></div>
+  </article>
+
+  <!-- Calanque Tardieu -->
+  <article class="card red">
+    <div class="card-top">
+      <div class="rank"><span class="n">3</span><span class="lab">Clearest</span></div>
+      <div class="head-txt">
+        <h3>Calanque Tardieu</h3>
+        <div class="where"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Les Issambres · ~20 min</div>
+        <div class="badges"><span class="tg scenic">Turquoise</span><span class="tg quiet">Snorkel</span></div>
+      </div>
+    </div>
+    <p class="tagline">A small preserved cove with some of the clearest water on the coast.</p>
+    <div class="meters">
+      <div class="meter key"><div class="mlab">🅿️ Park</div><div class="mval">Arrive early · free</div><div class="gauge g2"><i></i><i></i><i></i></div></div>
+      <div class="meter"><div class="mlab">🥾 Walk</div><div class="mval">~3 min flat</div><div class="gauge g3"><i></i><i></i><i></i></div></div>
+      <div class="meter"><div class="mlab">🚗 Drive</div><div class="mval">~20 min</div><div class="gauge g2"><i></i><i></i><i></i></div></div>
+    </div>
+    <div class="card-body">
+      <div class="row park"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 16V8h3a3 3 0 0 1 0 6H9"/></svg></div><div class="rt"><b>The parking truth</b><span>Free roadside lot under 100 m from the water on the D559 — but small. Reviews say <b>be there before 11:00</b>; midday is a gamble. Weekday odds are decent.</span></div></div>
+      <div class="row"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17c2-2 4-2 6 0s4 2 6 0 4-2 6 0M3 12c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/></svg></div><div class="rt"><b>Swim & scene</b><span>Crystal-clear turquoise over a rocky bottom — excellent snorkelling, open view across to Fréjus. Entry over rock/pebble in places (water shoes help).</span></div></div>
+      <div class="row"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg></div><div class="rt"><b>Good to know</b><span>Beach bar/restaurant, showers, toilets on site. Unsupervised swimming. Roadside coastal spot — not affected by massif closures.</span></div></div>
+    </div>
+    <div class="cta"><a class="btn rock" href="https://www.google.com/maps/dir/?api=1&destination=Calanque+Tardieu+Les+Issambres" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Directions</a></div>
+  </article>
+
+  <!-- Calanque d'Antheor -->
+  <article class="card red">
+    <div class="card-top">
+      <div class="rank"><span class="n">4</span><span class="lab">Postcard</span></div>
+      <div class="head-txt">
+        <h3>Calanque d'Anthéor</h3>
+        <div class="where"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Anthéor · Corniche d'Or · ~28 min</div>
+        <div class="badges"><span class="tg scenic">Iconic view</span><span class="tg sand">Easy entry</span></div>
+      </div>
+    </div>
+    <p class="tagline">The postcard red calanque under the nine-arch viaduct.</p>
+    <div class="meters">
+      <div class="meter key"><div class="mlab">🅿️ Park</div><div class="mval">Gamble · free</div><div class="gauge g1"><i></i><i></i><i></i></div></div>
+      <div class="meter"><div class="mlab">🥾 Walk</div><div class="mval">~2 min flat</div><div class="gauge g3"><i></i><i></i><i></i></div></div>
+      <div class="meter"><div class="mlab">🚗 Drive</div><div class="mval">~28 min</div><div class="gauge g2"><i></i><i></i><i></i></div></div>
+    </div>
+    <div class="card-body">
+      <div class="row park"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 16V8h3a3 3 0 0 1 0 6H9"/></svg></div><div class="rt"><b>The parking truth</b><span>One tiny ~60-space lot behind the viaduct plus a little roadside — capacity is small vs demand. Midday is a real gamble; best before ~10:00. Once parked, water's steps away.</span></div></div>
+      <div class="row"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17c2-2 4-2 6 0s4 2 6 0 4-2 6 0M3 12c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/></svg></div><div class="rt"><b>Swim & scene</b><span>Small red-rock calanque framed by the famous Anthéor viaduct; clear turquoise water, gentle sandy entry (no water shoes needed). Snorkel along the red sides.</span></div></div>
+      <div class="row"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg></div><div class="rt"><b>Good to know</b><span>Basic facilities (a rinse shower); restaurants nearby in Anthéor. Coastal roadside — open regardless of fire risk.</span></div></div>
+    </div>
+    <div class="cta"><a class="btn rock" href="https://www.google.com/maps/dir/?api=1&destination=Plage+de+la+Calanque+d%27Anth%C3%A9or" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Directions</a></div>
+  </article>
+
+  <!-- QUIET / GULF -->
+  <section class="sec">
+    <div class="sec-kicker">Wild &amp; quiet · 5–6</div>
+    <h2>If you want seclusion</h2>
+    <p class="sub">Furthest out and the trickiest parking, but the quietest, wildest water — plus one sandy Gulf beach that has a parking backup built in.</p>
+  </section>
+
+  <!-- Pointe des Sardinaux -->
+  <article class="card">
+    <div class="card-top">
+      <div class="rank"><span class="n">5</span><span class="lab">Wildest</span></div>
+      <div class="head-txt">
+        <h3>Pointe des Sardinaux</h3>
+        <div class="where"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Sainte-Maxime · ~30 min</div>
+        <div class="badges"><span class="tg quiet">Secluded</span><span class="tg scenic">"Petite Corse"</span></div>
+      </div>
+    </div>
+    <p class="tagline">A wild pine-and-rock peninsula locals call "Little Corsica."</p>
+    <div class="meters">
+      <div class="meter key"><div class="mlab">🅿️ Park</div><div class="mval">Gamble · ~10 spots</div><div class="gauge g1"><i></i><i></i><i></i></div></div>
+      <div class="meter"><div class="mlab">🥾 Walk</div><div class="mval">~10 min flat</div><div class="gauge g2"><i></i><i></i><i></i></div></div>
+      <div class="meter"><div class="mlab">🚗 Drive</div><div class="mval">~30 min</div><div class="gauge g2"><i></i><i></i><i></i></div></div>
+    </div>
+    <div class="card-body">
+      <div class="row park"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 16V8h3a3 3 0 0 1 0 6H9"/></svg></div><div class="rt"><b>The parking truth</b><span>Roughly <b>10 roadside spots</b> in the bend — that's it. The tiny capacity is exactly what keeps it empty. Only realistic before ~9:30, or get lucky on turnover. This one is a true gamble.</span></div></div>
+      <div class="row"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17c2-2 4-2 6 0s4 2 6 0 4-2 6 0M3 12c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/></svg></div><div class="rt"><b>Swim & scene</b><span>Crystal-clear, sheltered turquoise water and outstanding snorkelling around a wild headland with pines, a Roman fishpond and a WWII bunker. Rock/pebble entry — water shoes.</span></div></div>
+      <div class="row"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg></div><div class="rt"><b>Good to know</b><span>Wild and unsupervised — no services on the point; shaded picnic area in the middle. Bring water and lunch.</span></div></div>
+    </div>
+    <div class="cta"><a class="btn primary" href="https://www.google.com/maps/dir/?api=1&destination=Pointe+des+Sardinaux+Sainte-Maxime" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Directions</a></div>
+  </article>
+
+  <!-- La Nartelle -->
+  <article class="card">
+    <div class="card-top">
+      <div class="rank"><span class="n">6</span><span class="lab">Sandy + backup</span></div>
+      <div class="head-txt">
+        <h3>Plage de la Nartelle</h3>
+        <div class="where"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Sainte-Maxime · ~30 min</div>
+        <div class="badges"><span class="tg sand">Blue-flag sand</span><span class="tg quiet">Shuttle backup</span></div>
+      </div>
+    </div>
+    <p class="tagline">Clear Blue-Flag sand with a rare safety net if the lots fill.</p>
+    <div class="meters">
+      <div class="meter key"><div class="mlab">🅿️ Park</div><div class="mval">Free + backup</div><div class="gauge g2"><i></i><i></i><i></i></div></div>
+      <div class="meter"><div class="mlab">🥾 Walk</div><div class="mval">~3 min flat</div><div class="gauge g3"><i></i><i></i><i></i></div></div>
+      <div class="meter"><div class="mlab">🚗 Drive</div><div class="mval">~30 min</div><div class="gauge g2"><i></i><i></i><i></i></div></div>
+    </div>
+    <div class="card-body">
+      <div class="row park"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 16V8h3a3 3 0 0 1 0 6H9"/></svg></div><div class="rt"><b>The parking truth</b><span>Big free seafront lots (several hundred spaces) fill from ~10am in peak season, but the shaded <b>Boucaniers lot</b> (5-min walk) rarely fills, and a <b>€1 shuttle</b> runs from town. So you have a real fallback here.</span></div></div>
+      <div class="row"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17c2-2 4-2 6 0s4 2 6 0 4-2 6 0M3 12c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/></svg></div><div class="rt"><b>Swim & scene</b><span>Exceptionally clear Blue-Flag water, fine sand. Note it shelves steeply — you're out of your depth quickly. Developed resort beach, not wild.</span></div></div>
+      <div class="row"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg></div><div class="rt"><b>Good to know</b><span>Lifeguarded, showers, WC, restaurants and beach clubs. Coastal — no massif closure risk.</span></div></div>
+    </div>
+    <div class="cta"><a class="btn primary" href="https://www.google.com/maps/dir/?api=1&destination=Parking+La+Nartelle+Sainte-Maxime" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Directions</a></div>
+  </article>
+
+  <!-- NATURIST -->
+  <section class="sec">
+    <div class="sec-kicker">You asked · clothing-optional</div>
+    <h2>Naturist-friendly</h2>
+    <p class="sub">The Var is France's #2 naturist department. Your nearest options, from easy-sandy to wild-red-rock.</p>
+  </section>
+
+  <article class="card">
+    <div class="card-top">
+      <div class="rank"><span class="n">★</span><span class="lab">Easiest</span></div>
+      <div class="head-txt">
+        <h3>Esclamandes</h3>
+        <div class="where"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Saint-Aygulf, Fréjus · ~12 min</div>
+        <div class="badges"><span class="tg nat">Naturist zone</span><span class="tg sand">Sandy</span></div>
+      </div>
+    </div>
+    <p class="tagline">A sandy bay with a marked naturist section, backed by a nature reserve.</p>
+    <div class="meters">
+      <div class="meter key"><div class="mlab">🅿️ Park</div><div class="mval">Gamble · paid</div><div class="gauge g1"><i></i><i></i><i></i></div></div>
+      <div class="meter"><div class="mlab">🥾 Walk</div><div class="mval">~3 min flat</div><div class="gauge g3"><i></i><i></i><i></i></div></div>
+      <div class="meter"><div class="mlab">🚗 Drive</div><div class="mval">~12 min</div><div class="gauge g3"><i></i><i></i><i></i></div></div>
+    </div>
+    <div class="card-body">
+      <div class="row park"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 16V8h3a3 3 0 0 1 0 6H9"/></svg></div><div class="rt"><b>The parking truth</b><span>The Esclamandes lot is paid in summer and <b>often full by 10:00</b>. Backups: the two RN98 lots (Saint-Aygulf I &amp; II, ~420 spaces) or the village + summer shuttle. Weekday earlier-is-better.</span></div></div>
+      <div class="row"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17c2-2 4-2 6 0s4 2 6 0 4-2 6 0M3 12c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/></svg></div><div class="rt"><b>Swim & scene</b><span>Long sandy bay, gentle gradual entry, lifeguarded — easy family-calm water. The beach is zoned (family / naturist), so the clothing-optional stretch is signed.</span></div></div>
+      <div class="row"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg></div><div class="rt"><b>Good to know</b><span>Toilets, snack kiosks, lifeguards mid-June to Sept. Coastal nature reserve behind. Open regardless of fire risk.</span></div></div>
+    </div>
+    <div class="cta"><a class="btn primary" href="https://www.google.com/maps/dir/?api=1&destination=Plage+des+Esclamandes+Saint-Aygulf" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Directions</a></div>
+  </article>
+
+  <div class="nbanner">
+    <h3>◆ Two more, for red-rock seclusion</h3>
+    <p><b>Le Dramont</b> (Rochers du Dramont, ~15 min) — naturist zones on the rocks behind the “Cathedral rocks” and near Pointe du Dramont, with the Île d'Or view. <b>Le Trayas</b> (~25–30 min) — the most officially naturist Estérel cove, in a small red-rock inlet between Pointe du Maubois and Cap Roux. Both are scenic but rocky-entry with small, early-filling parking — go early and bring water shoes.</p>
+  </div>
+
+  <!-- SKIP -->
+  <section class="sec">
+    <div class="sec-kicker">Don't bother</div>
+    <h2>Skip the town sands</h2>
+    <p class="sub">Easy to reach, but packed and parking-painful in summer — and not what you came for.</p>
+  </section>
+  <div class="skip">
+    <div class="skip-item"><div class="skip-x">✕</div><div class="st"><b>Plage du Veillat (St-Raphaël)</b><span><span class="why">Packed</span> central town beach right by the station — convenient, but mobbed and characterless.</span></div></div>
+    <div class="skip-item"><div class="skip-x">✕</div><div class="st"><b>Sablettes &amp; Beaurivage (Fréjus-Plage)</b><span>The main Fréjus-Plage strip: <span class="why">packed, paid roadside parking</span>, resort feel. Base Nature next door is the better call.</span></div></div>
+    <div class="skip-item"><div class="skip-x">✕</div><div class="st"><b>Plage de San Peïre / La Madrague</b><span>Pretty but <span class="why">tiny roadside parking that's hopeless midday</span>; the corniche clogs 10:00–20:00 in summer.</span></div></div>
+  </div>
+
+  <!-- PACK -->
+  <section class="sec"><div class="sec-kicker">Grab on the way out</div><h2>Don't forget</h2></section>
+  <div class="pack">
+    <div><span class="pk">🩴</span><div><b>Water shoes</b><small>The red-rock coves are pebble/rock entry.</small></div></div>
+    <div><span class="pk">🥽</span><div><b>Mask &amp; snorkel</b><small>Tardieu &amp; Sardinaux are snorkel gold.</small></div></div>
+    <div><span class="pk">💧</span><div><b>Water + lunch</b><small>The wild coves have no services.</small></div></div>
+    <div><span class="pk">⛱️</span><div><b>Shade</b><small>Cove shade is patchy; midday sun is strong.</small></div></div>
+    <div><span class="pk">🪙</span><div><b>Coins / card</b><small>Some lots are coin-only; summer paid 8:30–18:30.</small></div></div>
+    <div><span class="pk">⏰</span><div><b>Go early-ish</b><small>The good coves' tiny lots fill by ~11:00.</small></div></div>
+  </div>
+
+  <footer>
+    <div class="wrap">
+      <b>One-line plan:</b> want it certain → Base Nature. Want the red-rock wow → Camp Long or Calanque Tardieu, arriving by ~10:30. Want quiet → Pointe des Sardinaux (early). Clothing-optional → Esclamandes, or Le Dramont / Le Trayas for the rocks.
+      <div class="meth">Half-size study of 16 candidate beaches across Fréjus/Saint-Raphaël, the Estérel Corniche d'Or and the Gulf-of-Saint-Tropez side — each profiled and independently fact-checked on parking, summer fire-risk access and walking time, drive times from Fréjus. Naturist info cross-checked against the Fréjus &amp; Saint-Raphaël tourist offices. Conditions change — treat parking and fire status as “check on the day.” Made for two.</div>
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>
