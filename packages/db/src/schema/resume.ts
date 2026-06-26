@@ -3,6 +3,7 @@ import { index, jsonb, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { user } from "./auth";
 import { resumeSchema } from "./resume-schema";
 import type { ResumeContent } from "./resume-content";
+import { defaultResumeTheme, type ResumeTheme } from "./resume-theme";
 
 /** Factory so each table gets fresh column builders rather than sharing instances. */
 const timestamps = () => ({
@@ -39,6 +40,14 @@ export const resume = resumeSchema.table(
      * and validated by `resumeContent` (Zod) on every write, not by the column.
      */
     content: jsonb("content").$type<ResumeContent>().notNull(),
+    /**
+     * How the paper looks: a sibling of `content`, never nested inside it, so a
+     * layout tweak stays a layout tweak in history and a snapshot/variant copies
+     * the look in the same row copy (ADR 0006). Shape owned by `resumeTheme`
+     * (Zod) on every write. The column defaults to the neutral baseline, so every
+     * row that predates this column reads back as the original ink-only look.
+     */
+    theme: jsonb("theme").$type<ResumeTheme>().notNull().default(defaultResumeTheme),
     ...timestamps(),
   },
   (t) => [index("resume_user_id_idx").on(t.userId)],

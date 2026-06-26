@@ -1,0 +1,1 @@
+ALTER TABLE "resume"."resume" ADD COLUMN "theme" jsonb DEFAULT '{"density":"normal","spacing":"normal","scale":"normal","accent":"graphite"}'::jsonb NOT NULL;

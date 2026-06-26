@@ -23,6 +23,7 @@ import {
 } from "./editors/content-ops";
 import { HeaderEditor } from "./editors/header-editor";
 import { SectionEditor } from "./editors/section-editor";
+import { ThemeEditor } from "./editors/theme-editor";
 
 /**
  * The left column: the whole document as editable fields. It owns the writes into
@@ -31,11 +32,15 @@ import { SectionEditor } from "./editors/section-editor";
  * the editors themselves stay free of the context.
  */
 export function EditorColumn() {
-  const { content, updateContent } = useEditor();
+  const { content, updateContent, theme, updateTheme } = useEditor();
   const { header, sections } = content;
 
   return (
     <div className="flex min-w-0 flex-col gap-6 duration-500 animate-in fade-in-0 slide-in-from-bottom-2">
+      {/* Appearance leads the column: it frames how the whole document looks and
+          sits closest to the preview on the right that it drives. */}
+      <ThemeEditor theme={theme} onChange={(next) => updateTheme(() => next)} />
+
       <HeaderEditor
         header={header}
         onChange={(next) =>

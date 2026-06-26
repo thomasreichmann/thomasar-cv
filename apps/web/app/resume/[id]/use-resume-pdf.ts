@@ -1,6 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 
-import { resumeContent, type ResumeContent } from "@thomasar-cv/db/schema";
+import {
+  resumeContent,
+  resumeTheme,
+  type ResumeContent,
+  type ResumeTheme,
+} from "@thomasar-cv/db/schema";
 
 import { useDebouncedValue } from "@/lib/use-debounced-value";
 
@@ -24,12 +29,15 @@ interface Outcome {
 }
 
 /**
- * Renders the editor's in-memory content to PDF bytes through the shared engine
- * (issue #39), debounced so a burst of keystrokes makes one server render, not
- * one per character. The content is serialized once and the *string* is debounced
- * - so an edit that produces identical JSON (a no-op round-trip through an editor)
- * doesn't trigger a render - then POSTed to `/api/preview`, which reuses
- * `renderResumeToBuffer`. There is no second client render path (ADR 0002).
+ * Renders the editor's in-memory content *and theme* to PDF bytes through the
+ * shared engine (issues #39, #53), debounced so a burst of keystrokes makes one
+ * server render, not one per character. The body is serialized once and the
+ * *string* is debounced - so an edit that produces identical JSON (a no-op
+ * round-trip through an editor) doesn't trigger a render - then POSTed to
+ * `/api/preview`, which reuses `renderResumeToBuffer`. Theme rides in the same
+ * body, so a theme control re-renders the preview through the one render
+ * definition the export also uses; there is no second client render path (ADR
+ * 0002).
  *
  * Status is derived, not set inside the effect: a render is in flight whenever the
  * debounced body is ahead of the last settled `outcome`. Each new render aborts
@@ -37,14 +45,22 @@ interface Outcome {
  * displayed bytes only move forward on success - an invalid intermediate edit or a
  * failed render keeps the last good preview on screen rather than blanking it.
  */
-export function useResumePdf(content: ResumeContent): ResumePdf {
+export function useResumePdf(
+  content: ResumeContent,
+  theme: ResumeTheme,
+): ResumePdf {
   // Validate before serializing: a mid-edit document is almost always valid (every
   // field is optional or defaulted), but skipping the round-trip when it isn't
-  // avoids a guaranteed 400 and keeps the last good frame up.
+  // avoids a guaranteed 400 and keeps the last good frame up. The theme is bounded
+  // by construction, but it is parsed on the same footing so the body the preview
+  // sends is exactly the shape the route accepts.
   const body = useMemo(() => {
-    const parsed = resumeContent.safeParse(content);
-    return parsed.success ? JSON.stringify(parsed.data) : null;
-  }, [content]);
+    const c = resumeContent.safeParse(content);
+    const t = resumeTheme.safeParse(theme);
+    return c.success && t.success
+      ? JSON.stringify({ content: c.data, theme: t.data })
+      : null;
+  }, [content, theme]);
 
   const debounced = useDebouncedValue(body, DEBOUNCE_MS);
 

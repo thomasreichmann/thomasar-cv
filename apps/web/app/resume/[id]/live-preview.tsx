@@ -18,8 +18,8 @@ import { useResumePdf, type PreviewStatus } from "./use-resume-pdf";
  * land.
  */
 export function LivePreview() {
-  const { content } = useEditor();
-  const { data, status } = useResumePdf(content);
+  const { content, theme } = useEditor();
+  const { data, status } = useResumePdf(content, theme);
 
   return (
     <aside className="duration-700 animate-in fade-in-0 xl:sticky xl:top-20 xl:self-start">

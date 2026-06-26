@@ -94,6 +94,12 @@ single additive migration the moment a reader lands (the editor theme controls,
 or a saved-résumé export). Until then, callers pass a theme explicitly or get the
 default.
 
+> **Update (#53):** that reader has landed - the editor's theme controls - so the
+> column was added exactly as decided here: a sibling `theme jsonb` on `resume`,
+> defaulting to the neutral baseline (migration `0004_boring_absorbing_man.sql`,
+> additive and backward-compatible, so every pre-existing row reads back as the
+> original ink-only look). The rest of this ADR stands unchanged.
+
 ## Why bounded, not freeform
 
 A freeform editor (arbitrary margins, font sizes, a color picker) was the

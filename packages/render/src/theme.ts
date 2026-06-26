@@ -45,7 +45,7 @@ const SPACING: Record<ResumeTheme["spacing"], number> = {
  * the ink-only look. Colors are plain hex (not the chrome's oklch) because
  * react-pdf parses hex/rgb, not oklch.
  */
-const ACCENT: Record<ResumeTheme["accent"], string> = {
+export const ACCENT: Record<ResumeTheme["accent"], string> = {
   graphite: "#1a1a1a",
   rust: "#9c3d1a",
   navy: "#1e3a5f",
