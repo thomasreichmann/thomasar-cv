@@ -13,7 +13,7 @@ import {
 } from "react";
 import { toast } from "sonner";
 
-import type { ResumeContent } from "@thomasar-cv/db/schema";
+import type { ResumeContent, ResumeTheme } from "@thomasar-cv/db/schema";
 
 import type { AppRouter } from "@/server/trpc/routers/_app";
 import { useTRPC } from "@/trpc/react";
@@ -29,6 +29,9 @@ interface EditorContextValue {
   /** The whole content document; per-section editors (#37) write into this. */
   content: ResumeContent;
   updateContent: (updater: (prev: ResumeContent) => ResumeContent) => void;
+  /** The presentation theme; the theme controls (#53) write into this. */
+  theme: ResumeTheme;
+  updateTheme: (updater: (prev: ResumeTheme) => ResumeTheme) => void;
   /** Unsaved edits exist. Drives the save control and the navigation guard. */
   isDirty: boolean;
   isSaving: boolean;
@@ -62,14 +65,16 @@ export function EditorProvider({
   // the saved baseline only moves forward on a successful write.
   const [name, setNameState] = useState(resume.name);
   const [content, setContent] = useState<ResumeContent>(resume.content);
+  const [theme, setTheme] = useState<ResumeTheme>(resume.theme);
   const [saved, setSaved] = useState<ResumeDraft>(() => ({
     name: resume.name,
     content: resume.content,
+    theme: resume.theme,
   }));
   const [lastSavedAt, setLastSavedAt] = useState(resume.updatedAt);
   const [error, setError] = useState<string | null>(null);
 
-  const dirty = isDirty({ name, content }, saved);
+  const dirty = isDirty({ name, content, theme }, saved);
 
   const setName = useCallback((next: string) => {
     setNameState(next);
@@ -84,6 +89,14 @@ export function EditorProvider({
     [],
   );
 
+  const updateTheme = useCallback(
+    (updater: (prev: ResumeTheme) => ResumeTheme) => {
+      setTheme(updater);
+      setError(null);
+    },
+    [],
+  );
+
   const update = useMutation(trpc.resume.update.mutationOptions());
   const isSaving = update.isPending;
 
@@ -91,7 +104,7 @@ export function EditorProvider({
     // No-op when clean or mid-save: nothing to persist, and a double-submit would
     // race two writes for the same row.
     if (!dirty || isSaving) return;
-    const result = validateDraft({ name, content });
+    const result = validateDraft({ name, content, theme });
     if (!result.ok) {
       setError(result.message);
       toast.error(result.message);
@@ -103,7 +116,7 @@ export function EditorProvider({
     // stays dirty instead of being silently dropped.
     const sent = result.value;
     update.mutate(
-      { id: resume.id, name: sent.name, content: sent.content },
+      { id: resume.id, name: sent.name, content: sent.content, theme: sent.theme },
       {
         onSuccess: (row) => {
           setSaved(sent);
@@ -122,7 +135,7 @@ export function EditorProvider({
         },
       },
     );
-  }, [dirty, isSaving, name, content, update, queryClient, trpc, resume.id]);
+  }, [dirty, isSaving, name, content, theme, update, queryClient, trpc, resume.id]);
 
   // Cmd/Ctrl+S saves and suppresses the browser's own save dialog, the reflex an
   // editor trains. Bound on the window so it works wherever focus sits.
@@ -156,6 +169,8 @@ export function EditorProvider({
       setName,
       content,
       updateContent,
+      theme,
+      updateTheme,
       isDirty: dirty,
       isSaving,
       lastSavedAt,
@@ -167,6 +182,8 @@ export function EditorProvider({
       setName,
       content,
       updateContent,
+      theme,
+      updateTheme,
       dirty,
       isSaving,
       lastSavedAt,

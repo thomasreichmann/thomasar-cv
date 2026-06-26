@@ -1,7 +1,23 @@
-import { resumeContent } from "@thomasar-cv/db/schema";
+import {
+  defaultResumeTheme,
+  resumeContent,
+  resumeTheme,
+} from "@thomasar-cv/db/schema";
 import { renderResumeToBuffer } from "@thomasar-cv/render";
+import { z } from "zod";
 
 import { auth } from "@/lib/auth/server";
+
+/**
+ * The preview request body: the in-memory content and its theme. Theme defaults
+ * to the neutral baseline so a body that omits it still renders the original
+ * ink-only look, and both are validated before reaching the renderer - the same
+ * gate the write path uses.
+ */
+const previewRequest = z.object({
+  content: resumeContent,
+  theme: resumeTheme.default(defaultResumeTheme),
+});
 
 /**
  * Renders an *unsaved* résumé document to PDF bytes for the editor's live
@@ -14,9 +30,9 @@ import { auth } from "@/lib/auth/server";
  * Unlike `/preview/pdf` (a public demo of the fixture), this renders whatever the
  * caller sends, so it is gated on a session: it is the editor's surface, and an
  * open render endpoint is needless compute for anyone to spend. It reads no row -
- * the content is the request body - so there is no ownership to check beyond
- * being signed in. The body is validated by `resumeContent` before it can reach
- * the renderer, the same gate the write path uses.
+ * the content and theme are the request body - so there is no ownership to check
+ * beyond being signed in. The body is validated by `previewRequest` before it can
+ * reach the renderer, the same gate the write path uses.
  *
  * react-pdf needs the Node runtime (the edge runtime lacks the APIs it relies on).
  */
@@ -35,12 +51,14 @@ export async function POST(req: Request): Promise<Response> {
     return new Response("Invalid JSON", { status: 400 });
   }
 
-  const parsed = resumeContent.safeParse(body);
+  const parsed = previewRequest.safeParse(body);
   if (!parsed.success) {
     return new Response("Invalid résumé content", { status: 400 });
   }
 
-  const pdf = await renderResumeToBuffer(parsed.data);
+  const pdf = await renderResumeToBuffer(parsed.data.content, {
+    theme: parsed.data.theme,
+  });
 
   return new Response(new Uint8Array(pdf), {
     headers: {

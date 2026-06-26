@@ -9,9 +9,10 @@ type ResumeRow = typeof resume.$inferSelect;
 /**
  * What a write may set. Never `id` or `userId`: identity is generated and
  * ownership is taken from the session, never from caller input - so the only way
- * to set `user_id` is `create`, which stamps the session's user.
+ * to set `user_id` is `create`, which stamps the session's user. `theme` rides
+ * alongside `content` as a sibling presentation document (ADR 0006).
  */
-type ResumeWrite = Pick<typeof resume.$inferInsert, "name" | "content">;
+type ResumeWrite = Pick<typeof resume.$inferInsert, "name" | "content" | "theme">;
 
 /**
  * Ownership-scoped access to résumés for one user. This is THE path routers use

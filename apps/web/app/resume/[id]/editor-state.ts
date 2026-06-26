@@ -1,9 +1,18 @@
-import { resumeContent, type ResumeContent } from "@thomasar-cv/db/schema";
+import {
+  resumeContent,
+  resumeTheme,
+  type ResumeContent,
+  type ResumeTheme,
+} from "@thomasar-cv/db/schema";
 
-/** The editable unit the editor holds in memory: a résumé's label and its document. */
+/**
+ * The editable unit the editor holds in memory: a résumé's label, its content
+ * document, and its theme (presentation, kept beside content - ADR 0006).
+ */
 export interface ResumeDraft {
   name: string;
   content: ResumeContent;
+  theme: ResumeTheme;
 }
 
 export type DraftValidation =
@@ -32,7 +41,20 @@ export function validateDraft(draft: ResumeDraft): DraftValidation {
       message: "This résumé has invalid content and can't be saved.",
     };
   }
-  return { ok: true, value: { name: draft.name, content: parsed.data } };
+  // The theme is bounded by construction (the controls only set legal enum
+  // values), but it is re-parsed on the same footing as content so a save can
+  // never persist a shape the column's validation would later reject.
+  const theme = resumeTheme.safeParse(draft.theme);
+  if (!theme.success) {
+    return {
+      ok: false,
+      message: "This résumé has an invalid theme and can't be saved.",
+    };
+  }
+  return {
+    ok: true,
+    value: { name: draft.name, content: parsed.data, theme: theme.data },
+  };
 }
 
 /**

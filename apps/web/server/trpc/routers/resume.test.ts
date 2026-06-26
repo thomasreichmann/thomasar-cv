@@ -1,5 +1,10 @@
 import type { Connection } from "@thomasar-cv/db";
-import { emptyResume, exampleResume } from "@thomasar-cv/db/schema";
+import {
+  defaultResumeTheme,
+  emptyResume,
+  exampleResume,
+  type ResumeTheme,
+} from "@thomasar-cv/db/schema";
 import {
   createTestDb,
   seedResume,
@@ -145,12 +150,80 @@ describe("resume router ownership", () => {
     ).rejects.toMatchObject({ code: "NOT_FOUND" });
   });
 
-  it("update that sets neither name nor content is refused", async () => {
+  it("update that sets neither name, content nor theme is refused", async () => {
     const a = await seedResume(db, { userId: USER_A });
 
     await expect(
       callerFor(db, USER_A).resume.update({ id: a.id }),
     ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+  });
+
+  // The theme is presentation, stored beside content (ADR 0006). These prove it
+  // travels the same owned read/write path: defaulted on create, persisted, and
+  // reloadable - the "saved with the résumé and reloaded on open" acceptance bar.
+  const customTheme: ResumeTheme = {
+    density: "compact",
+    spacing: "relaxed",
+    scale: "large",
+    accent: "rust",
+  };
+
+  it("create defaults the theme to the neutral baseline", async () => {
+    const created = await callerFor(db, USER_A).resume.create({ name: "Blank" });
+
+    expect(created.theme).toEqual(defaultResumeTheme);
+  });
+
+  it("a row written without a theme reads back the baseline (column default)", async () => {
+    // `seedResume` omits theme, so the INSERT carries none and the row is filled
+    // by the column DEFAULT - the path every résumé predating this column took.
+    // This pins migration 0004's hardcoded literal to `defaultResumeTheme`, the
+    // backfill the schema promises (`resume.ts`), which `resume.create` would
+    // otherwise mask by always supplying a theme itself.
+    const seeded = await seedResume(db, { userId: USER_A });
+
+    const got = await callerFor(db, USER_A).resume.get({ id: seeded.id });
+
+    expect(got.theme).toEqual(defaultResumeTheme);
+  });
+
+  it("create persists a supplied theme", async () => {
+    const created = await callerFor(db, USER_A).resume.create({
+      name: "Themed",
+      theme: customTheme,
+    });
+
+    expect(created.theme).toEqual(customTheme);
+  });
+
+  it("create refuses a malformed theme before it reaches the column", async () => {
+    await expect(
+      callerFor(db, USER_A).resume.create({
+        name: "Bad theme",
+        // `accent` is a closed enum; an unlisted token is refused by the input
+        // schema, so a freeform color can never reach the jsonb column.
+        theme: { accent: "#ff0000" } as never,
+      }),
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+
+    expect(await callerFor(db, USER_A).resume.list()).toHaveLength(0);
+  });
+
+  it("a theme-only update persists and leaves the content untouched", async () => {
+    const a = await seedResume(db, { userId: USER_A, content: exampleResume });
+
+    const updated = await callerFor(db, USER_A).resume.update({
+      id: a.id,
+      theme: customTheme,
+    });
+
+    expect(updated.theme).toEqual(customTheme);
+    // Content is left intact: a theme save touches only the theme column.
+    expect(updated.content).toEqual(exampleResume);
+
+    // Durable, not just returned: a fresh read sees the saved theme.
+    const reloaded = await callerFor(db, USER_A).resume.get({ id: a.id });
+    expect(reloaded.theme).toEqual(customTheme);
   });
 
   it("the owner can remove their own résumé", async () => {
