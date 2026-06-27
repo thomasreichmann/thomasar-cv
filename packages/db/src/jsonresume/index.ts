@@ -1,3 +1,4 @@
+export { fromJsonResume } from "./from-json-resume";
 export { toJsonResume } from "./to-json-resume";
 export {
   jsonResume,

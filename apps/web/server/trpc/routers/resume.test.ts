@@ -117,6 +117,62 @@ describe("resume router ownership", () => {
     expect(await callerFor(db, USER_A).resume.list()).toHaveLength(0);
   });
 
+  it("import creates a résumé owned by the caller from a JSON Resume document", async () => {
+    const created = await callerFor(db, USER_A).resume.importJsonResume({
+      basics: { name: "Ada Lovelace", summary: "First programmer." },
+      work: [{ name: "Analytical Engine", position: "Mathematician" }],
+    });
+
+    expect(created.userId).toBe(USER_A);
+    // Named from the document; the mapped content is a valid stored document.
+    expect(created.name).toBe("Ada Lovelace");
+    expect(created.content.header.name).toBe("Ada Lovelace");
+    expect(created.content.sections.map((s) => s.type)).toEqual([
+      "summary",
+      "experience",
+    ]);
+    // Reachable only by the owner.
+    expect(await callerFor(db, USER_B).resume.list()).toHaveLength(0);
+  });
+
+  it("import drops unknown JSON Resume sections without failing", async () => {
+    const created = await callerFor(db, USER_A).resume.importJsonResume({
+      basics: { name: "X" },
+      // Sections we don't model are stripped by the shared schema, not rejected.
+      volunteer: [{ organization: "Red Cross" }],
+      meta: { version: "v1.0.0" },
+    } as never);
+
+    expect(created.content.header.name).toBe("X");
+    expect(created.content.sections).toEqual([]);
+  });
+
+  it("import names an unnamed document with a sensible default", async () => {
+    const created = await callerFor(db, USER_A).resume.importJsonResume({
+      work: [{ name: "Acme" }],
+    });
+
+    expect(created.name).toBe("Imported résumé");
+  });
+
+  it("import refuses a malformed document before any résumé is created", async () => {
+    await expect(
+      callerFor(db, USER_A).resume.importJsonResume({
+        // `work` must be an array; the shared schema refuses the bad shape, so
+        // nothing partial is written.
+        work: "not an array",
+      } as never),
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+
+    expect(await callerFor(db, USER_A).resume.list()).toHaveLength(0);
+  });
+
+  it("import rejects an anonymous call", async () => {
+    await expect(
+      callerFor(db, null).resume.importJsonResume({ basics: { name: "X" } }),
+    ).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+  });
+
   it("the owner can update their own résumé's name and content", async () => {
     const a = await seedResume(db, { userId: USER_A, name: "Old" });
 
