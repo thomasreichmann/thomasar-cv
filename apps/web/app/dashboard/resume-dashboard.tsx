@@ -13,6 +13,11 @@ import { useTRPC } from "@/trpc/react";
 import { usePrimeResume } from "@/trpc/use-prime-resume";
 import { ResumeRow } from "./resume-row";
 
+// A JSON Resume document is a small text file; a few MB is already far past any
+// real résumé. Bail before reading so an accidental huge/wrong file is a clean
+// toast instead of a frozen tab (JSON.parse blocks) and a wasted round trip.
+const MAX_IMPORT_BYTES = 2_000_000;
+
 /**
  * The résumé management surface (issue #36): list, create, open, delete. Data
  * lives entirely in the client cache so a create or delete can refresh the list
@@ -72,6 +77,14 @@ export function ResumeDashboard() {
     // Reset so re-picking the same file (e.g. after a parse error) fires `change`.
     event.target.value = "";
     if (!file) return;
+    // An import already in flight: ignore a second pick rather than fire a
+    // duplicate mutation (the trigger buttons are disabled, but the hidden input
+    // isn't the only way `change` can fire).
+    if (importResume.isPending) return;
+    if (file.size > MAX_IMPORT_BYTES) {
+      toast.error("That file is too large to be a résumé.");
+      return;
+    }
 
     let document: JsonResume;
     try {
@@ -131,6 +144,7 @@ export function ResumeDashboard() {
         className="sr-only"
         aria-hidden
         tabIndex={-1}
+        disabled={busy}
         onChange={onFileChosen}
       />
 

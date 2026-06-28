@@ -55,7 +55,10 @@ const newId = (prefix: string) => `${prefix}_${crypto.randomUUID()}`;
  */
 function fromIsoDate(value: string | undefined): YearMonth | undefined {
   if (!value) return undefined;
-  const match = /^(\d{4})(?:-(\d{2}))?/.exec(value.trim());
+  // Anchored end (with an optional ignored day) so a clearly-malformed value
+  // ("20245", "2024-13-99extra") falls through to `undefined` instead of being
+  // misread as a plausible-but-wrong year.
+  const match = /^(\d{4})(?:-(\d{2})(?:-\d{2})?)?$/.exec(value.trim());
   if (!match) return undefined;
   const year = Number(match[1]);
   const month = match[2] ? Number(match[2]) : undefined;
@@ -63,15 +66,18 @@ function fromIsoDate(value: string | undefined): YearMonth | undefined {
   return { year, month };
 }
 
-/** Invert `toJsonResume`'s `PROFILE_NETWORK`: a known network label to our kind. */
-const NETWORK_TO_KIND: Record<string, Contact["kind"]> = {
-  linkedin: "linkedin",
-  github: "github",
-  twitter: "twitter",
-  email: "email",
-  phone: "phone",
-  website: "website",
-};
+/**
+ * Invert `toJsonResume`'s `PROFILE_NETWORK`: a known network label to our kind.
+ * Derived from the contact-kind enum (lower-cased) rather than hand-listed, so a
+ * new kind can't silently fall out of sync here and demote a round-tripped
+ * contact to `other`. `other` is excluded - it has no network of its own and is
+ * the fallback for anything unrecognized.
+ */
+const NETWORK_TO_KIND: Record<string, Contact["kind"]> = Object.fromEntries(
+  contact.shape.kind.options
+    .filter((kind) => kind !== "other")
+    .map((kind) => [kind, kind] as const),
+);
 
 /**
  * Rebuild header contacts from `basics`. The singular `email` / `phone` / `url`
@@ -125,7 +131,10 @@ function toEducation(edu: JsonResumeEducation): z.input<typeof educationItem> {
   // Export only ever filled studyType, but a foreign document may carry both, so
   // rejoin them ("BSc" + "Computer Science"). Education has no location field in
   // the standard, so none is restored.
-  const degree = [edu.studyType, edu.area].filter(Boolean).join(" ");
+  const degree = [edu.studyType, edu.area]
+    .map((part) => part?.trim())
+    .filter(Boolean)
+    .join(" ");
   return {
     id: newId("edu"),
     institution: edu.institution ?? "",
@@ -148,12 +157,12 @@ function toSkill(skill: JsonResumeSkill): z.input<typeof skillsItem> {
 
 function toProject(project: JsonResumeProject): z.input<typeof projectItem> {
   const start = fromIsoDate(project.startDate);
+  const end = fromIsoDate(project.endDate);
   // Our project dates are optional as a whole; only attach a range when the
-  // document actually carries one (export emits dates only when present).
-  const dateRange =
-    start || project.endDate !== undefined
-      ? { start, end: fromIsoDate(project.endDate) ?? null }
-      : undefined;
+  // document carries a *readable* date. Gating on the parsed `end` (not a raw
+  // `endDate !== undefined`) keeps an empty or unparseable endDate from
+  // fabricating an ongoing ("Present") range out of nothing.
+  const dateRange = start || end ? { start, end: end ?? null } : undefined;
   return {
     id: newId("proj"),
     name: project.name ?? "",

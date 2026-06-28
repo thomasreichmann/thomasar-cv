@@ -2,6 +2,7 @@ export { fromJsonResume } from "./from-json-resume";
 export { toJsonResume } from "./to-json-resume";
 export {
   jsonResume,
+  jsonResumeImport,
   type JsonResume,
   type JsonResumeBasics,
   type JsonResumeEducation,

@@ -43,9 +43,13 @@ function fmtYearMonth(ym: YearMonth): string {
  *   start + end   -> "start - end"
  *   start + null  -> "start - Present"   (ongoing)
  *   no start + end-> "end"               (single date, e.g. graduation year)
+ *   no start + null-> (nothing)           (no date at all - not "Present")
  */
 function fmtDateRange(d: DateRange | undefined): string | undefined {
   if (!d) return undefined;
+  // A range with neither a start nor a real end carries no date - render nothing
+  // rather than a bare "Present" (an import with no dates lands here).
+  if (!d.start && d.end === null) return undefined;
   const end = d.end === null ? "Present" : fmtYearMonth(d.end);
   return d.start ? `${fmtYearMonth(d.start)} - ${end}` : end;
 }

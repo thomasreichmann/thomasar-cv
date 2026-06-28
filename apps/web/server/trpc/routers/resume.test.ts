@@ -167,6 +167,20 @@ describe("resume router ownership", () => {
     expect(await callerFor(db, USER_A).resume.list()).toHaveLength(0);
   });
 
+  it("import rejects a JSON object with no recognized section as not a résumé", async () => {
+    // Every JSON Resume field is optional, so without the shared schema's
+    // minimal-shape guard a misclicked package.json/tsconfig would validate and
+    // silently create a blank résumé. It must surface as BAD_REQUEST, nothing made.
+    await expect(
+      callerFor(db, USER_A).resume.importJsonResume({
+        name: "my-package",
+        version: "1.0.0",
+      } as never),
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+
+    expect(await callerFor(db, USER_A).resume.list()).toHaveLength(0);
+  });
+
   it("import rejects an anonymous call", async () => {
     await expect(
       callerFor(db, null).resume.importJsonResume({ basics: { name: "X" } }),

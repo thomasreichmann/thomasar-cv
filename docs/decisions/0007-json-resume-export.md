@@ -165,6 +165,9 @@ or not a JSON Resume document, surfaces as a clear error with nothing created.
 These are export's documented drops, with nothing to recover them from: a
 **hidden** item and a **custom** section never reach the file; education
 **`location`**, skill **`level`**, project **`keywords`**, and **`meta`** have no
-field on one side or the other. Round-trip fidelity was never promised; the
-`fromJsonResume` round-trip test pins exactly what *does* survive, so the lossy
-edges are asserted, not discovered later.
+field on one side or the other. A foreign document may also carry JSON Resume
+fields the schema accepts but our model has no home for - work **`summary`** and
+**`url`**, education **`score`** and **`url`** - so those drop on import too.
+Round-trip fidelity was never promised; the `fromJsonResume` round-trip test
+pins exactly what *does* survive, so the lossy edges are asserted, not discovered
+later.

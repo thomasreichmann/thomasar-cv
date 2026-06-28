@@ -159,6 +159,15 @@ describe("fromJsonResume", () => {
     });
   });
 
+  it("trims the studyType/area parts so a stray space doesn't double up in the degree", () => {
+    const content = fromJsonResume({
+      education: [{ institution: "State University", studyType: "BSc ", area: " CS" }],
+    });
+    expect(sectionOfType(content, "education").items[0]).toMatchObject({
+      degree: "BSc CS",
+    });
+  });
+
   it("maps a single graduation year to an end-only date range", () => {
     const content = fromJsonResume({
       education: [{ institution: "State University", studyType: "BSc", endDate: "2021" }],
@@ -205,6 +214,20 @@ describe("fromJsonResume", () => {
     expect(items[1]?.dateRange).toEqual({ start: { year: 2025, month: 1 }, end: null });
   });
 
+  it("does not fabricate an ongoing project range from an empty or unreadable endDate", () => {
+    // An empty/unparseable endDate carries no date; it must not become a `null`
+    // end (which renders as "Present") when there is no start either.
+    const content = fromJsonResume({
+      projects: [
+        { name: "blank", endDate: "" },
+        { name: "junk", endDate: "whenever" },
+      ],
+    });
+    const items = sectionOfType(content, "projects").items;
+    expect(items[0]?.dateRange).toBeUndefined();
+    expect(items[1]?.dateRange).toBeUndefined();
+  });
+
   it("tolerates partial and malformed dates rather than failing the import", () => {
     const content = fromJsonResume({
       work: [
@@ -217,6 +240,18 @@ describe("fromJsonResume", () => {
     expect(items[0]?.dateRange).toEqual({ start: { year: 2020, month: 7 }, end: { year: 2020 } });
     // An unreadable date is dropped; with no end the role reads as ongoing.
     expect(items[1]?.dateRange).toEqual({ end: null });
+  });
+
+  it("drops a malformed date with trailing garbage rather than misreading the year", () => {
+    // The anchored parser rejects "20245" / "2024-99-13extra" outright instead of
+    // silently coercing them to a plausible-but-wrong { year: 2024 }.
+    const content = fromJsonResume({
+      work: [{ name: "A", startDate: "20245", endDate: "2024-99-13extra" }],
+    });
+    // Neither bound parses, so the role has no start and reads as ongoing.
+    expect(sectionOfType(content, "experience").items[0]?.dateRange).toEqual({
+      end: null,
+    });
   });
 
   it("omits a section whose JSON Resume array is empty", () => {
