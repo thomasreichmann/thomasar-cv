@@ -76,6 +76,14 @@ export class Stage {
     await this.page.waitForTimeout(holdMs);
   }
 
+  /** Glide the cursor to a target and rest on it (real hover, no click), so "show this surface" scenes can sweep the UI without firing an action. `holdMs` is the dwell once it lands. */
+  async move(target: Locator, holdMs = 1100): Promise<void> {
+    this.markAction();
+    await this.glideTo(target);
+    await target.hover();
+    await this.page.waitForTimeout(holdMs);
+  }
+
   /** Move the cursor to a field and type into it, replacing any current value. */
   async type(target: Locator, text: string, perCharMs = 55): Promise<void> {
     this.markAction();

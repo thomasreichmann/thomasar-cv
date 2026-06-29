@@ -37,8 +37,11 @@ Prerequisites (one-time): `brew install ffmpeg` and
 server up (`pnpm dev`) - the tool reuses it, or starts its own on a separate
 build dir if none is reachable. See `tooling/capture/README.md` for all flags.
 
-**To refresh the README GIF:** `pnpm capture editor-live-preview`, then review
-the diff on `docs/assets/editor-live-preview.gif` and commit it.
+**To refresh the README GIF:** `pnpm capture editor-live-preview`, then open the
+new `docs/assets/editor-live-preview.gif` and eyeball it before committing. The
+palette/dither pass is non-deterministic, so a re-run always produces a different
+binary even when nothing on screen changed - git marking it "modified" tells you
+nothing; judge the GIF itself.
 
 ## Adding a scene
 
@@ -71,6 +74,7 @@ the diff on `docs/assets/editor-live-preview.gif` and commit it.
 - `waitFor(selector)` - block until an element appears (e.g. `"canvas"` for the preview).
 - `settle(ms?)` / `pause(ms?)` - hold on the idle UI; use `pause` between/after actions.
 - `moveClick(locator, holdMs?)` - glide the cursor over and click; `holdMs` is the dwell after, where the effect plays out.
+- `move(locator, holdMs?)` - glide over and hover *without* clicking; for sweeping a surface (e.g. a dashboard) without firing an action.
 - `type(locator, text)` - glide over a field and type it (replacing the value).
 - `raw` - the underlying Playwright `Page` for locators and anything uncovered.
 

@@ -66,6 +66,11 @@ export async function ensureServer(opts: {
     );
   }
 
+  // The longest phase of a cold run: next dev boots and compiles the first route
+  // on demand. Without this line the tool sits silent for up to two minutes here,
+  // looking hung, since the next log ("signing in") only fires once it's up.
+  console.log(`• starting dev server at ${baseUrl} (cold compile, up to 120s)`);
+
   const child = spawn(
     "pnpm",
     ["--filter", "web", "exec", "next", "dev", "--port", port],
@@ -74,6 +79,9 @@ export async function ensureServer(opts: {
       env: {
         ...process.env,
         PORT: port,
+        // Next resolves distDir relative to the web app (apps/web), not this
+        // spawn's cwd, so this lands at apps/web/node_modules/.cache/next-capture.
+        // A build dir separate from .next lets it coexist with a normal `pnpm dev`.
         NEXT_DIST_DIR: "node_modules/.cache/next-capture",
       },
       stdio: "ignore",
