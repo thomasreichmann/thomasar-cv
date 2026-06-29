@@ -9,6 +9,15 @@ import { z } from "zod";
 const serverSchema = z.object({
   // Supabase transaction pooler url (port 6543). See apps/web/.env.example.
   DATABASE_URL: z.url(),
+  // Shared secret the cron sweep authenticates with (issue #68). Vercel attaches
+  // `Authorization: Bearer ${CRON_SECRET}` to scheduled invocations only when
+  // this var is set on the project, so it gates the otherwise-public route.
+  // Optional in the schema because the whole object is parsed on first access of
+  // any var (the eager db singleton reads DATABASE_URL at import): a required
+  // field would force the secret into dev, tests, and `next build`, none of which
+  // run the cron. The route refuses when it is unset, so a missing secret fails
+  // closed rather than opening the endpoint.
+  CRON_SECRET: z.string().min(1).optional(),
 });
 
 type ServerEnv = z.infer<typeof serverSchema>;
