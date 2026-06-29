@@ -39,6 +39,7 @@ thomasar-cv is a personal tool for maintaining a résumé as **structured data**
 - PRs reference issues: `Closes #42`, or `No-Issue: <reason>` for trivial changes.
 - Every issue carries exactly one status label (`needs-details` / `ready`) and a `priority:` label.
 - Create / edit issues via `scripts/gh-issue.sh` (wrapper over `gh issue` that strips em dashes), not raw `gh issue`.
+- When an issue (or anything that names a not-yet-created ADR) references a future ADR, use a placeholder like `ADR XXXX` instead of a real number - the number gets assigned when the ADR is written, so a hard-coded one goes stale if another ADR claims it first.
 
 ## Database migrations
 
