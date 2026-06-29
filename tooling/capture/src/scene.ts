@@ -47,6 +47,11 @@ export interface Scene {
 }
 
 export function defineScene<T>(def: SceneDefinition<T>): Scene {
+  // The name becomes a filename and path segment (docs/assets/<name>.gif, the
+  // .tmp dirs); keep it kebab-case so it can never escape its directory.
+  if (!/^[a-z0-9-]+$/.test(def.name)) {
+    throw new Error(`Scene name must be kebab-case [a-z0-9-]; got "${def.name}".`);
+  }
   return {
     name: def.name,
     description: def.description,

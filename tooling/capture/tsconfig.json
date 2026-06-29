@@ -5,6 +5,9 @@
     // references `document` / `HTMLElement`, so DOM types are needed even though
     // this is a Node-run tool.
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    // Node globals (process, node:* modules) aren't auto-included: unlike
+    // packages/db, nothing in this package's dep graph transitively pulls in
+    // @types/node, so it must be declared explicitly.
     "types": ["node"]
   },
   "include": ["src/**/*.ts"],

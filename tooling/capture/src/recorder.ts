@@ -32,8 +32,10 @@ export async function startRecording(
     storageState: opts.storageStatePath,
     recordVideo: { dir: opts.videoDir, size: opts.viewport },
   });
-  const startedAt = Date.now();
+  // Anchor the action clock to page creation, which is where Playwright starts
+  // the video, so a trimmed offset lines up with the video's t=0.
   const page = await context.newPage();
+  const startedAt = Date.now();
   const stage = new Stage(page, opts.baseUrl, startedAt);
 
   return {

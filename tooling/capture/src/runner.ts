@@ -71,6 +71,11 @@ export async function runScene(
     };
     const wantGif = opts.overrides.gif ?? out.gif ?? true;
     const wantMp4 = opts.overrides.mp4 ?? out.mp4 ?? false;
+    // Fail loudly rather than do all the recording work and silently write
+    // nothing (e.g. `--no-gif` on a scene that only outputs a GIF).
+    if (!wantGif && !wantMp4) {
+      throw new Error("Nothing to encode: both GIF and MP4 are disabled (--no-gif without --mp4).");
+    }
 
     const written: string[] = [];
     if (wantGif) {
@@ -91,6 +96,8 @@ export async function runScene(
     if (!opts.keepVideo) rmSync(videoDir, { recursive: true, force: true });
     return written;
   } finally {
+    // The saved auth state holds live session cookies; never leave it lying around.
+    rmSync(statePath, { force: true });
     await server.stop();
   }
 }

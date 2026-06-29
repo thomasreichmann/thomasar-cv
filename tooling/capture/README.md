@@ -23,7 +23,7 @@ pnpm capture editor-live-preview          # writes docs/assets/editor-live-previ
 pnpm capture --list                       # list available scenes
 ```
 
-The tool reuses a dev server if one is reachable; otherwise it starts one (drop
+The tool reuses a dev server if one is reachable; otherwise it starts one (pass
 `--no-server` to forbid that). It signs in via the **Sign in as dev** shortcut,
 so `DEV_LOGIN_*` must be set in `apps/web/.env.local`; seeding reads
 `DATABASE_URL` from `packages/db/.env` and writes the showcase résumé to the dev

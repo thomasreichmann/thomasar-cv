@@ -44,7 +44,10 @@ export class Stage {
 
   async goto(path: string): Promise<void> {
     const url = path.startsWith("http") ? path : `${this.baseUrl}${path}`;
-    await this.page.goto(url, { waitUntil: "networkidle" });
+    // A generous timeout for a Next dev cold-compile of the route, and
+    // domcontentloaded rather than networkidle - the latter never settles
+    // against Next's dev/HMR traffic, and `waitFor()` is the real content gate.
+    await this.page.goto(url, { waitUntil: "domcontentloaded", timeout: 90_000 });
     await this.injectCursor();
   }
 
