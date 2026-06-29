@@ -16,6 +16,9 @@ playwright-report/
 test-results/
 blob-report/
 .playwright/
+
+# Capture toolkit scratch (raw video, palettes, saved auth state)
+tooling/capture/.tmp/
 # Saved Playwright auth state (contains live session cookies). No trailing
 # slash, so a symlink of this name (local worktree setup) is ignored too.
 **/e2e/.auth

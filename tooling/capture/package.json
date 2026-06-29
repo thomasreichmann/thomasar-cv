@@ -1,0 +1,23 @@
+{
+  "name": "@thomasar-cv/capture",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Scripted screen recordings of the app for docs and marketing (GIF / MP4).",
+  "scripts": {
+    "lint": "eslint . --max-warnings 0",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@thomasar-cv/db": "workspace:*",
+    "drizzle-orm": "0.45.2"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.61.0",
+    "@thomasar-cv/eslint-config": "workspace:*",
+    "@thomasar-cv/tsconfig": "workspace:*",
+    "@types/node": "25.9.3",
+    "eslint": "9.39.4",
+    "typescript": "6.0.3"
+  }
+}
