@@ -6,6 +6,7 @@ import {
   ping,
   resume,
   resumeSchema,
+  resumeVersion,
   session,
   user,
   verification,
@@ -19,7 +20,15 @@ describe("resume schema", () => {
   it("defines every table under the resume schema, nothing in public", () => {
     // The shared Supabase project also hosts nexus's own `user` / `session` /
     // `account` tables in `public`; ours must stay in `resume` or they collide.
-    const tables = { ping, user, session, account, verification, resume };
+    const tables = {
+      ping,
+      user,
+      session,
+      account,
+      verification,
+      resume,
+      resumeVersion,
+    };
     for (const [name, table] of Object.entries(tables)) {
       const config = getTableConfig(table);
       expect(config.schema, `${name} schema`).toBe("resume");
