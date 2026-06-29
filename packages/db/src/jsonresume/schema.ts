@@ -91,3 +91,23 @@ export const jsonResume = z.object({
   projects: z.array(jsonResumeProject).optional(),
 });
 export type JsonResume = z.infer<typeof jsonResume>;
+
+/**
+ * The import boundary's input schema. Same shape as `jsonResume`, but rejects an
+ * object with *none* of the recognized sections: because every field is optional
+ * and unknown keys are stripped, a bare `{}` - or any JSON object (a misclicked
+ * package.json, tsconfig, ...) - would otherwise validate and silently import as
+ * a blank résumé. Requiring one recognized section makes a non-résumé file
+ * surface as a clear rejection (BAD_REQUEST) with nothing created, the contract
+ * ADR 0007 documents. The guard lives here, not on `jsonResume`, because *export*
+ * validates its output against `jsonResume` and a legitimately empty résumé
+ * exports to `{}` - which is a valid JSON Resume document, just not an importable
+ * one.
+ */
+export const jsonResumeImport = jsonResume.refine(
+  (doc) =>
+    [doc.basics, doc.work, doc.education, doc.skills, doc.projects].some(
+      (section) => section !== undefined,
+    ),
+  { message: "Not a JSON Resume document." },
+);

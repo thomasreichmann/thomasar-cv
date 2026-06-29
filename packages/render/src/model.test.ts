@@ -87,6 +87,38 @@ describe("flattenResume", () => {
     expect(rights).toContain("2021");
   });
 
+  it("renders no date for an entry with neither a start nor an end (not 'Present')", () => {
+    // An import with no dates lands as { start: undefined, end: null }; that is
+    // "no date", not an ongoing role - it must not fabricate a bare "Present".
+    const content: ResumeContent = {
+      schemaVersion: 1,
+      header: { name: "Jane Doe", contacts: [] },
+      sections: [
+        {
+          id: "sec-exp",
+          type: "experience",
+          title: "Experience",
+          hidden: false,
+          items: [
+            {
+              id: "x1",
+              company: "Acme",
+              title: "Engineer",
+              hidden: false,
+              dateRange: { start: undefined, end: null },
+              bullets: [],
+            },
+          ],
+        },
+      ],
+    };
+    const rights = flattenResume(content, "en")
+      .filter((b) => b.t === "row")
+      .map((b) => (b.t === "row" ? b.right : undefined));
+    expect(rights).not.toContain("Present");
+    expect(rights).toEqual([undefined]);
+  });
+
   it("resolves translatable values for the requested locale", () => {
     const content: ResumeContent = {
       schemaVersion: 1,

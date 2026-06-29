@@ -1,6 +1,6 @@
-# 0007 - JSON Resume export: field correspondence and the gaps
+# 0007 - JSON Resume interop: field correspondence and the gaps
 
-Status: accepted (issue #54)
+Status: accepted (export #54; import #55 added the inverse - see "Import" below)
 
 ## Context
 
@@ -98,9 +98,10 @@ tailored-out role never leaks into the file.
 
 ## Out of scope
 
-- **Round-trip fidelity.** Import (#55) is a separate issue; this mapping is not
-  required to be losslessly invertible (it isn't - availability, custom sections,
-  and the degree split don't round-trip).
+- **Round-trip fidelity.** This mapping is not required to be losslessly
+  invertible, and isn't - hidden/custom sections, education location, and the
+  degree split don't survive a round trip. The import half (#55, below) records
+  what does.
 - **Variant-aware export** (v0.5). Export covers a single résumé document.
 
 ## Consequences
@@ -113,3 +114,60 @@ tailored-out role never leaks into the file.
   download without depending on the PDF renderer.
 - The shared `jsonResume` schema is ready for import to reuse: it already models
   the field set and strips the sections we don't map.
+
+## Import (#55)
+
+Import is the inverse: accept a JSON Resume document, validate it, and create a
+new résumé the user owns. It reuses this ADR's schema and correspondence table
+rather than a second copy, so the two directions can't drift. The decisions
+specific to going *backwards* are recorded here, beside the export they invert,
+because they share one schema and one table.
+
+**One mapping function, `fromJsonResume`, inverts `toJsonResume` field-for-field**
+(same module, no renderer dependency). Validation is the shared `jsonResume`
+schema: it strips sections we don't model and rejects a malformed shape - exactly
+the issue's "drop unknown fields, reject malformed input" pair. The mapper runs
+its output through `resumeContent` before returning, so an import either yields a
+fully valid document or fails the parse; nothing partial is ever written.
+
+**Import always creates a new résumé** (merging into an existing one is out of
+scope). Every section and item is minted a fresh id (JSON Resume carries none),
+and the new row is named from the document's person name, defaulting to "Imported
+résumé" when it has none. The web side is a tRPC mutation
+(`resume.importJsonResume`) next to `resume.create`, scoped through the same
+`ownedResumes` boundary and stamping the owner from the session - the export's
+GET-route shape doesn't fit a creation-from-upload. The dashboard parses the
+chosen file to JSON client-side and calls the mutation; a file that is not JSON,
+or not a JSON Resume document, surfaces as a clear error with nothing created.
+
+### The inverse, where it isn't mechanical
+
+- **`basics.label` -> `header.availability`.** The one approximation that *does*
+  round-trip. A `label` that was a real job title in a foreign document arrives
+  as availability text - the same trade this ADR records the other way.
+- **`basics.summary` -> one summary section.** Export joins every summary item
+  into one string; import can't know the original boundaries, so it restores a
+  single item holding the whole text rather than guessing a split.
+- **`studyType` + `area` -> one `degree` string.** The reverse of the deliberate
+  non-split above: export only filled `studyType`, but a foreign document may
+  carry both, so import rejoins them ("BSc" + "Computer Science").
+- **Singular contacts + `profiles[]` -> `header.contacts`.** Each profile maps by
+  its network; an unrecognized network lands as an `other` contact keeping the
+  network name as its label, so nothing is silently lost. A profile with no
+  `username` has nothing to show and is dropped.
+- **Partial / unreadable dates are tolerated, not fatal.** We read "YYYY" and
+  "YYYY-MM", drop a day component (we model none), fall a bad month back to
+  year-only, and drop a value we can't parse at all - one off date should never
+  reject a whole résumé. A missing `endDate` is an ongoing role (`end: null`).
+
+### What import can't restore (by construction)
+
+These are export's documented drops, with nothing to recover them from: a
+**hidden** item and a **custom** section never reach the file; education
+**`location`**, skill **`level`**, project **`keywords`**, and **`meta`** have no
+field on one side or the other. A foreign document may also carry JSON Resume
+fields the schema accepts but our model has no home for - work **`summary`** and
+**`url`**, education **`score`** and **`url`** - so those drop on import too.
+Round-trip fidelity was never promised; the `fromJsonResume` round-trip test
+pins exactly what *does* survive, so the lossy edges are asserted, not discovered
+later.

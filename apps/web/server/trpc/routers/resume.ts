@@ -4,6 +4,7 @@ import {
   resumeContent,
   resumeTheme,
 } from "@thomasar-cv/db/schema";
+import { fromJsonResume, jsonResumeImport } from "@thomasar-cv/db/jsonresume";
 import { z } from "zod";
 
 import { ownedResumes } from "@/server/resume/ownership";
@@ -54,6 +55,27 @@ export const resumeRouter = createTRPCRouter({
         name: input.name,
         content: input.content ?? emptyResume,
         theme: input.theme ?? defaultResumeTheme,
+      }),
+    ),
+
+  /**
+   * Create a résumé from a JSON Resume document (issue #55) - the inverse of the
+   * export route. The `jsonResumeImport` schema validates the upload, stripping
+   * the sections we don't model (so unknown / extra fields drop without failing)
+   * and rejecting a malformed shape - including a JSON object with no recognized
+   * section - as BAD_REQUEST *before* anything is written, so a bad import never
+   * leaves a partial résumé behind. `fromJsonResume` carries the field
+   * correspondence - the same table the export reads. The new row is named from
+   * the document's person name (the editor can rename), defaulting when it
+   * carries none.
+   */
+  importJsonResume: protectedProcedure
+    .input(jsonResumeImport)
+    .mutation(({ ctx, input }) =>
+      ownedResumes(ctx.db, ctx.session.user.id).create({
+        name: input.basics?.name?.trim() || "Imported résumé",
+        content: fromJsonResume(input),
+        theme: defaultResumeTheme,
       }),
     ),
 
