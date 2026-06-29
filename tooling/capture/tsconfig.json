@@ -1,0 +1,12 @@
+{
+  "extends": "@thomasar-cv/tsconfig/base.json",
+  "compilerOptions": {
+    // The recorder runs code inside the browser via page.evaluate(), which
+    // references `document` / `HTMLElement`, so DOM types are needed even though
+    // this is a Node-run tool.
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": ["node"]
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules"]
+}

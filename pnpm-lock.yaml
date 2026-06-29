@@ -11,6 +11,9 @@ importers:
       prettier:
         specifier: 3.8.4
         version: 3.8.4
+      tsx:
+        specifier: 4.22.4
+        version: 4.22.4
       turbo:
         specifier: 2.9.18
         version: 2.9.18
@@ -221,6 +224,34 @@ importers:
         version: 4.1.9(@types/node@25.9.3)(vite@8.0.16(@types/node@25.9.3)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.22.4))
 
   packages/tsconfig: {}
+
+  tooling/capture:
+    dependencies:
+      '@thomasar-cv/db':
+        specifier: workspace:*
+        version: link:../../packages/db
+      drizzle-orm:
+        specifier: 0.45.2
+        version: 0.45.2(@electric-sql/pglite@0.5.3)(kysely@0.29.2)(postgres@3.4.9)
+    devDependencies:
+      '@playwright/test':
+        specifier: 1.61.0
+        version: 1.61.0
+      '@thomasar-cv/eslint-config':
+        specifier: workspace:*
+        version: link:../../packages/eslint-config
+      '@thomasar-cv/tsconfig':
+        specifier: workspace:*
+        version: link:../../packages/tsconfig
+      '@types/node':
+        specifier: 25.9.3
+        version: 25.9.3
+      eslint:
+        specifier: 9.39.4
+        version: 9.39.4(jiti@2.7.0)
+      typescript:
+        specifier: 6.0.3
+        version: 6.0.3
 
 packages:
 
