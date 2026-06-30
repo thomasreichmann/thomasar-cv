@@ -17,6 +17,31 @@ describe("resume schema", () => {
     expect(resumeSchema.schemaName).toBe("resume");
   });
 
+  // The variant columns (ADR 0010) ship without a migration - it is deferred to
+  // their first reader, the fork procedure (#87) - so this metadata check is the
+  // only guard that the schema encodes the decided shape: nullable columns and,
+  // crucially, `set null` (not cascade) so deleting a base never deletes a variant.
+  describe("variant grouping (ADR 0010)", () => {
+    const config = getTableConfig(resume);
+    const column = (name: string) =>
+      config.columns.find((c) => c.name === name);
+
+    it("adds base_resume_id and target as nullable columns", () => {
+      expect(column("base_resume_id")?.notNull).toBe(false);
+      expect(column("target")?.notNull).toBe(false);
+    });
+
+    it("orphans variants on base delete: base_resume_id is a self-FK with set null", () => {
+      const selfFk = config.foreignKeys.find((fk) =>
+        fk.reference().columns.some((c) => c.name === "base_resume_id"),
+      );
+      const ref = selfFk?.reference();
+      expect(ref?.foreignTable).toBe(resume);
+      expect(ref?.foreignColumns.map((c) => c.name)).toEqual(["id"]);
+      expect(selfFk?.onDelete).toBe("set null");
+    });
+  });
+
   it("defines every table under the resume schema, nothing in public", () => {
     // The shared Supabase project also hosts nexus's own `user` / `session` /
     // `account` tables in `public`; ours must stay in `resume` or they collide.
