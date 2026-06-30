@@ -17,10 +17,10 @@ describe("resume schema", () => {
     expect(resumeSchema.schemaName).toBe("resume");
   });
 
-  // The variant columns (ADR 0010) ship without a migration - it is deferred to
-  // their first reader, the fork procedure (#87) - so this metadata check is the
-  // only guard that the schema encodes the decided shape: nullable columns and,
-  // crucially, `set null` (not cascade) so deleting a base never deletes a variant.
+  // Guard the model-level shape the migration is generated from (ADR 0010):
+  // nullable columns and, crucially, `set null` (not cascade) on the self-FK - so
+  // a careless edit can't silently flip a base-delete into cascading its variants
+  // away, baking the wrong action into the next generated migration.
   describe("variant grouping (ADR 0010)", () => {
     const config = getTableConfig(resume);
     const column = (name: string) =>

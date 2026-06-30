@@ -95,14 +95,26 @@ résumé's history - a keyed scan (ADR 0009). Variant grouping has no such scan:
 `base_resume_id`. There is no per-base lookup to index, so none is added; the
 existing `resume_user_id_idx` covers the only query.
 
-## Scope / what this defers
+## Scope / what this ships
 
-Per the seam-first habit (ADR 0006/0009): this ADR adds the two **drizzle
-columns** to `resume`, but **not the migration**. Nothing reads or writes them
-yet - the fork procedure (#87) is their first reader, so the additive migration
-lands with it (and, per CLAUDE.md, is applied to the shared DB before that PR
-opens). Adding the migration now would be schema with no reader; deciding the
-shape now is what lets #87/#88/#89 build without re-litigating it.
+The two columns land on `resume` **with their migration** (`0005_violet_speed`),
+not as a schema-only seam. The seam-first habit (ADR 0006/0009) defers a migration
+to its first reader, but that only holds for a brand-new, unreferenced *table* like
+`resume_version`: no query names it until #81, so the model can sit ahead of the
+database. These are *columns on `resume`*, which the app and tests insert into
+constantly, and Drizzle names **every** model column on every `INSERT` - so the
+moment the columns exist on the model, every insert references them and fails
+against any database migrated without them (CI's pglite, the e2e container, and
+the shared Supabase DB alike). For a live table the model and the migration must
+move together; the schema cannot run ahead. The migration is additive and
+backward-compatible (two nullable columns, an FK with `set null`), so per CLAUDE.md
+it is applied to the shared DB before this PR merges - invisible to the
+currently-deployed model, which never names the new columns.
+
+The fork procedure (#87) is still the first *reader* - it sets `base_resume_id`
+and copies `{content, theme}` - but it no longer carries the migration. The
+`resume_version` migration stays deferred to #81 as ADR 0009 decided: this PR's
+migration touches only `resume`, leaving that table pending.
 
 Out of scope here, by issue:
 
@@ -115,7 +127,9 @@ Out of scope here, by issue:
 
 - `resume` gains two nullable columns; every existing row reads back as an
   ungrouped, untargeted base (both null), so the change is invisible to current
-  data and code. The migration is deferred to #87.
+  data and code. The migration (`0005_violet_speed`) ships here and is applied to
+  the shared DB before merge, because a live table's model and migration cannot
+  drift.
 - The whole variant axis is two columns on the existing row plus one ownership
   boundary reused unchanged - no new table, no `user_id` to denormalize, and
   `ownedResumes` reaches a variant exactly as it reaches any résumé.

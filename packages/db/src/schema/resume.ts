@@ -62,8 +62,7 @@ export const resume = resumeSchema.table(
      * once created", unlike `resume_version`, which cascades. Grouping stays one
      * level deep: forking a variant points the new row at the same base, never at
      * the variant. The self-reference needs the explicit `AnyPgColumn` return type
-     * to break TypeScript's circular inference. Additive; migration deferred to its
-     * first reader (#87).
+     * to break TypeScript's circular inference.
      */
     baseResumeId: uuid("base_resume_id").references(
       (): AnyPgColumn => resume.id,
