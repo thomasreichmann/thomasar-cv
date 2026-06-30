@@ -16,7 +16,13 @@
       "outputs": [".next/**", "!.next/cache/**"]
     },
     "lint": {},
-    "typecheck": {},
-    "test": {}
+    // `typecheck` and `test` consume workspace dependencies as TS source (web
+    // imports @thomasar-cv/db etc.), so they must hash those deps' inputs - else a
+    // change in packages/db (a schema column, a migration .sql) leaves a
+    // dependent's cached result valid and `pnpm check` passes while CI, on a cold
+    // cache, fails. The `^typecheck`/`^test` edges pull each dependency's source
+    // into the dependent's hash, keeping `pnpm check` a true mirror of CI.
+    "typecheck": { "dependsOn": ["^typecheck"] },
+    "test": { "dependsOn": ["^test"] }
   }
 }

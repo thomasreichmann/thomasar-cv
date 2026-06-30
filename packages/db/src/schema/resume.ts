@@ -1,4 +1,11 @@
-import { index, jsonb, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import {
+  type AnyPgColumn,
+  index,
+  jsonb,
+  text,
+  timestamp,
+  uuid,
+} from "drizzle-orm/pg-core";
 
 import { user } from "./auth";
 import { resumeSchema } from "./resume-schema";
@@ -48,6 +55,26 @@ export const resume = resumeSchema.table(
      * row that predates this column reads back as the original ink-only look.
      */
     theme: jsonb("theme").$type<ResumeTheme>().notNull().default(defaultResumeTheme),
+    /**
+     * Groups a variant under the base it was forked from (ADR 0010): null on a
+     * base, the base's id on a variant. `set null` orphans a base's variants into
+     * independent bases rather than cascading them away - they are "independent
+     * once created", unlike `resume_version`, which cascades. Grouping stays one
+     * level deep: forking a variant points the new row at the same base, never at
+     * the variant. The self-reference needs the explicit `AnyPgColumn` return type
+     * to break TypeScript's circular inference.
+     */
+    baseResumeId: uuid("base_resume_id").references(
+      (): AnyPgColumn => resume.id,
+      { onDelete: "set null" },
+    ),
+    /**
+     * Optional company or role a variant is tailored for, e.g.
+     * "Acme - Staff Engineer" (ADR 0010): null on a base or an untargeted variant.
+     * One free-text column, not split into company/role until a reader needs the
+     * structure.
+     */
+    target: text("target"),
     ...timestamps(),
   },
   (t) => [index("resume_user_id_idx").on(t.userId)],
