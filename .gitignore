@@ -33,9 +33,11 @@ tooling/capture/.tmp/
 # Vercel (no trailing slash: also ignores a symlink of this name)
 .vercel
 
-# Reference CV (private for now; remove this line to publish)
+# Reference CV (private for now; remove these lines to publish)
 /reference/*.pdf
-
+/reference/*.docx
+/reference/cvbuild/
+/reference/cv-copy.md
 # Logs
 *.log
 npm-debug.log*
